@@ -11,7 +11,7 @@ public class SignUpPage extends JFrame implements ActionListener {
     JTextField passwordEnter;
     JButton signUpButton;
     JButton backUserLogin;
-    JFrame frame = new JFrame("Login");
+    JFrame frame = new JFrame("TGC Cinema");
 
     public SignUpPage(){
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

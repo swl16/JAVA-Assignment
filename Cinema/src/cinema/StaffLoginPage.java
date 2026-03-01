@@ -11,7 +11,7 @@ public class StaffLoginPage extends JFrame implements ActionListener{
     JTextField passwordEnter;
     JButton loginButton;
     JButton backUserLogin;
-    JFrame frame = new JFrame("Staff Login");
+    JFrame frame = new JFrame("TGC Cinema");
 
     public StaffLoginPage(){
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

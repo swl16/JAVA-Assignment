@@ -12,7 +12,7 @@ public class LoginPage extends JFrame implements ActionListener {
     JButton loginButton;
     JButton staffLoginB;
     JButton signUpButton;
-    JFrame frame = new JFrame("Login");
+    JFrame frame = new JFrame("TGC Cinema");
 
     public LoginPage(){
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -101,10 +101,10 @@ public class LoginPage extends JFrame implements ActionListener {
 
         } else if (e.getSource() == staffLoginB) {
             frame.dispose();
-            class StaffLoginPage StaffLogin = new StaffLoginPage();
+            StaffLoginPage StaffLogin = new StaffLoginPage();
         } else if (e.getSource() == signUpButton) {
             frame.dispose();
-            class SignUpPage SignUp = new SignUpPage();
+            SignUpPage SignUp = new SignUpPage();
         }
     }
 }
