@@ -99,6 +99,9 @@ public class LoginPage extends JFrame implements ActionListener {
             String username = usernameEnter.getText();
             String password = passwordEnter.getText();
 
+            frame.dispose();
+            new MainMenuPage();
+
         } else if (e.getSource() == staffLoginB) {
             frame.dispose();
             StaffLoginPage StaffLogin = new StaffLoginPage();
