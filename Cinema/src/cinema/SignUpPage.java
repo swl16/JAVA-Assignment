@@ -4,6 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.*;
 
 public class SignUpPage extends JFrame implements ActionListener {
 
@@ -79,14 +80,33 @@ public class SignUpPage extends JFrame implements ActionListener {
         backUserLogin.setForeground(new Color(0xF7F7F7));
         frame.add(backUserLogin);
     }
+    
+    public void saveuser(String username, String password){
+        
+        try (BufferedWriter saveusers = new BufferedWriter(new FileWriter("Users.txt",true))){
+         saveusers.write(username + " , "+ password + "\n");
+        }catch(IOException e){
+            System.out.println("An error occurred");
+            e.printStackTrace();
+        }
+    }
 
     @Override
     public void actionPerformed(ActionEvent e){
         if(e.getSource() == signUpButton){
             String username = usernameEnter.getText();
             String password = passwordEnter.getText();
+            
+            if(username.isEmpty() || password.isEmpty()){
+                JOptionPane.showMessageDialog(frame, "Username and password cannot be empty! Please try again.", "Sign Up Failed", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            
+            saveuser(username,password);
+            JOptionPane.showMessageDialog(frame, "Account created successfully!", "Sign Up", JOptionPane.INFORMATION_MESSAGE);
+            
             frame.dispose();
-            LoginPage loginPage = new LoginPage();
+            new LoginPage();
 
         } else if (e.getSource() == backUserLogin) {
             frame.dispose();
