@@ -36,9 +36,9 @@ public class SubWindowProfile extends JFrame implements ActionListener {
         frame.add(cardPanel);
 
         switch (choice) {
-            case 1 -> cardLayout.show(cardPanel, "ticket");
-            case 2 -> cardLayout.show(cardPanel, "history");
-            case 3 -> cardLayout.show(cardPanel, "contactUs");
+            case 1 : cardLayout.show(cardPanel, "ticket");
+            case 2 : cardLayout.show(cardPanel, "history");
+            case 3 : cardLayout.show(cardPanel, "contactUs");
         }
 
     }
