@@ -4,6 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.*;
 
 public class LoginPage extends JFrame implements ActionListener {
 
@@ -92,22 +93,41 @@ public class LoginPage extends JFrame implements ActionListener {
         frame.add(staffLoginB);
 
     }
+    
+    private boolean validatelogin(String username, String password){
+        try(BufferedReader readuser = new BufferedReader(new FileReader("Users.txt"))){
+            String line;
+            while((line = readuser.readLine()) != null){
+                String[] parts = line.split(" , ");
+                if(parts.length == 2 && parts[0].equals(username) && parts[1].equals(password)){
+                    return true;
+                }
+            }
+        }catch(IOException e){
+            System.out.println("Error reading users file");
+        }
+        return false;
+    }
 
     @Override
     public void actionPerformed(ActionEvent e){
         if(e.getSource() == loginButton){
             String username = usernameEnter.getText();
             String password = passwordEnter.getText();
-
-            frame.dispose();
-            new MainMenuPage();
+            
+            if(validatelogin(username,password)){
+                frame.dispose();
+                MainMenuPage mainMenuPage = new MainMenuPage();
+            }else{
+                JOptionPane.showMessageDialog(frame, "Invalid username or password. Please try again.", "Login Failed", JOptionPane.ERROR_MESSAGE);
+            }
 
         } else if (e.getSource() == staffLoginB) {
             frame.dispose();
             StaffLoginPage StaffLogin = new StaffLoginPage();
         } else if (e.getSource() == signUpButton) {
             frame.dispose();
-            SignUpPage SignUp = new SignUpPage();
+            SignUpPage signUpPage = new SignUpPage();
         }
     }
 }
