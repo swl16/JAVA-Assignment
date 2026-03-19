@@ -94,10 +94,10 @@ public class LoginPage extends JFrame implements ActionListener {
 
     }
     
-    private boolean validatelogin(String username, String password){
-        try(BufferedReader readuser = new BufferedReader(new FileReader("Users.txt"))){
+    private boolean validateLogin(String username, String password){
+        try(BufferedReader readUser = new BufferedReader(new FileReader("Users.txt"))){
             String line;
-            while((line = readuser.readLine()) != null){
+            while((line = readUser.readLine()) != null){
                 String[] parts = line.split(" , ");
                 if(parts.length == 2 && parts[0].equals(username) && parts[1].equals(password)){
                     return true;
@@ -115,7 +115,7 @@ public class LoginPage extends JFrame implements ActionListener {
             String username = usernameEnter.getText();
             String password = passwordEnter.getText();
             
-            if(validatelogin(username,password)){
+            if(validateLogin(username,password)){
                 frame.dispose();
                 MainMenuPage mainMenuPage = new MainMenuPage();
             }else{

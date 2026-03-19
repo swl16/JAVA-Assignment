@@ -6,14 +6,18 @@ import javax.swing.plaf.basic.BasicScrollBarUI;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 
-public class MainMenuPage extends JFrame implements ActionListener {
+public class MainMenuPage implements ActionListener {
 
     JFrame frame = new JFrame("TGC Cinema");
     JPanel homePanel;
     JPanel profilePanel;
     JPanel cardPanel;
     CardLayout cardLayout;
+    JButton movie;
     JButton mainPageButton;
     JButton FnBButton;
     JButton profileButton;
@@ -21,6 +25,8 @@ public class MainMenuPage extends JFrame implements ActionListener {
     JButton orderHistory;
     JButton contactUs;
     JButton logOut;
+    Movie[] movieDetail;
+    private int movieCount = 0;
 
     public MainMenuPage(){
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -96,23 +102,26 @@ public class MainMenuPage extends JFrame implements ActionListener {
         headerPanel.add(nowShowing);
 
         JPanel moviePanel = new JPanel();
-        moviePanel.setLayout(new BoxLayout(moviePanel,BoxLayout.Y_AXIS));
+        moviePanel.setLayout(new GridLayout(0,2,0,0));
         moviePanel.setBackground(new Color(0x3B3B3B));
         moviePanel.setPreferredSize(new Dimension(330,1000));
 
-        for (int i = 1; i <= 10; i++) {
-            moviePanel.add(Box.createVerticalStrut(10));
-            moviePanel.add(Box.createHorizontalStrut(10));
-            moviePanel.add(new JButton("Movie " + i));
+        movieDetail = new Movie[100];
+        loadMovie();
+
+        for (int i = 0; i < movieCount; i++) {
+            moviePanel.add(MovieCard(movieDetail[i].getTitle(),movieDetail[i].getPoster(),i));
         }
 
-        JButton moreButton = new JButton("More...");
-        moreButton.setFocusable(false);
-        moreButton.setFont(new Font("Courier New",Font.BOLD,20));
-        //moreButton.addActionListener(this);
-        moreButton.setForeground(new Color(0xF7F7F7));
-        moreButton.setBackground(new Color(0xD44444));
-        moviePanel.add(moreButton);
+        moviePanel.add(Box.createVerticalGlue());
+
+//        JButton moreButton = new JButton("More...");
+//        moreButton.setFocusable(false);
+//        moreButton.setFont(new Font("Courier New",Font.BOLD,20));
+//        //moreButton.addActionListener(this);
+//        moreButton.setForeground(new Color(0xF7F7F7));
+//        moreButton.setBackground(new Color(0xD44444));
+//        moviePanel.add(moreButton);
 
         JScrollPane scrollPane = new JScrollPane(moviePanel);
         scrollPane.setBorder(null);
@@ -159,12 +168,42 @@ public class MainMenuPage extends JFrame implements ActionListener {
         return headerPanel;
     }
 
-    private JPanel MovieCard(){
-        JPanel movie = new JPanel();
+    private void loadMovie() {
+        try(BufferedReader readLine = new BufferedReader(new FileReader("MovieDetail.txt"))){
+            String line;
+            int i = 0;
+            while((line = readLine.readLine()) != null){
+                if (line.trim().isEmpty()) continue;
+
+                String[] parts = line.split(" , ");
+                ImageIcon poster = new ImageIcon(parts[3]);
+                movieDetail[i] = new Movie(parts[0],parts[1],parts[2],poster);
+                i++;
+                movieCount++;
+            }
+        }
+        catch (IOException e){
+        System.out.println("Error reading movies file");
+        }
+    }
+
+    private JButton MovieCard(String title, ImageIcon poster, int index){
+        movie = new JButton(title);
+        Image scaledPoster = poster.getImage().getScaledInstance(108, 160, Image.SCALE_SMOOTH);
+        poster = new ImageIcon(scaledPoster);
         movie.setBackground(new Color(0x3B3B3B));
-
-
-
+        movie.setBorderPainted(false);
+//        movie.setFocusPainted(false);
+//        movie.setContentAreaFilled(false);
+        movie.setFocusable(false);
+        movie.setFont(new Font("Courier New",Font.PLAIN,15));
+        movie.setIcon(poster);
+        movie.setHorizontalAlignment(JButton.CENTER);
+        movie.setHorizontalTextPosition(JButton.CENTER);
+        movie.setVerticalTextPosition(JButton.BOTTOM);
+        movie.setActionCommand(String.valueOf(index));
+        movie.addActionListener(this);
+        movie.setForeground(new Color(0xF7F7F7));
         return movie;
     }
 
@@ -236,31 +275,40 @@ public class MainMenuPage extends JFrame implements ActionListener {
 
 
     public void actionPerformed(ActionEvent e) {
-        if (e.getSource() == mainPageButton) {
-            cardLayout.show(cardPanel, "home");
-        } else if (e.getSource() == FnBButton) {
-            frame.dispose();
+        String commandNum = e.getActionCommand();
+        try{
+            int index = Integer.parseInt(commandNum);
+            Movie selectedMovie = movieDetail[index];
 
-        } else if (e.getSource() == profileButton) {
-            cardLayout.show(cardPanel, "profile");
 
-        } else if (e.getSource() == myTicket) {
-            frame.setVisible(false);
-            new SubWindowProfile(frame,1);
+        }catch (NumberFormatException ex) {
+            if (e.getSource() == mainPageButton) {
+                cardLayout.show(cardPanel, "home");
+            } else if (e.getSource() == FnBButton) {
+                frame.dispose();
 
-        } else if (e.getSource() == orderHistory) {
-            frame.setVisible(false);
-            new SubWindowProfile(frame,2);
+            } else if (e.getSource() == profileButton) {
+                cardLayout.show(cardPanel, "profile");
 
-        } else if (e.getSource() == contactUs) {
-            frame.setVisible(false);
-            new SubWindowProfile(frame,3);
+            } else if (e.getSource() == myTicket) {
+                frame.setVisible(false);
+                new SubWindowProfile(frame, 1);
 
-        } else if (e.getSource() == logOut) {
-            frame.dispose();
-            new LoginPage();
+            } else if (e.getSource() == orderHistory) {
+                frame.setVisible(false);
+                new SubWindowProfile(frame, 2);
 
+            } else if (e.getSource() == contactUs) {
+                frame.setVisible(false);
+                new SubWindowProfile(frame, 3);
+
+            } else if (e.getSource() == logOut) {
+                frame.dispose();
+                new LoginPage();
+
+            }
         }
+
     }
 
     //testing use only
