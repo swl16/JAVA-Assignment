@@ -279,6 +279,8 @@ public class MainMenuPage implements ActionListener {
         try{
             int index = Integer.parseInt(commandNum);
             Movie selectedMovie = movieDetail[index];
+            frame.setVisible(false);
+            new MovieDetailPage(frame,selectedMovie);
 
 
         }catch (NumberFormatException ex) {
