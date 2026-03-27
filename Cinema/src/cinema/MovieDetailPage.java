@@ -71,10 +71,10 @@ public class MovieDetailPage implements ActionListener {
 }
 
  class Movie{
-    String title;
-    String genre;
-    String duration;
-    ImageIcon poster;
+    private String title;
+    private String genre;
+    private String duration;
+    private ImageIcon poster;
 
     Movie(String title, String genre, String duration, ImageIcon poster){
         this.title = title;
