@@ -6,7 +6,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
 
-public class LoginPage extends JFrame implements ActionListener {
+public class LoginPage implements ActionListener {
 
     JTextField usernameEnter;
     JTextField passwordEnter;
@@ -115,19 +115,24 @@ public class LoginPage extends JFrame implements ActionListener {
             String username = usernameEnter.getText();
             String password = passwordEnter.getText();
             
+            if(username.isEmpty() || password.isEmpty()){
+                JOptionPane.showMessageDialog(frame, "Username and password cannot be empty! Please try again.", "Sign Up Failed", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            
             if(validateLogin(username,password)){
                 frame.dispose();
-                MainMenuPage mainMenuPage = new MainMenuPage();
+                new MainMenuPage();
             }else{
                 JOptionPane.showMessageDialog(frame, "Invalid username or password. Please try again.", "Login Failed", JOptionPane.ERROR_MESSAGE);
             }
 
         } else if (e.getSource() == staffLoginB) {
             frame.dispose();
-            StaffLoginPage StaffLogin = new StaffLoginPage();
+            new StaffLoginPage();
         } else if (e.getSource() == signUpButton) {
             frame.dispose();
-            SignUpPage signUpPage = new SignUpPage();
+            new SignUpPage();
         }
     }
 }
