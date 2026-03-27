@@ -6,7 +6,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
 
-public class SignUpPage extends JFrame implements ActionListener {
+public class SignUpPage implements ActionListener {
 
     JTextField usernameEnter;
     JTextField passwordEnter;
@@ -84,11 +84,26 @@ public class SignUpPage extends JFrame implements ActionListener {
     public void saveuser(String username, String password){
         
         try (BufferedWriter saveusers = new BufferedWriter(new FileWriter("Users.txt",true))){
-         saveusers.write(username + " , "+ password + "\n");
+         saveusers.write(username + ","+ password + "\n");
         }catch(IOException e){
             System.out.println("An error occurred");
             e.printStackTrace();
         }
+    }
+    
+    public boolean usernameExists(String username){
+        try(BufferedReader reader = new BufferedReader(new FileReader("Users.txt"))){
+            String line;
+            while((line = reader.readLine()) != null){
+                String[] parts = line.split(" , ");
+                if (parts[0].equals(username)){
+                    return true;
+                }
+            }
+        }catch(IOException e){
+            System.out.println("Error reading users file");
+        }
+        return false;
     }
 
     @Override
@@ -101,7 +116,10 @@ public class SignUpPage extends JFrame implements ActionListener {
                 JOptionPane.showMessageDialog(frame, "Username and password cannot be empty! Please try again.", "Sign Up Failed", JOptionPane.ERROR_MESSAGE);
                 return;
             }
-            
+            if(usernameExists(username)){
+                JOptionPane.showMessageDialog(frame, "Username already taken! Please change another one", "Sign Up Failed", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
             saveuser(username,password);
             JOptionPane.showMessageDialog(frame, "Account created successfully!", "Sign Up", JOptionPane.INFORMATION_MESSAGE);
             
@@ -110,7 +128,7 @@ public class SignUpPage extends JFrame implements ActionListener {
 
         } else if (e.getSource() == backUserLogin) {
             frame.dispose();
-            LoginPage loginPage = new LoginPage();
+            new LoginPage();
         }
     }
 }
