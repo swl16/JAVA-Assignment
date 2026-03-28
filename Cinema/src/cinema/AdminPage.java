@@ -125,7 +125,7 @@ public class AdminPage{
     }
     
     
-    public JPanel addmovie(){
+    private JPanel addmovie(){
         JPanel wrap = new JPanel(new BorderLayout());
         wrap.setBackground(bgcolor);
         wrap.add(sectionHeader("ADD MOVIE", "Add_Movie"), BorderLayout.NORTH);
@@ -197,49 +197,112 @@ public class AdminPage{
         return wrap;
     }
     
+    private JPanel movieTable;
+    private DefaultTableModel tableModel;
+  
+    private JPanel viewmovie(){
+        JPanel wrap = new JPanel(new BorderLayout());
+        wrap.setBackground(bgcolor);
+        wrap.add(sectionHeader("VIEW MOVIES", "View_Movie"), BorderLayout.NORTH);
+        
+        String[] cols = {"Title","Genre","Rating","Show Time","Hall","Duration"};
+        tableModel = new DefaultTableModel(cols,0){
+            public boolean isCellEditable(int r, int c){return false;}
+        };
+        movieTable = new JTable(tableModel);
+        styleTable(movieTable);
+        
+        JScrollPane scroll = new JScrollPane(movieTable);
+        scroll.setBorder(new LineBorder(bordercolor));
+        scroll.getViewport().setBackground(inputbg);
+        styleScrollBar(scroll);
+        
+        JPanel btnrow = new JPanel(new FlowLayout(FlowLayout.CENTER, 12,8));
+        btnrow.setBackground(bgcolor);
+        JButton editBtn   = styledButton("✏EDIT",   false);
+        JButton deleteBtn = styledButton("🗑DELETE", true);
+        editBtn.addActionListener(e   -> editSelectedMovie());
+        deleteBtn.addActionListener(e -> deleteSelectedMovie());
+        btnrow.add(editBtn);
+        btnrow.add(deleteBtn);
+        
+        wrap.add(scroll,  BorderLayout.CENTER);
+        wrap.add(btnrow,  BorderLayout.SOUTH);
+        return wrap;
+    }
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    public JPanel viewmovie(){
+    private JPanel showtime(){
     
     }
     
-    public JPanel showtime(){
+    private JPanel checkstock(){
     
     }
     
-    public JPanel checkstock(){
-    
-    }
-    
-    public JPanel replenishstock(){
+    private JPanel replenishstock(){
     
     }
     
     
     private void savemovie(){
         String title = titleEnter.getText().trim();
-        if(title.isEmpty()){
-            showMsg("Please enter a movie title", false);
+        String date = ((JSpinner.DateEditor) releasedateEnter.getEditor()).getFormat().format(releasedateEnter.getValue());
+        String genre = genreEnter.getText().trim();
+        String language = languageEnter.getText().trim();
+        String rating = ratingEnter.getSelectedItem().toString();
+        String duration = durationEnter.getText().trim();
+        String director = directorEnter.getText().trim();
+        String cast = castEnter.getText().trim(); 
+        String subtitles = subtitlesEnter.getText().trim();
+        String description = descriptionEnter.getText().trim().replace("/n", " ");
+        String showtime = showtimeEnter.getSelectedItem().toString();
+        String hall = hallEnter.getSelectedItem().toString();
+        
+        if(title.isEmpty() || genre.isEmpty() || language.isEmpty() || date.isEmpty()||
+                rating.isEmpty()|| duration.isEmpty()|| director.isEmpty()||cast.isEmpty()||
+                subtitles.isEmpty()|| description.isEmpty()|| showtime.isEmpty()||hall.isEmpty()){
+            showMsg("Please fill in all required fields.", false);
             return;
         }
-        String date = ((JSpinner.DateEditor) releasedateEnter.getEditor()).getFormat().format(releasedateEnter.getValue());
+        
+        try(BufferedWriter saveMovie = new BufferedWriter(new FileWriter(moviefile, true))){
+            saveMovie.write(title + "|" + genre + "|" + language + "|" + rating + "|" + date + "|" + duration + "|" + 
+                    director + "|" + cast + "|" + subtitles + "|" + description + "|" + showtime + "|" + hall);
+            saveMovie.newLine();
+            showMsg("Movie saved successfully!", true);
+            clearAddForm();
+            
+        }catch(IOException e){
+            showMsg("Error saving: " + e.getMessage(), false);
+        }
+    }
+    
+    private void loadmovie(){
+        tableModel.setRowCount(0);
+        
+        File file = new File(moviefile);
+        if (!file.exists()) return;
+        
+        try(BufferedReader readmovie = new BufferedReader(new FileReader(file))){
+            String line;
+            
+            while((line = readmovie.readLine()) != null){
+                String[] details = line.split("\\|", -1);
+                if (details.length == 12){
+                    tableModel.addRow(details);
+                }
+            }
+        }catch(IOException e){
+            showMsg("Error loading movies" + e.getMessage(),false);
+        }
+    }
+    
+    private void editSelectedMovie(){
+        
+    }
+    
+    private void deleteSelectedMovie(){
+        
     }
     
     
