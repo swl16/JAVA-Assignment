@@ -4,29 +4,43 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+
 
 public class MovieDetailPage implements ActionListener {
     JFrame frame = new JFrame("TGC Cinema - Movie Detail");
     JFrame homeFrame;
     Movie movie;
     JButton backButton;
-//    JPanel cardPanel;
-//    CardLayout cardLayout;
+    Hall[] hall;
+    ShowTime[] showTime;
+    JButton showtimebutton;
+    JButton dateButton;
+    private int hallCount=0;
+    private int showTimeCount = 0;
+    private JPanel showTimeContainer;
+
+    private static final DateTimeFormatter timeFmt = DateTimeFormatter.ofPattern("HH:mm");
+    private static final DateTimeFormatter dateFmt = DateTimeFormatter.ofPattern("dd MMM");
+
 
     MovieDetailPage (JFrame homeFrame, Movie movieSelected){
+        movie = movieSelected;
         this.homeFrame = homeFrame;
+
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setResizable(false);
+        frame.setLayout(null);
         frame.setSize(500,700);
         frame.getContentPane().setBackground(new Color(0x242424));
         frame.setVisible(true);
-
-//        cardLayout = new CardLayout();
-//        cardPanel = new JPanel(cardLayout);
-
-        JPanel moviePanel = new JPanel();
-        moviePanel.setLayout(null);
-        moviePanel.setBackground(new Color(0x242424));
         
         backButton = new JButton("< Back");
         backButton.setBorderPainted(false);
@@ -38,34 +52,160 @@ public class MovieDetailPage implements ActionListener {
         backButton.setHorizontalAlignment(JButton.LEFT);
         backButton.addActionListener(this);
         backButton.setForeground(new Color(0xF7F7F7));
-        backButton.setBackground(new Color(0x3B3B3B));
         frame.add(backButton);
 
         JLabel posterLabel = new JLabel();
-        Image scaledPoster = movieSelected.getPoster().getImage().getScaledInstance(108, 160, Image.SCALE_SMOOTH);
+        Image scaledPoster = movie.getPoster().getImage().getScaledInstance(108, 160, Image.SCALE_SMOOTH);
         ImageIcon poster = new ImageIcon(scaledPoster);
-        posterLabel.setBackground(new Color(0x3B3B3B));
         posterLabel.setForeground(new Color(0xF7F7F7));
         posterLabel.setFont(new Font("Courier New",Font.PLAIN,15));
         posterLabel.setIcon(poster);
-        posterLabel.setText(movieSelected.getTitle());
+        posterLabel.setText(movie.getTitle());
         posterLabel.setHorizontalAlignment(JButton.CENTER);
         posterLabel.setHorizontalTextPosition(JButton.CENTER);
         posterLabel.setVerticalTextPosition(JButton.BOTTOM);
-        posterLabel.setBounds(0,10,500,200);
+        posterLabel.setBounds(0,50,500,200);
         frame.add(posterLabel);
 
+        JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 8));
+        panel.setBackground(new Color(0x242424));
+        panel.setBounds(0,260,460,60);
+        frame.add(panel);
+
+        showTimeContainer = new JPanel(new GridLayout(0, 1, 5, 5));
+        showTimeContainer.setBackground(new Color(0x242424));
+        showTimeContainer.setBounds(20, 330, 460, 300);
+        frame.add(showTimeContainer);
+
+        hall = new Hall[100];
+        showTime = new ShowTime[100];
+        loadHall();
+        loadShowTime();
+
+        LocalDate now = LocalDate.now();
+        LinkedHashSet<LocalDate> seenDates = new LinkedHashSet<>();
+        boolean isEmpty = false;
+
+        for (int i = 0 ; i < showTimeCount ; i++){
+            if (!showTime[i].getStartTime().toLocalDate().isBefore(now) && showTime[i].getStartTime().toLocalDate().isBefore(now.plusWeeks(1))){
+                isEmpty = true;
+                if (seenDates.add(showTime[i].getStartTime().toLocalDate())) {
+                    panel.add(dateButton(showTime[i].getStartTime().toLocalDate()));
+                }
+            }
+        }
+        datePanel(now);
+        if (!isEmpty) {
+            JLabel emptyLabel = new JLabel("There is no show time in the next 7 days.");
+            emptyLabel.setForeground(new Color(0xF7F7F7));
+            emptyLabel.setFont(new Font("Courier New", Font.BOLD, 15));
+            emptyLabel.setBounds(0, 400, 500, 50);
+            emptyLabel.setHorizontalAlignment(JLabel.CENTER);
+            panel.add(emptyLabel);
+        }
+    }
 
 
+    public void loadHall(){
+        try(BufferedReader readLine = new BufferedReader(new FileReader("Hall.txt"))){
+            String line;
+            int i = 0;
+            while((line = readLine.readLine()) != null){
+                if (line.trim().isEmpty()) continue;
 
+                String[] parts = line.split(" , ");
+                hall[i] = new Hall(parts[0],parts[1], Integer.parseInt(parts[2]), Integer.parseInt(parts[3]),Double.parseDouble(parts[4]));
+                i++;
+                hallCount++;
+            }
+        }
+        catch (IOException e){
+            System.out.println("Error reading hall file");
+        }
+    }
 
+    public void loadShowTime(){
+        try(BufferedReader readLine = new BufferedReader(new FileReader("Showtime.txt"))){
+            String line;
+            int i = 0;
+            while((line = readLine.readLine()) != null){
+                if (line.trim().isEmpty()) continue;
+
+                String[] parts = line.split(" , ");
+
+                if (parts[0].equals(movie.getTitle())){
+                    showTime[i] = new ShowTime(parts[0], parts[1], LocalDateTime.parse(parts[2]));
+                    i++;
+                    showTimeCount++;
+                }
+            }
+            Arrays.sort(showTime,0,showTimeCount, Comparator.comparing(ShowTime::getStartTime));
+        }
+        catch (IOException e){
+            System.out.println("Error reading show time file");
+        }
+    }
+
+    public JButton dateButton(LocalDate date){
+        dateButton = new JButton(date.format(dateFmt));
+        dateButton.setBackground(new Color(0x3B3B3B));
+        dateButton.setBorderPainted(false);
+        dateButton.setFocusable(false);
+        dateButton.setFont(new Font("Courier New",Font.PLAIN,13));
+        dateButton.setHorizontalAlignment(JButton.CENTER);
+        dateButton.addActionListener(this);
+        dateButton.setActionCommand(date.toString());
+        dateButton.setForeground(new Color(0xF7F7F7));
+        return dateButton;
+    }
+
+    public JButton showTimeButton(LocalTime startTime, String hallType){
+        showtimebutton = new JButton(startTime.format(timeFmt)+"  "+ hallType);
+        showtimebutton.setBackground(new Color(0x3B3B3B));
+        showtimebutton.setBorderPainted(false);
+        showtimebutton.setFocusable(false);
+        showtimebutton.setFont(new Font("Courier New",Font.PLAIN,13));
+        showtimebutton.setHorizontalAlignment(JButton.CENTER);
+       // showtimebutton.setHorizontalTextPosition(JButton.CENTER);
+       // showtimebutton.setVerticalTextPosition(JButton.BOTTOM);
+       // showtimebutton.setActionCommand(String.valueOf(index));
+        showtimebutton.addActionListener(this);
+        showtimebutton.setForeground(new Color(0xF7F7F7));
+        return showtimebutton;
+    }
+
+    public void datePanel(LocalDate date){
+        showTimeContainer.removeAll();
+        String hallType="";
+
+        for (int i = 0; i < showTimeCount; i++) {
+            if (showTime[i].getStartTime().toLocalDate().isEqual(date)) {
+                for (int j = 0; j < hallCount; j++) {
+                    if (showTime[i].getHallName().equals(hall[j].getName())) {
+                        hallType = hall[j].getHallType();
+                        break;
+                    }
+                }
+                showTimeContainer.add(showTimeButton(showTime[i].getStartTime().toLocalTime(), hallType));
+            }
+        }
+        showTimeContainer.revalidate(); // refresh layout
+        showTimeContainer.repaint();
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if (e.getSource() == backButton){
+        if (e.getSource() == backButton) {
             frame.dispose();
             homeFrame.setVisible(true);
+        } else {
+            // Date button clicked — action command is the date string
+            try {
+                LocalDate selectedDate = LocalDate.parse(e.getActionCommand());
+                datePanel(selectedDate);
+            } catch (Exception ex) {
+                System.out.println("Unknown action: " + e.getActionCommand());
+            }
         }
     }
 }
