@@ -30,4 +30,5 @@ public class Hall {
 
     public int getTotalSeat() {return rows*column;}
 
+
 }
