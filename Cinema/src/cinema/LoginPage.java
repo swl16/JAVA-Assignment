@@ -98,7 +98,7 @@ public class LoginPage implements ActionListener {
         try(BufferedReader readUser = new BufferedReader(new FileReader("Users.txt"))){
             String line;
             while((line = readUser.readLine()) != null){
-                String[] parts = line.split(" , ");
+                String[] parts = line.split(",");
                 if(parts.length == 2 && parts[0].equals(username) && parts[1].equals(password)){
                     return true;
                 }
@@ -116,7 +116,7 @@ public class LoginPage implements ActionListener {
             String password = passwordEnter.getText();
             
             if(username.isEmpty() || password.isEmpty()){
-                JOptionPane.showMessageDialog(frame, "Username and password cannot be empty! Please try again.", "Sign Up Failed", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(frame, "Username and password cannot be empty! Please try again.", "Login Failed", JOptionPane.ERROR_MESSAGE);
                 return;
             }
             
@@ -130,6 +130,7 @@ public class LoginPage implements ActionListener {
         } else if (e.getSource() == staffLoginB) {
             frame.dispose();
             new StaffLoginPage();
+            
         } else if (e.getSource() == signUpButton) {
             frame.dispose();
             new SignUpPage();
