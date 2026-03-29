@@ -85,8 +85,9 @@ public class AdminPage{
         };
         
         for(String[]btn : buttons){
-            JButton b = menubtn(btn[1] + " " + btn[0]);
-            String card = btn[2];
+            JButton b = menubtn(btn[0]);
+            String card = btn[1];
+            
             b.addActionListener(e -> {cardlayout.show(adminpanel, card);
             if(card.equals("View_Movie")) refreshViewTable();
             if(card.equals("Check_Stock")) refreshStockTable();
@@ -221,22 +222,25 @@ public class AdminPage{
         btnrow.setBackground(bgcolor);
         JButton editBtn   = styledButton("✏EDIT",   false);
         JButton deleteBtn = styledButton("🗑DELETE", true);
+        JButton backBtn = styledButton("BACK", false);
         editBtn.addActionListener(e   -> editSelectedMovie());
         deleteBtn.addActionListener(e -> deleteSelectedMovie());
+        backBtn.addActionListener(e -> cardlayout.show(adminpanel, "MENU"));
+        
         btnrow.add(editBtn);
         btnrow.add(deleteBtn);
+        btnrow.add(backBtn);
         
         wrap.add(scroll,  BorderLayout.CENTER);
         wrap.add(btnrow,  BorderLayout.SOUTH);
         return wrap;
     }
     
-    private JPanel showtime(){
-    
-    }
+    private JTable stockTable;
+    private DefaultTableModel stockModel;
     
     private JPanel checkstock(){
-    
+        
     }
     
     private JPanel replenishstock(){
@@ -298,11 +302,227 @@ public class AdminPage{
     }
     
     private void editSelectedMovie(){
-        
+    
+     int row = movieTable.getSelectedRow();
+
+     if (row < 0) {
+        showMsg("Please select a movie to edit.", false);
+        return;
+     }
+
+     JDialog editDialog = new JDialog(frame, "Edit Movie", true);
+     editDialog.setSize(500, 700);
+     editDialog.setLayout(new BorderLayout());
+     editDialog.setLocationRelativeTo(frame);
+     editDialog.getContentPane().setBackground(bgcolor);
+     editDialog.setResizable(false);
+
+    // ===== MAIN FORM PANEL =====
+     JPanel form = new JPanel();
+     form.setLayout(new BoxLayout(form, BoxLayout.Y_AXIS));
+     form.setBackground(bgcolor);
+     form.setBorder(new EmptyBorder(15, 25, 15, 25));
+
+    // Title
+     form.add(fieldLabel("Movie Title"));
+     form.add(Box.createVerticalStrut(4));
+     JTextField titleField = new JTextField(tableModel.getValueAt(row, 0).toString());
+     styleTextField(titleField);
+     form.add(titleField);
+     form.add(Box.createVerticalStrut(10));
+
+    // Genre
+     form.add(fieldLabel("Genre"));
+     form.add(Box.createVerticalStrut(4));
+     JTextField genreField = new JTextField(tableModel.getValueAt(row, 1).toString());
+     styleTextField(genreField);
+     form.add(genreField);
+     form.add(Box.createVerticalStrut(10));
+
+    // Language
+     form.add(fieldLabel("Language"));
+     form.add(Box.createVerticalStrut(4));
+     JTextField languageField = new JTextField(tableModel.getValueAt(row, 2).toString());
+     styleTextField(languageField);
+     form.add(languageField);
+     form.add(Box.createVerticalStrut(10));
+
+    // Rating
+     form.add(fieldLabel("Movie Rating"));
+     form.add(Box.createVerticalStrut(4));
+     JComboBox<String> ratingBox = new JComboBox<>(new String[]{"U", "P12", "P13", "P16", "P18"});
+     styleCombo(ratingBox);
+     ratingBox.setSelectedItem(tableModel.getValueAt(row, 3).toString());
+     form.add(ratingBox);
+     form.add(Box.createVerticalStrut(10));
+
+    // Release Date
+     form.add(fieldLabel("Release Date"));
+     form.add(Box.createVerticalStrut(4));
+     JTextField releaseDateField = new JTextField(tableModel.getValueAt(row, 4).toString());
+     styleTextField(releaseDateField);
+     form.add(releaseDateField);
+     form.add(Box.createVerticalStrut(10));
+
+    // Duration
+     form.add(fieldLabel("Duration (mins)"));
+     form.add(Box.createVerticalStrut(4));
+     JTextField durationField = new JTextField(tableModel.getValueAt(row, 5).toString());
+     styleTextField(durationField);
+     form.add(durationField);
+     form.add(Box.createVerticalStrut(10));
+
+    // Director
+     form.add(fieldLabel("Director"));
+     form.add(Box.createVerticalStrut(4));
+     JTextField directorField = new JTextField(tableModel.getValueAt(row, 6).toString());
+     styleTextField(directorField);
+     form.add(directorField);
+     form.add(Box.createVerticalStrut(10));
+
+    // Cast
+     form.add(fieldLabel("Cast"));
+     form.add(Box.createVerticalStrut(4));
+     JTextField castField = new JTextField(tableModel.getValueAt(row, 7).toString());
+     styleTextField(castField);
+     form.add(castField);
+     form.add(Box.createVerticalStrut(10));
+
+    // Subtitles
+     form.add(fieldLabel("Subtitles"));
+     form.add(Box.createVerticalStrut(4));
+     JTextField subtitlesField = new JTextField(tableModel.getValueAt(row, 8).toString());
+     styleTextField(subtitlesField);
+     form.add(subtitlesField);
+     form.add(Box.createVerticalStrut(10));
+
+    // Description
+     form.add(fieldLabel("Description"));
+     form.add(Box.createVerticalStrut(4));
+     JTextArea descriptionArea = new JTextArea(tableModel.getValueAt(row, 9).toString(), 4, 10);
+     descriptionArea.setLineWrap(true);
+     descriptionArea.setWrapStyleWord(true);
+     styleTextArea(descriptionArea);
+
+     JScrollPane descScroll = new JScrollPane(descriptionArea);
+     descScroll.setBorder(new LineBorder(bordercolor));
+     descScroll.setMaximumSize(new Dimension(Integer.MAX_VALUE, 100));
+     descScroll.getViewport().setBackground(inputbg);
+     form.add(descScroll);
+     form.add(Box.createVerticalStrut(10));
+
+    // Show Time
+     form.add(fieldLabel("Show Time"));
+     form.add(Box.createVerticalStrut(4));
+     JComboBox<String> showTimeBox = new JComboBox<>(new String[]{"2:00 PM", "5:00 PM", "8:00 PM"});
+     styleCombo(showTimeBox);
+     showTimeBox.setSelectedItem(tableModel.getValueAt(row, 10).toString());
+     form.add(showTimeBox);
+     form.add(Box.createVerticalStrut(10));
+
+    // Hall Number
+     form.add(fieldLabel("Hall Number"));
+     form.add(Box.createVerticalStrut(4));
+     JComboBox<String> hallBox = new JComboBox<>(new String[]{"Hall 1", "Hall 2", "Hall 3", "Hall 4", "Hall 5"});
+     styleCombo(hallBox);
+     hallBox.setSelectedItem(tableModel.getValueAt(row, 11).toString());
+     form.add(hallBox);
+     form.add(Box.createVerticalStrut(15));
+
+    // ===== BUTTON PANEL =====
+     JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 12, 0));
+     buttonPanel.setBackground(bgcolor);
+
+     JButton saveButton = styledButton("SAVE CHANGES", true);
+     JButton cancelButton = styledButton("CANCEL", false);
+
+     saveButton.addActionListener(e -> {
+        String title = titleField.getText().trim();
+        String genre = genreField.getText().trim();
+        String language = languageField.getText().trim();
+        String rating = ratingBox.getSelectedItem().toString();
+        String releaseDate = releaseDateField.getText().trim();
+        String duration = durationField.getText().trim();
+        String director = directorField.getText().trim();
+        String cast = castField.getText().trim();
+        String subtitles = subtitlesField.getText().trim();
+        String description = descriptionArea.getText().trim();
+        String showTime = showTimeBox.getSelectedItem().toString();
+        String hall = hallBox.getSelectedItem().toString();
+
+        if (title.isEmpty() || genre.isEmpty() || language.isEmpty() || releaseDate.isEmpty()
+                || duration.isEmpty() || director.isEmpty() || cast.isEmpty()
+                || subtitles.isEmpty() || description.isEmpty()) {
+            showMsg("Please fill in all fields.", false);
+            return;
+        }
+
+        try {
+            Integer.parseInt(duration);
+        } catch (NumberFormatException ex) {
+            showMsg("Duration must be a number.", false);
+            return;
+        }
+
+        // Update table model
+        tableModel.setValueAt(title, row, 0);
+        tableModel.setValueAt(genre, row, 1);
+        tableModel.setValueAt(language, row, 2);
+        tableModel.setValueAt(rating, row, 3);
+        tableModel.setValueAt(releaseDate, row, 4);
+        tableModel.setValueAt(duration, row, 5);
+        tableModel.setValueAt(director, row, 6);
+        tableModel.setValueAt(cast, row, 7);
+        tableModel.setValueAt(subtitles, row, 8);
+        tableModel.setValueAt(description, row, 9);
+        tableModel.setValueAt(showTime, row, 10);
+        tableModel.setValueAt(hall, row, 11);
+
+        saveMoviesToFile();
+        showMsg("Movie updated successfully!", true);
+        editDialog.dispose();
+        });
+
+     cancelButton.addActionListener(e -> editDialog.dispose());
+
+     buttonPanel.add(saveButton);
+     buttonPanel.add(cancelButton);
+
+     form.add(buttonPanel);
+
+     JScrollPane scroll = new JScrollPane(form);
+     scroll.setBorder(null);
+     scroll.getViewport().setBackground(bgcolor);
+     scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+     styleScrollBar(scroll);
+
+     editDialog.add(scroll, BorderLayout.CENTER);
+     editDialog.setVisible(true);
     }
+
     
     private void deleteSelectedMovie(){
         
+    }
+    
+    private void saveMoviesToFile(){
+        try(BufferedWriter savemovie = new BufferedWriter(new FilwWrite(moviefile, true))){
+            for(int i=0; i<tableModel.getRowCount(); i++){
+                StringBuilder line = new StringBuilder();
+                
+                for(int j=0; j < tableModel.getColumnCount();j++){
+                    line.append(tableModel.getValueAt(i, j).toString());
+                    if(j < tableModel.getColumnCount()-1){
+                        line.append("|");
+                    }
+                }
+                
+                savemovie.write(line.toString());
+                savemovie.newLine();
+            }
+        }catch(IOException e){
+            showMsg("Error saving movies: " + e.getMessage(), false);
+        }
     }
     
     
@@ -469,14 +689,26 @@ public class AdminPage{
     
     
     private void backmenu(){
-        frame.dispose();
-        menu();
+        cardlayout.show(adminpanel, "MENU");
     }
     
     private void showMsg(String msg, boolean success) {
         JOptionPane.showMessageDialog(frame, msg, success ? "Success" : "Error",
             success ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.ERROR_MESSAGE);
     }
+    
+    private int parseInt(String s, int def) {
+        try { 
+            return Integer.parseInt(s == null ? "" : s.trim()); 
+        }catch (NumberFormatException e) {
+            return def;
+        } 
+    }
+    
+    
+    
+    
+    
     
 }
 
