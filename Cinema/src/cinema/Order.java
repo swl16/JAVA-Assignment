@@ -11,7 +11,6 @@ public class Order {
     private List<Seat> selectedSeats;
     private double foodTotal;
 
-    // Updated Constructor to include cinemaLocation
     public Order(MovieDetailPage.Movie movie, String showTime, String cinemaLocation, String hallName, List<Seat> selectedSeats) {
         this.movie = movie;
         this.showTime = showTime;
@@ -20,7 +19,6 @@ public class Order {
         this.selectedSeats = selectedSeats;
     }
 
-    // This resolves the red error in your screenshot
     public String getCinemaLocation() {
         return (cinemaLocation != null) ? cinemaLocation : "TGC Cinema";
     }

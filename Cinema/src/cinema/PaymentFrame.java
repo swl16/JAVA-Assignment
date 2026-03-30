@@ -68,7 +68,7 @@ public class PaymentFrame extends JFrame {
         countdownTimer.start();
     }
 
-    // ================= DISCOUNT PANEL (FIXED ALIGNMENT) =================
+    // ================= DISCOUNT PANEL =================
     private JPanel discountPanel() {
         JPanel panel = new JPanel(new GridBagLayout());
         panel.setBackground(new Color(18, 18, 18));
