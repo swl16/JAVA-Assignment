@@ -1,7 +1,4 @@
-package cinema.payment.ui;
-
-import cinema.payment.model.Order;
-import cinema.payment.service.PaymentService;
+package cinema;
 
 import javax.swing.*;
 import javax.swing.border.LineBorder;
@@ -166,10 +163,19 @@ public class PaymentFrame extends JFrame {
 
         JButton confirm = new JButton("I have paid");
         styleButton(confirm, new Color(255, 204, 0), Color.BLACK);
+
         confirm.addActionListener(e -> {
-            if (countdownTimer != null) countdownTimer.stop();
-            updateReceipt();
-            layout.show(container, "receipt");
+            // Show a confirmation dialog before proceeding
+            int response = JOptionPane.showConfirmDialog(this,
+                    "Confirm payment of RM " + String.format("%.2f", finalAmount) + "?",
+                    "Confirm Transaction",
+                    JOptionPane.YES_NO_OPTION);
+
+            if (response == JOptionPane.YES_OPTION) {
+                if (countdownTimer != null) countdownTimer.stop();
+                updateReceipt();
+                layout.show(container, "receipt");
+            }
         });
 
         panel.add(centerContent, BorderLayout.CENTER);
@@ -202,7 +208,8 @@ public class PaymentFrame extends JFrame {
         content.add(Box.createVerticalStrut(15));
         content.add(new JSeparator());
         content.add(Box.createVerticalStrut(15));
-        content.add(createRow("Tickets Total", "RM " + String.format("%.2f", (double)order.getTicketQuantity() * order.getTicketPrice())));
+        double ticketOnly = order.getSubtotal() - order.getFoodTotal();
+        content.add(createRow("Tickets Total", "RM " + String.format("%.2f", ticketOnly)));
         content.add(createRow("F&B Total", "RM " + String.format("%.2f", order.getFoodTotal())));
         content.add(Box.createVerticalStrut(20));
         content.add(createTotalRow("Total Price", "RM " + String.format("%.2f", order.getSubtotal())));
@@ -248,7 +255,11 @@ public class PaymentFrame extends JFrame {
         receiptArea.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         JButton done = new JButton("Finish");
         styleButton(done, Color.DARK_GRAY, Color.WHITE);
-        done.addActionListener(e -> dispose());
+
+        done.addActionListener(e -> {
+            JOptionPane.showMessageDialog(this, "Booking Successful! Enjoy your movie.", "Success", JOptionPane.INFORMATION_MESSAGE);
+            dispose();
+        });
         panel.add(new JScrollPane(receiptArea), BorderLayout.CENTER);
         panel.add(done, BorderLayout.SOUTH);
         return panel;
@@ -256,11 +267,15 @@ public class PaymentFrame extends JFrame {
 
     private void updateReceipt() {
         String dt = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+
+        // Join the list ["A1", "A2"] into "A1, A2"
+        String seatDisplay = String.join(", ", order.getSeats());
+
         receiptArea.setText("      CINEMA RECEIPT\n" +
                 "--------------------------\n" +
                 "Date: " + dt + "\n" +
                 "Movie: " + order.getMovieTitle() + "\n" +
-                "Seats: " + String.join(",", order.getSeats()) + "\n" +
+                "Seats: " + seatDisplay + "\n" +
                 "--------------------------\n" +
                 "Paid: RM " + String.format("%.2f", finalAmount) + "\n" +
                 "Method: " + paymentMethod + "\n" +
