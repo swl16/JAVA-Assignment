@@ -1,4 +1,4 @@
-package cinema.payment.model;
+package cinema;
 
 public class Payment {
     private double amount;
