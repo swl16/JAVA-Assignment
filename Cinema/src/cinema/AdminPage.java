@@ -28,10 +28,10 @@ public class AdminPage{
     final Color hovercolor = new Color(0xE85555);
     
     final String moviefile = "MovieDetails.txt";
+    final String schedulefile = "ShowtimeSchedule.txt";
     
-    Movie movie;
     JTextField titleEnter,genreEnter,languageEnter,durationEnter,directorEnter,castEnter,subtitlesEnter;
-    JComboBox<String> ratingEnter,showtimeEnter,hallEnter;
+    JComboBox<String> ratingEnter;
     JTextArea descriptionEnter;
     JSpinner releasedateEnter;
     ImageIcon poster;
@@ -53,8 +53,8 @@ public class AdminPage{
         adminpanel.add(menu(), "MENU");
         adminpanel.add(addmovie(), "Add_Movie");
         adminpanel.add(viewmovie(), "View_Movie");
-        adminpanel.add(checkstock(), "Check_Stock");
-        adminpanel.add(replenishstock(), "Replenish_Stock");
+        adminpanel.add(showtimeschedule(), "Showtime_Schedule");
+        adminpanel.add(salesreport(), "Salesreport");
         
         frame.add(adminpanel);
         frame.setVisible(true);
@@ -81,7 +81,7 @@ public class AdminPage{
         
         String [][] buttons = {
             {"ADD MOVIE", "Add_Movie"}, {"VIEW MOVIE", "View_Movie"}, 
-            {"CHECK STOCK","Check_Stock"}, {"REPLENISH STOCK","Replenish_Stock"},
+            {"SHOWTIME SCHEDULE","Showtime_Schedule"}, {"SALES REPORT","Salesreport"},
         };
         
         for(String[]btn : buttons){
@@ -90,8 +90,8 @@ public class AdminPage{
             
             b.addActionListener(e -> {cardlayout.show(adminpanel, card);
             if(card.equals("View_Movie")) refreshViewTable();
-            if(card.equals("Check_Stock")) refreshStockTable();
-            if(card.equals("Replenish_Stock")) refreshReplenishTable();
+            if(card.equals("Showtime_Schedule")) refreshScheduleTable();
+            if(card.equals("Salesreport")) generatereport();
             });
             
             inner.add(b);
@@ -170,9 +170,6 @@ public class AdminPage{
         form.add(descScroll);
         form.add(Box.createVerticalStrut(10));
         
-        showtimeEnter = formCombo(form, "Show Time", new String[]{"2:00 PM","5:00 PM","8:00 PM"});
-        hallEnter = formCombo(form, "Hall Number", new String[]{"Hall 1","Hall 2","Hall 3","Hall 4","Hall 5"});
-        
         JPanel btnbottom = new JPanel(new FlowLayout(FlowLayout.CENTER, 12,0));
         btnbottom.setBackground(bgcolor);
         JButton saveBtn  = styledButton("💾 SAVE MOVIE", true);
@@ -198,7 +195,7 @@ public class AdminPage{
         return wrap;
     }
     
-    private JPanel movieTable;
+    private JTable movieTable;
     private DefaultTableModel tableModel;
   
     private JPanel viewmovie(){
@@ -206,7 +203,7 @@ public class AdminPage{
         wrap.setBackground(bgcolor);
         wrap.add(sectionHeader("VIEW MOVIES", "View_Movie"), BorderLayout.NORTH);
         
-        String[] cols = {"Title","Genre","Rating","Show Time","Hall","Duration"};
+        String[] cols = {"Title","Genre","Rating", "Duration"};
         tableModel = new DefaultTableModel(cols,0){
             public boolean isCellEditable(int r, int c){return false;}
         };
@@ -236,17 +233,145 @@ public class AdminPage{
         return wrap;
     }
     
-    private JTable stockTable;
-    private DefaultTableModel stockModel;
+    private JTable scheduleTable;
+    private DefaultTableModel scheduleModel;
     
-    private JPanel checkstock(){
+    private JComboBox<String> schedulemoviebox;
+    private JComboBox<String> scheduletimebox;
+    private JComboBox<String> schedulehallbox;
+    
+    private JSpinner scheduledate;
+    
+    private JPanel showtimeschedule(){
+        JPanel wrap = new JPanel(new BorderLayout());
+        wrap.setBackground(bgcolor);
+        wrap.add(sectionHeader("SHOWTIME SCHEDULE", "Showtime_Schedule"), BorderLayout.NORTH);
+        
+        JPanel mainPanel = new JPanel();
+        mainPanel.setLayout(new BorderLayout());
+        mainPanel.setBackground(bgcolor);
+        
+        JPanel form = new JPanel();
+        form.setLayout(new BoxLayout(form, BoxLayout.Y_AXIS));
+        form.setBackground(bgcolor);
+        form.setBorder(new EmptyBorder(12, 25, 12, 25));
+        
+        form.add(fieldLabel("Select Movie"));
+        form.add(Box.createVerticalStrut(4));
+        schedulemoviebox = new JComboBox<>();
+        styleCombo(schedulemoviebox);
+        form.add(schedulemoviebox);
+        form.add(Box.createVerticalStrut(10));
+        
+        form.add(fieldLabel("Schedule Date"));
+        form.add(Box.createVerticalStrut(4));
+        SpinnerDateModel scheduleDateModel = new SpinnerDateModel(new Date(), new Date(), null, Calendar.DAY_OF_MONTH);
+        scheduledate = new JSpinner(scheduleDateModel);
+        JSpinner.DateEditor scheduleDateEditor = new JSpinner.DateEditor(scheduledate, "dd/MM/yyyy");
+        scheduledate.setEditor(scheduleDateEditor);
+        styleSpinner(scheduledate);
+        form.add(scheduledate);
+        form.add(Box.createVerticalStrut(10));
+        
+        form.add(fieldLabel("Show Time"));
+        form.add(Box.createVerticalStrut(4));
+        scheduletimebox = new JComboBox<>(new String[]{"2:00 PM", "5:00 PM", "8:00 PM"});
+        styleCombo(scheduletimebox);
+        form.add(scheduletimebox);
+        form.add(Box.createVerticalStrut(10));
+
+        // Hall
+        form.add(fieldLabel("Hall Number"));
+        form.add(Box.createVerticalStrut(4));
+        schedulehallbox = new JComboBox<>(new String[]{"Hall 1", "Hall 2", "Hall 3", "Hall 4", "Hall 5"});
+        styleCombo(schedulehallbox);
+        form.add(schedulehallbox);
+        form.add(Box.createVerticalStrut(14));
+
+        // Buttons
+        JPanel formBtnRow = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
+        formBtnRow.setBackground(bgcolor);
+
+        JButton addScheduleBtn = styledButton("ADD SCHEDULE", true);
+        JButton clearBtn = styledButton("CLEAR", false);
+
+        addScheduleBtn.addActionListener(e -> addShowtimeSchedule());
+        clearBtn.addActionListener(e -> clearScheduleForm());
+
+        formBtnRow.add(addScheduleBtn);
+        formBtnRow.add(clearBtn);
+
+        form.add(formBtnRow);
+        form.add(Box.createVerticalStrut(12));
+        
+        String[] cols = {"Movie Title", "Date", "Show Time", "Hall"};
+        scheduleModel = new DefaultTableModel(cols, 0) {
+        public boolean isCellEditable(int r, int c) {
+            return false;
+        }
+    };
+        
+        scheduleTable = new JTable(scheduleModel);
+        styleTable(scheduleTable);
+
+        JScrollPane tableScroll = new JScrollPane(scheduleTable);
+        tableScroll.setBorder(new LineBorder(bordercolor));
+        tableScroll.getViewport().setBackground(inputbg);
+        tableScroll.setPreferredSize(new Dimension(450, 280));
+        styleScrollBar(tableScroll);
+
+        // Bottom buttons
+        JPanel bottomBtnRow = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
+        bottomBtnRow.setBackground(bgcolor);
+
+        JButton editBtn = styledButton("EDIT", false);
+        JButton deleteBtn = styledButton("DELETE", true);
+        JButton refreshBtn = styledButton("REFRESH", false);
+        JButton backBtn = styledButton("BACK", false);
+
+        editBtn.addActionListener(e -> editSelectedSchedule());
+        deleteBtn.addActionListener(e -> deleteSelectedSchedule());
+        refreshBtn.addActionListener(e -> {
+            loadmovie();
+            refreshScheduleTable();
+        });
+        
+        backBtn.addActionListener(e -> cardlayout.show(adminpanel, "MENU"));
+
+        bottomBtnRow.add(editBtn);
+        bottomBtnRow.add(deleteBtn);
+        bottomBtnRow.add(refreshBtn);
+        bottomBtnRow.add(backBtn);
+
+        mainPanel.add(form, BorderLayout.NORTH);
+        mainPanel.add(tableScroll, BorderLayout.CENTER);
+        mainPanel.add(bottomBtnRow, BorderLayout.SOUTH);
+
+        wrap.add(mainPanel, BorderLayout.CENTER);
+
+        // Load data initially
+        loadmovie();
+        refreshScheduleTable();
+
+        return wrap;
+    }
+    
+    private JPanel salesreport(){
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBackground(bgcolor);
+        panel.add(sectionHeader("SALES REPORT", "Salesreport"), BorderLayout.NORTH);
+
+        JLabel label = new JLabel("Sales Report Page (Coming Soon)", SwingConstants.CENTER);
+        label.setForeground(textcolor);
+        label.setFont(new Font("Courier New", Font.BOLD, 18));
+
+        panel.add(label, BorderLayout.CENTER);
+        return panel;
+    }
+    
+    private void generatereport(){
         
     }
-    
-    private JPanel replenishstock(){
-    
-    }
-    
     
     private void savemovie(){
         String title = titleEnter.getText().trim();
@@ -258,26 +383,41 @@ public class AdminPage{
         String director = directorEnter.getText().trim();
         String cast = castEnter.getText().trim(); 
         String subtitles = subtitlesEnter.getText().trim();
-        String description = descriptionEnter.getText().trim().replace("/n", " ");
-        String showtime = showtimeEnter.getSelectedItem().toString();
-        String hall = hallEnter.getSelectedItem().toString();
+        String description = descriptionEnter.getText().trim().replace("\n", " ");
         
         if(title.isEmpty() || genre.isEmpty() || language.isEmpty() || date.isEmpty()||
                 rating.isEmpty()|| duration.isEmpty()|| director.isEmpty()||cast.isEmpty()||
-                subtitles.isEmpty()|| description.isEmpty()|| showtime.isEmpty()||hall.isEmpty()){
+                subtitles.isEmpty()|| description.isEmpty()){
             showMsg("Please fill in all required fields.", false);
             return;
         }
         
         try(BufferedWriter saveMovie = new BufferedWriter(new FileWriter(moviefile, true))){
             saveMovie.write(title + "|" + genre + "|" + language + "|" + rating + "|" + date + "|" + duration + "|" + 
-                    director + "|" + cast + "|" + subtitles + "|" + description + "|" + showtime + "|" + hall);
+                    director + "|" + cast + "|" + subtitles + "|" + description);
             saveMovie.newLine();
             showMsg("Movie saved successfully!", true);
             clearAddForm();
             
         }catch(IOException e){
             showMsg("Error saving: " + e.getMessage(), false);
+        }
+    }
+    
+    private void saveschedulefile(){
+        try(BufferedWriter save = new BufferedWriter(new FileWriter(schedulefile))){
+            
+            for(int i=0; i<scheduleModel.getRowCount();i++){
+                String line = scheduleModel.getValueAt(i, 0).toString() + "|" +
+                        scheduleModel.getValueAt(i, 1).toString() + "|" +
+                        scheduleModel.getValueAt(i, 2).toString() + "|" +
+                        scheduleModel.getValueAt(i, 3).toString();
+                
+                save.write(line);
+                save.newLine();
+            }
+        }catch(IOException e){
+            showMsg("Error saving schedule file: " + e.getMessage(), false);
         }
     }
     
@@ -292,12 +432,189 @@ public class AdminPage{
             
             while((line = readmovie.readLine()) != null){
                 String[] details = line.split("\\|", -1);
-                if (details.length == 12){
+                if (details.length == 10){
                     tableModel.addRow(details);
                 }
             }
         }catch(IOException e){
             showMsg("Error loading movies" + e.getMessage(),false);
+        }
+    }
+    
+    private void editSelectedSchedule(){
+        int row = scheduleTable.getSelectedRow();
+        
+        if(row<0){
+            showMsg("Please select a schedule to edit", false);
+            return;
+        }
+        
+        JDialog editDialog = new JDialog(frame, "Edit Showtime Schedule", true);
+        editDialog.setSize(450, 420);
+        editDialog.setLayout(new BorderLayout());
+        editDialog.setLocationRelativeTo(frame);
+        editDialog.getContentPane().setBackground(bgcolor);
+        editDialog.setResizable(false);
+
+        JPanel form = new JPanel();
+        form.setLayout(new BoxLayout(form, BoxLayout.Y_AXIS));
+        form.setBackground(bgcolor);
+        form.setBorder(new EmptyBorder(20, 25, 20, 25));
+
+        // Movie
+        form.add(fieldLabel("Select Movie"));
+        form.add(Box.createVerticalStrut(4));
+        JComboBox<String> movieBox = new JComboBox<>();
+        styleCombo(movieBox);
+        
+        File file = new File(moviefile);
+        HashSet<String> titles = new HashSet<>();
+        
+        if(file.exists()){
+            try(BufferedReader read = new BufferedReader(new FileReader(file))){
+                String line;
+                while((line = read.readLine()) != null){
+                    String[] details = line.split("\\|", -1);
+                    if(details.length == 10){
+                        titles.add(details[0].trim());
+                    }
+                }
+            }catch(IOException e){
+                showMsg("Error loading movies: " + e.getMessage(), false);
+            }
+        }
+        
+        ArrayList<String> sortedTitles = new ArrayList<>(titles);
+        Collections.sort(sortedTitles);
+
+        for(String title : sortedTitles){
+            movieBox.addItem(title);
+        }
+
+        movieBox.setSelectedItem(scheduleModel.getValueAt(row, 0).toString());
+        form.add(movieBox);
+        form.add(Box.createVerticalStrut(10));
+
+        form.add(fieldLabel("Schedule Date"));
+        form.add(Box.createVerticalStrut(4));
+        JSpinner editDateSpinner = new JSpinner(new SpinnerDateModel());
+        JSpinner.DateEditor dateEditor = new JSpinner.DateEditor(editDateSpinner, "dd/MM/yyyy");
+        editDateSpinner.setEditor(dateEditor);
+        styleSpinner(editDateSpinner);
+
+        try {
+            java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("dd/MM/yyyy");
+            Date parsedDate = sdf.parse(scheduleModel.getValueAt(row, 1).toString());
+            editDateSpinner.setValue(parsedDate);
+        } catch (Exception ex) {
+            editDateSpinner.setValue(new Date());
+        }
+
+        form.add(editDateSpinner);
+        form.add(Box.createVerticalStrut(10));
+
+        form.add(fieldLabel("Show Time"));
+        form.add(Box.createVerticalStrut(4));
+        JComboBox<String> timeBox = new JComboBox<>(new String[]{"2:00 PM", "5:00 PM", "8:00 PM"});
+        styleCombo(timeBox);
+        timeBox.setSelectedItem(scheduleModel.getValueAt(row, 2).toString());
+        form.add(timeBox);
+        form.add(Box.createVerticalStrut(10));
+
+        form.add(fieldLabel("Hall Number"));
+        form.add(Box.createVerticalStrut(4));
+        JComboBox<String> hallBox = new JComboBox<>(new String[]{"Hall 1", "Hall 2", "Hall 3", "Hall 4", "Hall 5"});
+        styleCombo(hallBox);
+        hallBox.setSelectedItem(scheduleModel.getValueAt(row, 3).toString());
+        form.add(hallBox);
+        form.add(Box.createVerticalStrut(18));
+
+        JPanel btnRow = new JPanel(new FlowLayout(FlowLayout.CENTER, 12, 0));
+        btnRow.setBackground(bgcolor);
+
+        JButton saveBtn = styledButton("SAVE CHANGES", true);
+        JButton cancelBtn = styledButton("CANCEL", false);
+
+        saveBtn.addActionListener(e -> {
+            if (movieBox.getItemCount() == 0) {
+                showMsg("No movies available.", false);
+                return;
+            }
+
+            String movieTitle = movieBox.getSelectedItem().toString();
+            String scheduleDate = ((JSpinner.DateEditor) editDateSpinner.getEditor())
+                .getFormat().format(editDateSpinner.getValue());
+            String showTime = timeBox.getSelectedItem().toString();
+            String hall = hallBox.getSelectedItem().toString();
+
+            Date selectedDate = (Date) editDateSpinner.getValue();
+            Calendar today = Calendar.getInstance();
+            today.set(Calendar.HOUR_OF_DAY, 0);
+            today.set(Calendar.MINUTE, 0);
+            today.set(Calendar.SECOND, 0);
+            today.set(Calendar.MILLISECOND, 0);
+
+            Calendar chosen = Calendar.getInstance();
+            chosen.setTime(selectedDate);
+            chosen.set(Calendar.HOUR_OF_DAY, 0);
+            chosen.set(Calendar.MINUTE, 0);
+            chosen.set(Calendar.SECOND, 0);
+            chosen.set(Calendar.MILLISECOND, 0);
+
+            if (chosen.before(today)) {
+                showMsg("Schedule date cannot be in the past.", false);
+                return;
+            }
+
+            for (int i = 0; i < scheduleModel.getRowCount(); i++) {
+                if (i == row) continue;
+
+                String existingDate = scheduleModel.getValueAt(i, 1).toString();
+                String existingTime = scheduleModel.getValueAt(i, 2).toString();
+                String existingHall = scheduleModel.getValueAt(i, 3).toString();
+
+                if (existingDate.equals(scheduleDate) &&
+                    existingTime.equals(showTime) &&
+                    existingHall.equals(hall)) {
+                    showMsg("This hall already has a movie scheduled at the same date and time.", false);
+                    return;
+                }
+            }
+
+            scheduleModel.setValueAt(movieTitle, row, 0);
+            scheduleModel.setValueAt(scheduleDate, row, 1);
+            scheduleModel.setValueAt(showTime, row, 2);
+            scheduleModel.setValueAt(hall, row, 3);
+
+            saveschedulefile();
+            showMsg("Schedule updated successfully!", true);
+            editDialog.dispose();
+        });
+
+        cancelBtn.addActionListener(e -> editDialog.dispose());
+
+        btnRow.add(saveBtn);
+        btnRow.add(cancelBtn);
+        form.add(btnRow);
+
+        editDialog.add(form, BorderLayout.CENTER);
+        editDialog.setVisible(true);
+    }
+    
+    private void deleteSelectedSchedule(){
+        int row = scheduleTable.getSelectedRow();
+        
+        if(row<0){
+            showMsg("Please select a schedule to delete", false);
+            return;
+        }
+        
+        int confirm = JOptionPane.showConfirmDialog(frame, "Delete selected showtime schedule?", "Confirm Delete", JOptionPane.YES_NO_OPTION);
+        
+        if(confirm == JOptionPane.YES_OPTION){
+            scheduleModel.removeRow(row);
+            saveschedulefile();
+            showMsg("Schedule deleted successfully!", true);
         }
     }
     
@@ -307,6 +624,32 @@ public class AdminPage{
 
      if (row < 0) {
         showMsg("Please select a movie to edit.", false);
+        return;
+     }
+     
+     String selectedTitle = tableModel.getValueAt(row, 0).toString();
+
+     String[] movieDetails = null;
+
+     File file = new File(moviefile);
+     if (file.exists()) {
+        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] details = line.split("\\|", -1);
+                if (details.length == 10 && details[0].equals(selectedTitle)) {
+                    movieDetails = details;
+                    break;
+                }
+            }
+        } catch (IOException e) {
+            showMsg("Error loading movie details: " + e.getMessage(), false);
+            return;
+        }
+     }
+
+     if (movieDetails == null) {
+        showMsg("Movie details not found.", false);
         return;
      }
 
@@ -323,83 +666,74 @@ public class AdminPage{
      form.setBackground(bgcolor);
      form.setBorder(new EmptyBorder(15, 25, 15, 25));
 
-    // Title
+     // Title
      form.add(fieldLabel("Movie Title"));
      form.add(Box.createVerticalStrut(4));
-     JTextField titleField = new JTextField(tableModel.getValueAt(row, 0).toString());
+     JTextField titleField = new JTextField(movieDetails[0]);
      styleTextField(titleField);
      form.add(titleField);
      form.add(Box.createVerticalStrut(10));
 
-    // Genre
      form.add(fieldLabel("Genre"));
      form.add(Box.createVerticalStrut(4));
-     JTextField genreField = new JTextField(tableModel.getValueAt(row, 1).toString());
+     JTextField genreField = new JTextField(movieDetails[1]);
      styleTextField(genreField);
      form.add(genreField);
      form.add(Box.createVerticalStrut(10));
 
-    // Language
      form.add(fieldLabel("Language"));
      form.add(Box.createVerticalStrut(4));
-     JTextField languageField = new JTextField(tableModel.getValueAt(row, 2).toString());
+     JTextField languageField = new JTextField(movieDetails[2]);
      styleTextField(languageField);
      form.add(languageField);
      form.add(Box.createVerticalStrut(10));
 
-    // Rating
      form.add(fieldLabel("Movie Rating"));
      form.add(Box.createVerticalStrut(4));
      JComboBox<String> ratingBox = new JComboBox<>(new String[]{"U", "P12", "P13", "P16", "P18"});
      styleCombo(ratingBox);
-     ratingBox.setSelectedItem(tableModel.getValueAt(row, 3).toString());
+     ratingBox.setSelectedItem(movieDetails[3]);
      form.add(ratingBox);
      form.add(Box.createVerticalStrut(10));
 
-    // Release Date
      form.add(fieldLabel("Release Date"));
      form.add(Box.createVerticalStrut(4));
-     JTextField releaseDateField = new JTextField(tableModel.getValueAt(row, 4).toString());
+     JTextField releaseDateField = new JTextField(movieDetails[4]);
      styleTextField(releaseDateField);
      form.add(releaseDateField);
      form.add(Box.createVerticalStrut(10));
 
-    // Duration
      form.add(fieldLabel("Duration (mins)"));
      form.add(Box.createVerticalStrut(4));
-     JTextField durationField = new JTextField(tableModel.getValueAt(row, 5).toString());
+     JTextField durationField = new JTextField(movieDetails[5]);
      styleTextField(durationField);
      form.add(durationField);
      form.add(Box.createVerticalStrut(10));
 
-    // Director
      form.add(fieldLabel("Director"));
      form.add(Box.createVerticalStrut(4));
-     JTextField directorField = new JTextField(tableModel.getValueAt(row, 6).toString());
+     JTextField directorField = new JTextField(movieDetails[6]);
      styleTextField(directorField);
      form.add(directorField);
      form.add(Box.createVerticalStrut(10));
 
-    // Cast
      form.add(fieldLabel("Cast"));
      form.add(Box.createVerticalStrut(4));
-     JTextField castField = new JTextField(tableModel.getValueAt(row, 7).toString());
+     JTextField castField = new JTextField(movieDetails[7]);
      styleTextField(castField);
      form.add(castField);
      form.add(Box.createVerticalStrut(10));
 
-    // Subtitles
      form.add(fieldLabel("Subtitles"));
      form.add(Box.createVerticalStrut(4));
-     JTextField subtitlesField = new JTextField(tableModel.getValueAt(row, 8).toString());
+     JTextField subtitlesField = new JTextField(movieDetails[8]);
      styleTextField(subtitlesField);
      form.add(subtitlesField);
      form.add(Box.createVerticalStrut(10));
 
-    // Description
      form.add(fieldLabel("Description"));
      form.add(Box.createVerticalStrut(4));
-     JTextArea descriptionArea = new JTextArea(tableModel.getValueAt(row, 9).toString(), 4, 10);
+     JTextArea descriptionArea = new JTextArea(movieDetails[9], 4, 10);
      descriptionArea.setLineWrap(true);
      descriptionArea.setWrapStyleWord(true);
      styleTextArea(descriptionArea);
@@ -411,29 +745,11 @@ public class AdminPage{
      form.add(descScroll);
      form.add(Box.createVerticalStrut(10));
 
-    // Show Time
-     form.add(fieldLabel("Show Time"));
-     form.add(Box.createVerticalStrut(4));
-     JComboBox<String> showTimeBox = new JComboBox<>(new String[]{"2:00 PM", "5:00 PM", "8:00 PM"});
-     styleCombo(showTimeBox);
-     showTimeBox.setSelectedItem(tableModel.getValueAt(row, 10).toString());
-     form.add(showTimeBox);
-     form.add(Box.createVerticalStrut(10));
-
-    // Hall Number
-     form.add(fieldLabel("Hall Number"));
-     form.add(Box.createVerticalStrut(4));
-     JComboBox<String> hallBox = new JComboBox<>(new String[]{"Hall 1", "Hall 2", "Hall 3", "Hall 4", "Hall 5"});
-     styleCombo(hallBox);
-     hallBox.setSelectedItem(tableModel.getValueAt(row, 11).toString());
-     form.add(hallBox);
-     form.add(Box.createVerticalStrut(15));
-
     // ===== BUTTON PANEL =====
      JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 12, 0));
      buttonPanel.setBackground(bgcolor);
 
-     JButton saveButton = styledButton("SAVE CHANGES", true);
+     JButton saveButton = styledButton("SAVE", true);
      JButton cancelButton = styledButton("CANCEL", false);
 
      saveButton.addActionListener(e -> {
@@ -447,8 +763,6 @@ public class AdminPage{
         String cast = castField.getText().trim();
         String subtitles = subtitlesField.getText().trim();
         String description = descriptionArea.getText().trim();
-        String showTime = showTimeBox.getSelectedItem().toString();
-        String hall = hallBox.getSelectedItem().toString();
 
         if (title.isEmpty() || genre.isEmpty() || language.isEmpty() || releaseDate.isEmpty()
                 || duration.isEmpty() || director.isEmpty() || cast.isEmpty()
@@ -464,21 +778,40 @@ public class AdminPage{
             return;
         }
 
-        // Update table model
-        tableModel.setValueAt(title, row, 0);
-        tableModel.setValueAt(genre, row, 1);
-        tableModel.setValueAt(language, row, 2);
-        tableModel.setValueAt(rating, row, 3);
-        tableModel.setValueAt(releaseDate, row, 4);
-        tableModel.setValueAt(duration, row, 5);
-        tableModel.setValueAt(director, row, 6);
-        tableModel.setValueAt(cast, row, 7);
-        tableModel.setValueAt(subtitles, row, 8);
-        tableModel.setValueAt(description, row, 9);
-        tableModel.setValueAt(showTime, row, 10);
-        tableModel.setValueAt(hall, row, 11);
+        ArrayList<String[]> allMovies = new ArrayList<>();
 
-        saveMoviesToFile();
+        try (BufferedReader br = new BufferedReader(new FileReader(moviefile))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] details = line.split("\\|", -1);
+                if (details.length == 10) {
+                    if (details[0].equals(selectedTitle)) {
+                        allMovies.add(new String[]{
+                            title, genre, language, rating, releaseDate,
+                            duration, director, cast, subtitles, description
+                        });
+                    } else {
+                        allMovies.add(details);
+                    }
+                }
+            }
+        } catch (IOException ex) {
+            showMsg("Error reading movies: " + ex.getMessage(), false);
+            return;
+        }
+
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(moviefile))) {
+            for (String[] m : allMovies) {
+                bw.write(String.join("|", m));
+                bw.newLine();
+            }
+        } catch (IOException ex) {
+            showMsg("Error saving movies: " + ex.getMessage(), false);
+            return;
+        }
+
+        refreshViewTable();
+        
         showMsg("Movie updated successfully!", true);
         editDialog.dispose();
         });
@@ -502,26 +835,180 @@ public class AdminPage{
 
     
     private void deleteSelectedMovie(){
+        int row = movieTable.getSelectedRow();
+        
+        if(row<0){
+            showMsg("Please select a movie to delete.", false);
+            return;
+        }
+        
+        String selectedTitle = tableModel.getValueAt(row, 0).toString();
+        
+        int confirm = JOptionPane.showConfirmDialog(frame,"Delete selected movie?", "Confirm Delete", JOptionPane.YES_NO_OPTION);
+        
+        if(confirm == JOptionPane.YES_OPTION){
+             ArrayList<String[]> allMovies = new ArrayList<>();
+
+            try (BufferedReader br = new BufferedReader(new FileReader(moviefile))) {
+                String line;
+                while ((line = br.readLine()) != null) {
+                    String[] details = line.split("\\|", -1);
+                    if (details.length == 10 && !details[0].equals(selectedTitle)) {
+                        allMovies.add(details);
+                    }
+                }
+            } catch (IOException e) {
+                showMsg("Error reading movies: " + e.getMessage(), false);
+                return;
+            }
+
+            try (BufferedWriter bw = new BufferedWriter(new FileWriter(moviefile))) {
+                for (String[] m : allMovies) {
+                    bw.write(String.join("|", m));
+                    bw.newLine();
+                }
+            } catch (IOException e) {
+                showMsg("Error saving movies: " + e.getMessage(), false);
+                return;
+            }
+
+            refreshViewTable();
+            loadmovie();
+            showMsg("Movie deleted successfully!", true);
+        }
         
     }
     
-    private void saveMoviesToFile(){
-        try(BufferedWriter savemovie = new BufferedWriter(new FilwWrite(moviefile, true))){
-            for(int i=0; i<tableModel.getRowCount(); i++){
-                StringBuilder line = new StringBuilder();
-                
-                for(int j=0; j < tableModel.getColumnCount();j++){
-                    line.append(tableModel.getValueAt(i, j).toString());
-                    if(j < tableModel.getColumnCount()-1){
-                        line.append("|");
-                    }
+    private void addShowtimeSchedule(){
+        if(schedulemoviebox.getItemCount() == 0){
+            showMsg("No movies available. Please add movie first.", false);
+            return;
+        }
+        
+        String movieTitle = schedulemoviebox.getSelectedItem().toString();
+        String scheduleDate = ((JSpinner.DateEditor) scheduledate.getEditor())
+                .getFormat().format(scheduledate.getValue());
+        String showTime = scheduletimebox.getSelectedItem().toString();
+        String hall = schedulehallbox.getSelectedItem().toString();
+        
+        Date selectedDate = (Date) scheduledate.getValue();
+        Calendar today = Calendar.getInstance();
+        today.set(Calendar.HOUR_OF_DAY, 0);
+        today.set(Calendar.MINUTE, 0);
+        today.set(Calendar.SECOND, 0);
+        today.set(Calendar.MILLISECOND, 0);
+
+        Calendar chosen = Calendar.getInstance();
+        chosen.setTime(selectedDate);
+        chosen.set(Calendar.HOUR_OF_DAY, 0);
+        chosen.set(Calendar.MINUTE, 0);
+        chosen.set(Calendar.SECOND, 0);
+        chosen.set(Calendar.MILLISECOND, 0);
+
+        if (chosen.before(today)) {
+            showMsg("Schedule date cannot be in the past.", false);
+            return;
+        }
+
+        // Prevent duplicate hall+date+time clash
+        for (int i = 0; i < scheduleModel.getRowCount(); i++) {
+            String existingDate = scheduleModel.getValueAt(i, 1).toString();
+            String existingTime = scheduleModel.getValueAt(i, 2).toString();
+            String existingHall = scheduleModel.getValueAt(i, 3).toString();
+
+            if (existingDate.equals(scheduleDate) &&
+                existingTime.equals(showTime) &&
+                existingHall.equals(hall)) {
+                showMsg("This hall already has a movie scheduled at the same date and time.", false);
+                return;
+            }   
+        }
+
+        try (BufferedWriter showtime = new BufferedWriter(new FileWriter(schedulefile, true))) {
+            showtime.write(movieTitle + "|" + scheduleDate + "|" + showTime + "|" + hall);
+            showtime.newLine();
+
+            showMsg("Showtime schedule added successfully!", true);
+            refreshScheduleTable();
+            clearScheduleForm();
+
+        } catch (IOException e) {
+            showMsg("Error saving schedule: " + e.getMessage(), false);
+        }
+    }
+    
+//    private void saveMoviesToFile(){
+//        try(BufferedWriter savemovie = new BufferedWriter(new FileWriter(moviefile))){
+//            for(int i=0; i<tableModel.getRowCount(); i++){
+//                StringBuilder line = new StringBuilder();
+//                
+//                for(int j=0; j < tableModel.getColumnCount();j++){
+//                    line.append(tableModel.getValueAt(i, j).toString());
+//                    if(j < tableModel.getColumnCount()-1){
+//                        line.append("|");
+//                    }
+//                }
+//                
+//                savemovie.write(line.toString());
+//                savemovie.newLine();
+//            }
+//        }catch(IOException e){
+//            showMsg("Error saving movies: " + e.getMessage(), false);
+//        }
+//    }
+    
+    private void refreshViewTable(){
+        if(tableModel == null) return;
+        
+        tableModel.setRowCount(0);
+        
+        File file = new File(moviefile);
+        if (!file.exists()) return;
+
+        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+            String line;
+
+            while ((line = br.readLine()) != null) {
+                String[] details = line.split("\\|", -1);
+
+                if (details.length == 10) {
+                    tableModel.addRow(new Object[]{
+                    details[0], // Title
+                    details[1], // Genre
+                    details[3], // Rating
+                    details[5]  // Duration
+                    });
                 }
+            }
+        } catch (IOException e) {
+            showMsg("Error loading movies: " + e.getMessage(), false);
+        }
+    }
+    
+    private void refreshScheduleTable(){
+        if(scheduleModel == null) return;
+        
+        scheduleModel.setRowCount(0);
+        File file = new File(schedulefile);
+        if(!file.exists()) return;
+        
+        try(BufferedReader read = new BufferedReader(new FileReader(file))){
+            String line;
+            
+            while((line = read.readLine())!= null){
+                String[] details = line.split("\\|", -1);
                 
-                savemovie.write(line.toString());
-                savemovie.newLine();
+                if(details.length ==4){
+                    scheduleModel.addRow(new Object[]{
+                        details[0], //movie title
+                        details[1], //date
+                        details[2], //show time
+                        details[3]  //hall
+                    });
+                }
             }
         }catch(IOException e){
-            showMsg("Error saving movies: " + e.getMessage(), false);
+            showMsg("Error loading schedule: " + e.getMessage(), false);
         }
     }
     
@@ -683,10 +1170,20 @@ public class AdminPage{
         titleEnter.setText(""); genreEnter.setText(""); languageEnter.setText("");
         durationEnter.setText(""); directorEnter.setText(""); castEnter.setText("");
         subtitlesEnter.setText(""); descriptionEnter.setText("");
-        ratingEnter.setSelectedIndex(0); showtimeEnter.setSelectedIndex(0); hallEnter.setSelectedIndex(0);
+        ratingEnter.setSelectedIndex(0);
         releasedateEnter.setValue(new Date());
     }
     
+    
+    private void clearScheduleForm(){
+        if(schedulemoviebox.getItemCount() > 0){
+            schedulemoviebox.setSelectedIndex(0);
+        }
+        
+        scheduletimebox.setSelectedIndex(0);
+        schedulehallbox.setSelectedIndex(0);
+        scheduledate.setValue(new Date());
+    }
     
     private void backmenu(){
         cardlayout.show(adminpanel, "MENU");
