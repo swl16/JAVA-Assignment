@@ -39,7 +39,7 @@ public class AdminPage{
     
     public AdminPage(){
         frame = new JFrame("TGC Cinema - Admin Page");
-        frame.setSize(500,700);
+        frame.setSize(550,700);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new BorderLayout());
         frame.setResizable(false);
@@ -71,7 +71,7 @@ public class AdminPage{
         JLabel title = new JLabel("TGC Cinema Admin", SwingConstants.CENTER);
         title.setForeground(textcolor);
         title.setFont(new Font("Courier New", Font.BOLD, 30));
-        title.setBorder(BorderFactory.createEmptyBorder(35,140,15,0));
+        title.setBorder(BorderFactory.createEmptyBorder(35,100,15,0));
         panel.add(title);
         
         JPanel inner = new JPanel();
@@ -125,16 +125,56 @@ public class AdminPage{
         return btn;
     }
     
+    private JLabel movieposter;
+    private String posterpath = "";
     
     private JPanel addmovie(){
         JPanel wrap = new JPanel(new BorderLayout());
         wrap.setBackground(bgcolor);
         wrap.add(sectionHeader("ADD MOVIE", "Add_Movie"), BorderLayout.NORTH);
         
+        JPanel content = new JPanel(new BorderLayout(20,0));
+        content.setBackground(bgcolor);
+        content.setBorder(new EmptyBorder(10,20,10,20));
+        
+        JPanel left = new JPanel();
+        left.setLayout(new BoxLayout(left, BoxLayout.Y_AXIS));
+        left.setBackground(bgcolor);
+        left.setPreferredSize(new Dimension(220,550));
+        left.setBorder(new EmptyBorder(10,10,10,10));
+        
+        JLabel postertitle = new JLabel("MOVIE POSTER");
+        postertitle.setFont(new Font("Courier NEW", Font.BOLD, 12));
+        postertitle.setForeground(textcolor);
+        postertitle.setAlignmentX(Component.CENTER_ALIGNMENT);
+        
+        left.add(postertitle);
+        left.add(Box.createVerticalStrut(15));
+        
+        movieposter = new JLabel("No Poster", SwingConstants.CENTER);
+        movieposter.setPreferredSize(new Dimension(180,260));
+        movieposter.setMinimumSize(new Dimension(180,260));
+        movieposter.setMaximumSize(new Dimension(180,260));
+        movieposter.setOpaque(true);
+        movieposter.setBackground(inputbg);
+        movieposter.setForeground(textcolor);
+        movieposter.setFont(new Font("Courier New", Font.PLAIN, 13));
+        movieposter.setBorder(new LineBorder(redcolor, 2));
+        movieposter.setAlignmentX(Component.CENTER_ALIGNMENT);
+        
+        left.add(movieposter);
+        left.add(Box.createVerticalStrut(15));
+        
+        JButton uploadPosterBtn = styledButton("UPLOAD POSTER", true);
+        uploadPosterBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
+        uploadPosterBtn.addActionListener(e -> choosePoster());
+
+        left.add(uploadPosterBtn);
+        
         JPanel form = new JPanel();
         form.setLayout(new BoxLayout(form, BoxLayout.Y_AXIS));
         form.setBackground(bgcolor);
-        form.setBorder(new EmptyBorder(10, 30, 10, 30));
+        form.setBorder(new EmptyBorder(10, 10, 10, 10));
         
         titleEnter = formField(form, "Movie Title");
         genreEnter = formField(form, "Genre");
@@ -159,7 +199,7 @@ public class AdminPage{
         
         form.add(fieldLabel("Description"));
         form.add(Box.createVerticalStrut(4));
-        descriptionEnter = new JTextArea(3, 10);
+        descriptionEnter = new JTextArea(5, 4);
         descriptionEnter.setLineWrap(true);
         descriptionEnter.setWrapStyleWord(true);
         styleTextArea(descriptionEnter);
@@ -168,22 +208,25 @@ public class AdminPage{
         descScroll.setMaximumSize(new Dimension(Integer.MAX_VALUE, 100));
         descScroll.getViewport().setBackground(inputbg);
         form.add(descScroll);
-        form.add(Box.createVerticalStrut(10));
+        form.add(Box.createVerticalStrut(4));
         
         JPanel btnbottom = new JPanel(new FlowLayout(FlowLayout.CENTER, 12,0));
         btnbottom.setBackground(bgcolor);
-        JButton saveBtn  = styledButton("💾 SAVE MOVIE", true);
-        JButton clearBtn = styledButton("✖ CLEAR", false);
+        JButton saveBtn  = styledButton("SAVE MOVIE", true);
+        JButton clearBtn = styledButton("CLEAR", false);
         JButton backbtn = styledButton("Back", true);
         saveBtn.addActionListener(e -> savemovie());
         clearBtn.addActionListener(e -> clearAddForm());
         backbtn.addActionListener(e -> backmenu());
-        btnbottom.add(saveBtn);
-        btnbottom.add(clearBtn);
+        
+        
         btnbottom.add(backbtn);
-        form.add(Box.createVerticalStrut(10));
+        btnbottom.add(clearBtn);
+        btnbottom.add(saveBtn);
+        
+        form.add(Box.createVerticalStrut(5));
         form.add(btnbottom);
-        form.add(Box.createVerticalStrut(10));
+        form.add(Box.createVerticalStrut(5));
         
         JScrollPane scroll = new JScrollPane(form);
         scroll.setBorder(null);
@@ -191,8 +234,30 @@ public class AdminPage{
         scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         styleScrollBar(scroll);
  
-        wrap.add(scroll, BorderLayout.CENTER);
+        content.add(left,BorderLayout.WEST);
+        content.add(scroll,BorderLayout.CENTER);
+        
+        wrap.add(content, BorderLayout.CENTER);
         return wrap;
+    }
+    
+    private void choosePoster(){
+        JFileChooser choosefile = new JFileChooser();
+        choosefile.setDialogTitle("Select Movie Poster");
+        
+        int result = choosefile.showOpenDialog(frame);
+        
+        if(result == JFileChooser.APPROVE_OPTION){
+            File selectfile = choosefile.getSelectedFile();
+            posterpath = selectfile.getAbsolutePath();
+            
+            poster = new ImageIcon(posterpath);
+            Image img = poster.getImage().getScaledInstance(180,260,Image.SCALE_SMOOTH);
+            
+            movieposter.setText("");
+            movieposter.setIcon(new ImageIcon(img));
+            
+        }
     }
     
     private JTable movieTable;
@@ -1073,6 +1138,7 @@ public class AdminPage{
         ta.setCaretColor(redcolor);
         ta.setFont(new Font("Courier New", Font.PLAIN, 13));
         ta.setBorder(new EmptyBorder(6, 8, 6, 8));
+        ta.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
         ta.setAlignmentX(Component.LEFT_ALIGNMENT);
     }
  
@@ -1172,6 +1238,12 @@ public class AdminPage{
         subtitlesEnter.setText(""); descriptionEnter.setText("");
         ratingEnter.setSelectedIndex(0);
         releasedateEnter.setValue(new Date());
+        
+        posterpath = "";
+        if(movieposter != null){
+            movieposter.setIcon(null);
+            movieposter.setText("No Poster");
+        }
     }
     
     
