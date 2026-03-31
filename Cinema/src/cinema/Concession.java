@@ -28,8 +28,7 @@ public class Concession implements ActionListener {
     private Scanner scanner = new Scanner(System.in);
     private ArrayList<Item> basket = new ArrayList<>();
 
-    public Concession(JFrame homeFrame) {
-        this.homeFrame = homeFrame;
+    public Concession() {
 
         // Frame Setup
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
