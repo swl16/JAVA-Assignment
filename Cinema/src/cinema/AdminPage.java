@@ -39,7 +39,7 @@ public class AdminPage{
     
     public AdminPage(){
         frame = new JFrame("TGC Cinema - Admin Page");
-        frame.setSize(550,700);
+        frame.setSize(500,700);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new BorderLayout());
         frame.setResizable(false);
@@ -260,6 +260,24 @@ public class AdminPage{
         }
     }
     
+    private boolean containsnumber(String text){
+        return text.matches(".*\\d.*");
+    }
+    
+    private boolean validatetext(String fieldname, String value){
+        if(value.isEmpty()){
+            showMsg(fieldname + "cannot be empty!", false);
+            return false;
+        }
+        
+        if(containsnumber(value)){
+            showMsg(fieldname + "cannot contain numbers! Please try again.", false);
+            return false;
+        }
+        
+        return true;
+    }
+    
     private JTable movieTable;
     private DefaultTableModel tableModel;
   
@@ -282,9 +300,12 @@ public class AdminPage{
         
         JPanel btnrow = new JPanel(new FlowLayout(FlowLayout.CENTER, 12,8));
         btnrow.setBackground(bgcolor);
-        JButton editBtn   = styledButton("✏EDIT",   false);
-        JButton deleteBtn = styledButton("🗑DELETE", true);
+        
         JButton backBtn = styledButton("BACK", false);
+        JButton editBtn   = styledButton("EDIT",   false);
+        JButton deleteBtn = styledButton("DELETE", true);
+        
+        
         editBtn.addActionListener(e   -> editSelectedMovie());
         deleteBtn.addActionListener(e -> deleteSelectedMovie());
         backBtn.addActionListener(e -> cardlayout.show(adminpanel, "MENU"));
@@ -356,9 +377,10 @@ public class AdminPage{
         // Buttons
         JPanel formBtnRow = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
         formBtnRow.setBackground(bgcolor);
-
-        JButton addScheduleBtn = styledButton("ADD SCHEDULE", true);
+        
         JButton clearBtn = styledButton("CLEAR", false);
+        JButton addScheduleBtn = styledButton("ADD SCHEDULE", true);
+        
 
         addScheduleBtn.addActionListener(e -> addShowtimeSchedule());
         clearBtn.addActionListener(e -> clearScheduleForm());
@@ -388,12 +410,13 @@ public class AdminPage{
         // Bottom buttons
         JPanel bottomBtnRow = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
         bottomBtnRow.setBackground(bgcolor);
-
+        
+        
+        JButton backBtn = styledButton("BACK", false);
+        JButton refreshBtn = styledButton("REFRESH", false);
         JButton editBtn = styledButton("EDIT", false);
         JButton deleteBtn = styledButton("DELETE", true);
-        JButton refreshBtn = styledButton("REFRESH", false);
-        JButton backBtn = styledButton("BACK", false);
-
+        
         editBtn.addActionListener(e -> editSelectedSchedule());
         deleteBtn.addActionListener(e -> deleteSelectedSchedule());
         refreshBtn.addActionListener(e -> {
@@ -457,9 +480,30 @@ public class AdminPage{
             return;
         }
         
+        if(!validatetext("Genre", genre)) return;
+        if(!validatetext("Language", language)) return;
+        if(!validatetext("Director", director)) return;
+        if(!validatetext("Cast", cast)) return;
+        if(!validatetext("Subtitles", subtitles)) return;
+        
+        try {
+            Integer.valueOf(duration);
+        } catch (NumberFormatException ex) {
+            showMsg("Duration must be a number.", false);
+            return;
+        }
+        
+        if (posterpath == null || posterpath.isEmpty()) {
+            showMsg("Please upload a movie poster!", false);
+        return;
+        }
+
+        
+        
         try(BufferedWriter saveMovie = new BufferedWriter(new FileWriter(moviefile, true))){
             saveMovie.write(title + "|" + genre + "|" + language + "|" + rating + "|" + date + "|" + duration + "|" + 
-                    director + "|" + cast + "|" + subtitles + "|" + description);
+                    director + "|" + cast + "|" + subtitles + "|" + description + "|" + posterpath); 
+            
             saveMovie.newLine();
             showMsg("Movie saved successfully!", true);
             clearAddForm();
@@ -497,7 +541,7 @@ public class AdminPage{
             
             while((line = readmovie.readLine()) != null){
                 String[] details = line.split("\\|", -1);
-                if (details.length == 10){
+                if (details.length == 11){
                     tableModel.addRow(details);
                 }
             }
@@ -702,7 +746,7 @@ public class AdminPage{
             String line;
             while ((line = br.readLine()) != null) {
                 String[] details = line.split("\\|", -1);
-                if (details.length == 10 && details[0].equals(selectedTitle)) {
+                if (details.length == 11 && details[0].equals(selectedTitle)) {
                     movieDetails = details;
                     break;
                 }
@@ -835,13 +879,25 @@ public class AdminPage{
             showMsg("Please fill in all fields.", false);
             return;
         }
+        
+        if(!validatetext("Genre", genre)) return;
+        if(!validatetext("Language", language)) return;
+        if(!validatetext("Director", director)) return;
+        if(!validatetext("Cast", cast)) return;
+        if(!validatetext("Subtitles", subtitles)) return;
 
         try {
-            Integer.parseInt(duration);
+            Integer.valueOf(duration);
         } catch (NumberFormatException ex) {
             showMsg("Duration must be a number.", false);
             return;
         }
+        
+        if (posterpath == null || posterpath.isEmpty()) {
+            showMsg("Please upload a movie poster!", false);
+            return;
+        }
+
 
         ArrayList<String[]> allMovies = new ArrayList<>();
 
@@ -849,11 +905,11 @@ public class AdminPage{
             String line;
             while ((line = br.readLine()) != null) {
                 String[] details = line.split("\\|", -1);
-                if (details.length == 10) {
+                if (details.length == 11) {
                     if (details[0].equals(selectedTitle)) {
                         allMovies.add(new String[]{
                             title, genre, language, rating, releaseDate,
-                            duration, director, cast, subtitles, description
+                            duration, director, cast, subtitles, description, posterpath
                         });
                     } else {
                         allMovies.add(details);
@@ -918,7 +974,7 @@ public class AdminPage{
                 String line;
                 while ((line = br.readLine()) != null) {
                     String[] details = line.split("\\|", -1);
-                    if (details.length == 10 && !details[0].equals(selectedTitle)) {
+                    if (details.length == 11 && !details[0].equals(selectedTitle)) {
                         allMovies.add(details);
                     }
                 }
@@ -1266,13 +1322,6 @@ public class AdminPage{
             success ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.ERROR_MESSAGE);
     }
     
-    private int parseInt(String s, int def) {
-        try { 
-            return Integer.parseInt(s == null ? "" : s.trim()); 
-        }catch (NumberFormatException e) {
-            return def;
-        } 
-    }
     
     
     
