@@ -286,7 +286,9 @@ public class MainMenuPage implements ActionListener {
         }catch (NumberFormatException ex) {
             if (e.getSource() == mainPageButton) {
                 cardLayout.show(cardPanel, "home");
+                
             } else if (e.getSource() == FnBButton) {
+                new Concession();
                 frame.dispose();
 
             } else if (e.getSource() == profileButton) {
