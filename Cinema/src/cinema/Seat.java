@@ -18,7 +18,7 @@ public class Seat {
         this.price = price;
     }
 
-    public String getSeatId(){return String.valueOf(row + column);}
+    public String getSeatId(){return String.valueOf(row) + column;}
 
     public char getRow(){return row;}
 
@@ -34,6 +34,8 @@ public class Seat {
             default: {return price;}
         }
     }
+
+    public boolean isAvailable() { return status == SeatStatus.AVAILABLE; }
 
     public void book(){
         status = SeatStatus.BOOKED;

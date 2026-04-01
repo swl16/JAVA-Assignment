@@ -159,7 +159,7 @@ public class MovieDetailPage implements ActionListener {
         return dateButton;
     }
 
-    public JButton showTimeButton(LocalTime startTime, String hallType){
+    public JButton showTimeButton(ShowTime showTime, LocalTime startTime, String hallType){
         showtimebutton = new JButton(startTime.format(timeFmt)+"  "+ hallType);
         showtimebutton.setBackground(new Color(0x3B3B3B));
         showtimebutton.setBorderPainted(false);
@@ -169,7 +169,7 @@ public class MovieDetailPage implements ActionListener {
        // showtimebutton.setHorizontalTextPosition(JButton.CENTER);
        // showtimebutton.setVerticalTextPosition(JButton.BOTTOM);
        // showtimebutton.setActionCommand(String.valueOf(index));
-        showtimebutton.addActionListener(this);
+        showtimebutton.addActionListener(e -> callSeatSelect(showTime));
         showtimebutton.setForeground(new Color(0xF7F7F7));
         return showtimebutton;
     }
@@ -186,11 +186,16 @@ public class MovieDetailPage implements ActionListener {
                         break;
                     }
                 }
-                showTimeContainer.add(showTimeButton(showTime[i].getStartTime().toLocalTime(), hallType));
+                showTimeContainer.add(showTimeButton(showTime[i], showTime[i].getStartTime().toLocalTime(), hallType));
             }
         }
         showTimeContainer.revalidate(); // refresh layout
         showTimeContainer.repaint();
+    }
+
+    public void callSeatSelect(ShowTime showTime){
+        frame.setVisible(false);
+        new SeatSelection(frame,showTime);
     }
 
     @Override
@@ -199,7 +204,6 @@ public class MovieDetailPage implements ActionListener {
             frame.dispose();
             homeFrame.setVisible(true);
         } else {
-            // Date button clicked — action command is the date string
             try {
                 LocalDate selectedDate = LocalDate.parse(e.getActionCommand());
                 datePanel(selectedDate);
