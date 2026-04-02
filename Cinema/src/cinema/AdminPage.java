@@ -5,6 +5,7 @@ import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.table.*;
 import java.awt.*;
+import static java.awt.Component.LEFT_ALIGNMENT;
 import java.awt.event.*;
 import java.io.*;
 import java.util.*;
@@ -552,10 +553,14 @@ public class AdminPage{
     }
     
     private void loadmovie(){
-        tableModel.setRowCount(0);
+        if(schedulemoviebox == null)return;
+        
+        schedulemoviebox.removeAllItems();
         
         File file = new File(moviefile);
         if (!file.exists()) return;
+        
+        HashSet<String> titles = new HashSet<>();
         
         try(BufferedReader readmovie = new BufferedReader(new FileReader(file))){
             String line;
@@ -563,11 +568,18 @@ public class AdminPage{
             while((line = readmovie.readLine()) != null){
                 String[] details = line.split("\\|", -1);
                 if (details.length == 11){
-                    tableModel.addRow(details);
+                    titles.add(details[0].trim());
                 }
             }
         }catch(IOException e){
             showMsg("Error loading movies" + e.getMessage(),false);
+        }
+        
+        ArrayList<String> sortedtitles = new ArrayList<>(titles);
+        Collections.sort(sortedtitles);
+        
+        for(String title : sortedtitles){
+            schedulemoviebox.addItem(title);
         }
     }
     
@@ -605,7 +617,7 @@ public class AdminPage{
                 String line;
                 while((line = read.readLine()) != null){
                     String[] details = line.split("\\|", -1);
-                    if(details.length == 10){
+                    if(details.length == 11){
                         titles.add(details[0].trim());
                     }
                 }
@@ -748,6 +760,10 @@ public class AdminPage{
         }
     }
     
+    private JLabel editmovieposter;
+    private String editposterpath = "";
+    private JLabel editfilelabel;
+    
     private void editSelectedMovie(){
     
      int row = movieTable.getSelectedRow();
@@ -759,24 +775,29 @@ public class AdminPage{
      
      String selectedTitle = tableModel.getValueAt(row, 0).toString();
 
+     
+     ArrayList<String[]> movies = new ArrayList<>();
      String[] movieDetails = null;
 
      File file = new File(moviefile);
-     if (file.exists()) {
-        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                String[] details = line.split("\\|", -1);
-                if (details.length == 11 && details[0].equals(selectedTitle)) {
-                    movieDetails = details;
-                    break;
-                }
-            }
-        } catch (IOException e) {
-            showMsg("Error loading movie details: " + e.getMessage(), false);
-            return;
-        }
+     
+     if(!file.exists()){
+         showMsg("Movie file not found!",false);
+         return;
      }
+     try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+        String line;
+        while ((line = br.readLine()) != null) {
+            String[] details = line.split("\\|", -1);
+            if (details.length == 11 && details[0].equals(selectedTitle)) {
+                movieDetails = details;
+                break;
+            }
+        }
+     } catch (IOException e) {
+        showMsg("Error loading movie details: " + e.getMessage(), false);
+        return;
+        }
 
      if (movieDetails == null) {
         showMsg("Movie details not found.", false);
@@ -795,6 +816,95 @@ public class AdminPage{
      form.setLayout(new BoxLayout(form, BoxLayout.Y_AXIS));
      form.setBackground(bgcolor);
      form.setBorder(new EmptyBorder(15, 25, 15, 25));
+     
+     JLabel postertitle = new JLabel("Movie Poster");
+     postertitle.setFont(new Font("Courier New", Font.BOLD, 13));
+     postertitle.setForeground(textcolor);
+     postertitle.setAlignmentX(Component.CENTER_ALIGNMENT);
+     form.add(postertitle);
+     form.add(Box.createVerticalStrut(10));
+     
+     JPanel editposter = new JPanel(new BorderLayout(14,0));
+     editposter.setBackground(bgcolor);
+     editposter.setMaximumSize(new Dimension(Integer.MAX_VALUE,175));
+     editposter.setAlignmentX(Component.LEFT_ALIGNMENT);
+     
+     editmovieposter = new JLabel("No Poster", SwingConstants.CENTER);
+     editmovieposter.setPreferredSize(new Dimension(180,260));
+     editmovieposter.setMinimumSize(new Dimension(180,260));
+     editmovieposter.setMaximumSize(new Dimension(180,260));
+     editmovieposter.setOpaque(true);
+     editmovieposter.setBackground(inputbg);
+     editmovieposter.setForeground(textcolor);
+     editmovieposter.setFont(new Font("Courier New", Font.PLAIN, 13));
+     editmovieposter.setBorder(new LineBorder(redcolor, 2));
+     editmovieposter.setAlignmentX(Component.CENTER_ALIGNMENT);
+     
+     editposterpath = movieDetails[10];
+     if(editposterpath != null && !editposterpath.trim().isEmpty() && new File(editposterpath).exists()){
+        ImageIcon icon = new ImageIcon(editposterpath);
+        Image img = icon.getImage().getScaledInstance(180, 250, Image.SCALE_SMOOTH);
+        editmovieposter.setIcon(new ImageIcon(img));
+        editmovieposter.setText("");
+    }else{
+         editmovieposter.setIcon(null);
+         editmovieposter.setText("No Poster");
+     }
+     
+     JPanel editpostercontrol = new JPanel();
+     editpostercontrol.setLayout(new BoxLayout(editpostercontrol, BoxLayout.Y_AXIS));
+     editpostercontrol.setBackground(bgcolor);
+     
+     editfilelabel = new JLabel(editposterpath.isEmpty() ? "No file chosen" : 
+             new File(editposterpath).getName());
+     editfilelabel.setFont(new Font("Courier New", Font.PLAIN, 13));
+     editfilelabel.setForeground(textcolor);
+     editfilelabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+     
+     JButton changeposter = styledButton("CHANGE POSTER",true);
+     JButton removeposter = styledButton("REMOVE POSTER", false);
+     changeposter.setAlignmentX(Component.LEFT_ALIGNMENT);
+     removeposter.setAlignmentX(Component.LEFT_ALIGNMENT);
+     
+     changeposter.addActionListener(e -> {
+         JFileChooser filechoose = new JFileChooser();
+         filechoose.setDialogTitle("Select Movie Poster");
+         
+         int result = filechoose.showOpenDialog(frame);
+         
+         if(result == JFileChooser.APPROVE_OPTION){
+             File selectedfile = filechoose.getSelectedFile();
+             editposterpath = selectedfile.getAbsolutePath();
+             editfilelabel.setText(selectedfile.getName());
+             editfilelabel.setForeground(textcolor);
+             ImageIcon icon = new ImageIcon(editposterpath);
+             Image img = icon.getImage().getScaledInstance(180, 250, Image.SCALE_SMOOTH);
+             
+             editmovieposter.setIcon(new ImageIcon(img));
+             editmovieposter.setText("");
+             editmovieposter.revalidate();
+             editmovieposter.repaint();
+            }
+        });
+     
+     removeposter.addActionListener(e -> {
+         editposterpath = "";
+         editfilelabel.setText("No file chosen");
+         editfilelabel.setForeground(textcolor);
+         editmovieposter.setIcon(null);
+         editmovieposter.setText("No Poster");
+        });
+     
+     editpostercontrol.add(editfilelabel);
+     editpostercontrol.add(Box.createVerticalStrut(10));
+     editpostercontrol.add(changeposter);
+     editpostercontrol.add(Box.createVerticalStrut(8));
+     editpostercontrol.add(removeposter);
+     
+     editposter.add(editmovieposter, BorderLayout.WEST);
+     editposter.add(editpostercontrol, BorderLayout.CENTER);
+     form.add(editposter);
+     form.add(Box.createVerticalStrut(12));
 
      // Title
      form.add(fieldLabel("Movie Title"));
@@ -802,21 +912,21 @@ public class AdminPage{
      JTextField titleField = new JTextField(movieDetails[0]);
      styleTextField(titleField);
      form.add(titleField);
-     form.add(Box.createVerticalStrut(10));
+     form.add(Box.createVerticalStrut(8));
 
      form.add(fieldLabel("Genre"));
      form.add(Box.createVerticalStrut(4));
      JTextField genreField = new JTextField(movieDetails[1]);
      styleTextField(genreField);
      form.add(genreField);
-     form.add(Box.createVerticalStrut(10));
+     form.add(Box.createVerticalStrut(8));
 
      form.add(fieldLabel("Language"));
      form.add(Box.createVerticalStrut(4));
      JTextField languageField = new JTextField(movieDetails[2]);
      styleTextField(languageField);
      form.add(languageField);
-     form.add(Box.createVerticalStrut(10));
+     form.add(Box.createVerticalStrut(8));
 
      form.add(fieldLabel("Movie Rating"));
      form.add(Box.createVerticalStrut(4));
@@ -824,42 +934,42 @@ public class AdminPage{
      styleCombo(ratingBox);
      ratingBox.setSelectedItem(movieDetails[3]);
      form.add(ratingBox);
-     form.add(Box.createVerticalStrut(10));
+     form.add(Box.createVerticalStrut(8));
 
      form.add(fieldLabel("Release Date"));
      form.add(Box.createVerticalStrut(4));
      JTextField releaseDateField = new JTextField(movieDetails[4]);
      styleTextField(releaseDateField);
      form.add(releaseDateField);
-     form.add(Box.createVerticalStrut(10));
+     form.add(Box.createVerticalStrut(8));
 
      form.add(fieldLabel("Duration (mins)"));
      form.add(Box.createVerticalStrut(4));
      JTextField durationField = new JTextField(movieDetails[5]);
      styleTextField(durationField);
      form.add(durationField);
-     form.add(Box.createVerticalStrut(10));
+     form.add(Box.createVerticalStrut(8));
 
      form.add(fieldLabel("Director"));
      form.add(Box.createVerticalStrut(4));
      JTextField directorField = new JTextField(movieDetails[6]);
      styleTextField(directorField);
      form.add(directorField);
-     form.add(Box.createVerticalStrut(10));
+     form.add(Box.createVerticalStrut(8));
 
      form.add(fieldLabel("Cast"));
      form.add(Box.createVerticalStrut(4));
      JTextField castField = new JTextField(movieDetails[7]);
      styleTextField(castField);
      form.add(castField);
-     form.add(Box.createVerticalStrut(10));
+     form.add(Box.createVerticalStrut(8));
 
      form.add(fieldLabel("Subtitles"));
      form.add(Box.createVerticalStrut(4));
      JTextField subtitlesField = new JTextField(movieDetails[8]);
      styleTextField(subtitlesField);
      form.add(subtitlesField);
-     form.add(Box.createVerticalStrut(10));
+     form.add(Box.createVerticalStrut(8));
 
      form.add(fieldLabel("Description"));
      form.add(Box.createVerticalStrut(4));
@@ -873,7 +983,7 @@ public class AdminPage{
      descScroll.setMaximumSize(new Dimension(Integer.MAX_VALUE, 100));
      descScroll.getViewport().setBackground(inputbg);
      form.add(descScroll);
-     form.add(Box.createVerticalStrut(10));
+     form.add(Box.createVerticalStrut(12));
 
     // ===== BUTTON PANEL =====
      JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 12, 0));
@@ -1113,7 +1223,7 @@ public class AdminPage{
             while ((line = br.readLine()) != null) {
                 String[] details = line.split("\\|", -1);
 
-                if (details.length == 10) {
+                if (details.length == 11) {
                     tableModel.addRow(new Object[]{
                     details[0], // Title
                     details[1], // Genre
