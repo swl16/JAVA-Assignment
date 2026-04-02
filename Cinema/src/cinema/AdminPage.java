@@ -127,11 +127,12 @@ public class AdminPage{
     
     private JLabel movieposter;
     private String posterpath = "";
+    private JLabel posterfilelabel;
     
     private JPanel addmovie(){
         JPanel wrap = new JPanel(new BorderLayout());
         wrap.setBackground(bgcolor);
-        wrap.add(sectionHeader("ADD MOVIE", "Add_Movie"), BorderLayout.NORTH);
+        wrap.add(sectionHeader("ADD MOVIE", "MENU"), BorderLayout.NORTH);
         
         JPanel content = new JPanel(new BorderLayout(20,0));
         content.setBackground(bgcolor);
@@ -165,11 +166,37 @@ public class AdminPage{
         left.add(movieposter);
         left.add(Box.createVerticalStrut(15));
         
+        JPanel postercontrol = new JPanel();
+        postercontrol.setLayout(new BoxLayout(postercontrol, BoxLayout.Y_AXIS));
+        postercontrol.setBackground(bgcolor);
+        
+        posterfilelabel = new JLabel("No file chosen");
+        posterfilelabel.setFont(new Font("Courier New", Font.PLAIN, 13));
+        posterfilelabel.setForeground(textcolor);
+        posterfilelabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        
         JButton uploadPosterBtn = styledButton("UPLOAD POSTER", true);
         uploadPosterBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
         uploadPosterBtn.addActionListener(e -> choosePoster());
+        
+        JButton removeposter = styledButton("REMOVE POSTER",false);
+        removeposter.setAlignmentX(Component.CENTER_ALIGNMENT);
+        
+        removeposter.addActionListener(e -> {
+            posterpath ="";
+            posterfilelabel.setText("No file chosen");
+            posterfilelabel.setForeground(textcolor);
+            movieposter.setIcon(null);
+            movieposter.setText("No Poster");
+        });
+        
+        postercontrol.add(posterfilelabel);
+        postercontrol.add(Box.createVerticalStrut(4));
+        postercontrol.add(uploadPosterBtn);
+        postercontrol.add(Box.createVerticalStrut(10));
+        postercontrol.add(removeposter);
 
-        left.add(uploadPosterBtn);
+        left.add(postercontrol);
         
         JPanel form = new JPanel();
         form.setLayout(new BoxLayout(form, BoxLayout.Y_AXIS));
@@ -208,19 +235,18 @@ public class AdminPage{
         descScroll.setMaximumSize(new Dimension(Integer.MAX_VALUE, 100));
         descScroll.getViewport().setBackground(inputbg);
         form.add(descScroll);
-        form.add(Box.createVerticalStrut(4));
+        form.add(Box.createVerticalStrut(10));
         
         JPanel btnbottom = new JPanel(new FlowLayout(FlowLayout.CENTER, 12,0));
         btnbottom.setBackground(bgcolor);
-        JButton saveBtn  = styledButton("SAVE MOVIE", true);
+        
         JButton clearBtn = styledButton("CLEAR", false);
-        JButton backbtn = styledButton("Back", true);
+        JButton saveBtn  = styledButton("SAVE MOVIE", true);
+   
         saveBtn.addActionListener(e -> savemovie());
         clearBtn.addActionListener(e -> clearAddForm());
-        backbtn.addActionListener(e -> backmenu());
         
-        
-        btnbottom.add(backbtn);
+ 
         btnbottom.add(clearBtn);
         btnbottom.add(saveBtn);
         
@@ -252,8 +278,9 @@ public class AdminPage{
             posterpath = selectfile.getAbsolutePath();
             
             poster = new ImageIcon(posterpath);
+            posterfilelabel.setText(selectfile.getName());
+            posterfilelabel.setForeground(textcolor);
             Image img = poster.getImage().getScaledInstance(180,260,Image.SCALE_SMOOTH);
-            
             movieposter.setText("");
             movieposter.setIcon(new ImageIcon(img));
             
@@ -284,7 +311,7 @@ public class AdminPage{
     private JPanel viewmovie(){
         JPanel wrap = new JPanel(new BorderLayout());
         wrap.setBackground(bgcolor);
-        wrap.add(sectionHeader("VIEW MOVIES", "View_Movie"), BorderLayout.NORTH);
+        wrap.add(sectionHeader("VIEW MOVIES", "MENU"), BorderLayout.NORTH);
         
         String[] cols = {"Title","Genre","Rating", "Duration"};
         tableModel = new DefaultTableModel(cols,0){
@@ -301,18 +328,15 @@ public class AdminPage{
         JPanel btnrow = new JPanel(new FlowLayout(FlowLayout.CENTER, 12,8));
         btnrow.setBackground(bgcolor);
         
-        JButton backBtn = styledButton("BACK", false);
         JButton editBtn   = styledButton("EDIT",   false);
         JButton deleteBtn = styledButton("DELETE", true);
         
         
         editBtn.addActionListener(e   -> editSelectedMovie());
         deleteBtn.addActionListener(e -> deleteSelectedMovie());
-        backBtn.addActionListener(e -> cardlayout.show(adminpanel, "MENU"));
         
         btnrow.add(editBtn);
         btnrow.add(deleteBtn);
-        btnrow.add(backBtn);
         
         wrap.add(scroll,  BorderLayout.CENTER);
         wrap.add(btnrow,  BorderLayout.SOUTH);
@@ -331,7 +355,7 @@ public class AdminPage{
     private JPanel showtimeschedule(){
         JPanel wrap = new JPanel(new BorderLayout());
         wrap.setBackground(bgcolor);
-        wrap.add(sectionHeader("SHOWTIME SCHEDULE", "Showtime_Schedule"), BorderLayout.NORTH);
+        wrap.add(sectionHeader("SHOWTIME SCHEDULE", "MENU"), BorderLayout.NORTH);
         
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BorderLayout());
@@ -412,7 +436,6 @@ public class AdminPage{
         bottomBtnRow.setBackground(bgcolor);
         
         
-        JButton backBtn = styledButton("BACK", false);
         JButton refreshBtn = styledButton("REFRESH", false);
         JButton editBtn = styledButton("EDIT", false);
         JButton deleteBtn = styledButton("DELETE", true);
@@ -423,14 +446,12 @@ public class AdminPage{
             loadmovie();
             refreshScheduleTable();
         });
-        
-        backBtn.addActionListener(e -> cardlayout.show(adminpanel, "MENU"));
+    
 
         bottomBtnRow.add(editBtn);
         bottomBtnRow.add(deleteBtn);
         bottomBtnRow.add(refreshBtn);
-        bottomBtnRow.add(backBtn);
-
+        
         mainPanel.add(form, BorderLayout.NORTH);
         mainPanel.add(tableScroll, BorderLayout.CENTER);
         mainPanel.add(bottomBtnRow, BorderLayout.SOUTH);
@@ -447,7 +468,7 @@ public class AdminPage{
     private JPanel salesreport(){
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBackground(bgcolor);
-        panel.add(sectionHeader("SALES REPORT", "Salesreport"), BorderLayout.NORTH);
+        panel.add(sectionHeader("SALES REPORT", "MENU"), BorderLayout.NORTH);
 
         JLabel label = new JLabel("Sales Report Page (Coming Soon)", SwingConstants.CENTER);
         label.setForeground(textcolor);
@@ -531,10 +552,14 @@ public class AdminPage{
     }
     
     private void loadmovie(){
-        tableModel.setRowCount(0);
+        if(schedulemoviebox == null)return;
+        
+        schedulemoviebox.removeAllItems();
         
         File file = new File(moviefile);
         if (!file.exists()) return;
+        
+        HashSet<String> titles = new HashSet<>();
         
         try(BufferedReader readmovie = new BufferedReader(new FileReader(file))){
             String line;
@@ -542,11 +567,18 @@ public class AdminPage{
             while((line = readmovie.readLine()) != null){
                 String[] details = line.split("\\|", -1);
                 if (details.length == 11){
-                    tableModel.addRow(details);
+                    titles.add(details[0].trim());
                 }
             }
         }catch(IOException e){
             showMsg("Error loading movies" + e.getMessage(),false);
+        }
+        
+        ArrayList<String> sortedtitles = new ArrayList<>(titles);
+        Collections.sort(sortedtitles);
+        
+        for(String title : sortedtitles){
+            schedulemoviebox.addItem(title);
         }
     }
     
@@ -584,7 +616,7 @@ public class AdminPage{
                 String line;
                 while((line = read.readLine()) != null){
                     String[] details = line.split("\\|", -1);
-                    if(details.length == 10){
+                    if(details.length == 11){
                         titles.add(details[0].trim());
                     }
                 }
@@ -727,6 +759,10 @@ public class AdminPage{
         }
     }
     
+    private JLabel editmovieposter;
+    private String editposterpath = "";
+    private JLabel editfilelabel;
+    
     private void editSelectedMovie(){
     
      int row = movieTable.getSelectedRow();
@@ -738,24 +774,29 @@ public class AdminPage{
      
      String selectedTitle = tableModel.getValueAt(row, 0).toString();
 
+     
+     ArrayList<String[]> movies = new ArrayList<>();
      String[] movieDetails = null;
 
      File file = new File(moviefile);
-     if (file.exists()) {
-        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                String[] details = line.split("\\|", -1);
-                if (details.length == 11 && details[0].equals(selectedTitle)) {
-                    movieDetails = details;
-                    break;
-                }
-            }
-        } catch (IOException e) {
-            showMsg("Error loading movie details: " + e.getMessage(), false);
-            return;
-        }
+     
+     if(!file.exists()){
+         showMsg("Movie file not found!",false);
+         return;
      }
+     try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+        String line;
+        while ((line = br.readLine()) != null) {
+            String[] details = line.split("\\|", -1);
+            if (details.length == 11 && details[0].equals(selectedTitle)) {
+                movieDetails = details;
+                break;
+            }
+        }
+     } catch (IOException e) {
+        showMsg("Error loading movie details: " + e.getMessage(), false);
+        return;
+        }
 
      if (movieDetails == null) {
         showMsg("Movie details not found.", false);
@@ -774,6 +815,95 @@ public class AdminPage{
      form.setLayout(new BoxLayout(form, BoxLayout.Y_AXIS));
      form.setBackground(bgcolor);
      form.setBorder(new EmptyBorder(15, 25, 15, 25));
+     
+     JLabel postertitle = new JLabel("Movie Poster");
+     postertitle.setFont(new Font("Courier New", Font.BOLD, 13));
+     postertitle.setForeground(textcolor);
+     postertitle.setAlignmentX(Component.CENTER_ALIGNMENT);
+     form.add(postertitle);
+     form.add(Box.createVerticalStrut(10));
+     
+     JPanel editposter = new JPanel(new BorderLayout(14,0));
+     editposter.setBackground(bgcolor);
+     editposter.setMaximumSize(new Dimension(Integer.MAX_VALUE,175));
+     editposter.setAlignmentX(Component.LEFT_ALIGNMENT);
+     
+     editmovieposter = new JLabel("No Poster", SwingConstants.CENTER);
+     editmovieposter.setPreferredSize(new Dimension(180,260));
+     editmovieposter.setMinimumSize(new Dimension(180,260));
+     editmovieposter.setMaximumSize(new Dimension(180,260));
+     editmovieposter.setOpaque(true);
+     editmovieposter.setBackground(inputbg);
+     editmovieposter.setForeground(textcolor);
+     editmovieposter.setFont(new Font("Courier New", Font.PLAIN, 13));
+     editmovieposter.setBorder(new LineBorder(redcolor, 2));
+     editmovieposter.setAlignmentX(Component.CENTER_ALIGNMENT);
+     
+     editposterpath = movieDetails[10];
+     if(editposterpath != null && !editposterpath.trim().isEmpty() && new File(editposterpath).exists()){
+        ImageIcon icon = new ImageIcon(editposterpath);
+        Image img = icon.getImage().getScaledInstance(180, 250, Image.SCALE_SMOOTH);
+        editmovieposter.setIcon(new ImageIcon(img));
+        editmovieposter.setText("");
+    }else{
+         editmovieposter.setIcon(null);
+         editmovieposter.setText("No Poster");
+     }
+     
+     JPanel editpostercontrol = new JPanel();
+     editpostercontrol.setLayout(new BoxLayout(editpostercontrol, BoxLayout.Y_AXIS));
+     editpostercontrol.setBackground(bgcolor);
+     
+     editfilelabel = new JLabel(editposterpath.isEmpty() ? "No file chosen" : 
+             new File(editposterpath).getName());
+     editfilelabel.setFont(new Font("Courier New", Font.PLAIN, 13));
+     editfilelabel.setForeground(textcolor);
+     editfilelabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+     
+     JButton changeposter = styledButton("CHANGE POSTER",true);
+     JButton removeposter = styledButton("REMOVE POSTER", false);
+     changeposter.setAlignmentX(Component.LEFT_ALIGNMENT);
+     removeposter.setAlignmentX(Component.LEFT_ALIGNMENT);
+     
+     changeposter.addActionListener(e -> {
+         JFileChooser filechoose = new JFileChooser();
+         filechoose.setDialogTitle("Select Movie Poster");
+         
+         int result = filechoose.showOpenDialog(frame);
+         
+         if(result == JFileChooser.APPROVE_OPTION){
+             File selectedfile = filechoose.getSelectedFile();
+             editposterpath = selectedfile.getAbsolutePath();
+             editfilelabel.setText(selectedfile.getName());
+             editfilelabel.setForeground(textcolor);
+             ImageIcon icon = new ImageIcon(editposterpath);
+             Image img = icon.getImage().getScaledInstance(180, 250, Image.SCALE_SMOOTH);
+             
+             editmovieposter.setIcon(new ImageIcon(img));
+             editmovieposter.setText("");
+             editmovieposter.revalidate();
+             editmovieposter.repaint();
+            }
+        });
+     
+     removeposter.addActionListener(e -> {
+         editposterpath = "";
+         editfilelabel.setText("No file chosen");
+         editfilelabel.setForeground(textcolor);
+         editmovieposter.setIcon(null);
+         editmovieposter.setText("No Poster");
+        });
+     
+     editpostercontrol.add(editfilelabel);
+     editpostercontrol.add(Box.createVerticalStrut(10));
+     editpostercontrol.add(changeposter);
+     editpostercontrol.add(Box.createVerticalStrut(8));
+     editpostercontrol.add(removeposter);
+     
+     editposter.add(editmovieposter, BorderLayout.WEST);
+     editposter.add(editpostercontrol, BorderLayout.CENTER);
+     form.add(editposter);
+     form.add(Box.createVerticalStrut(12));
 
      // Title
      form.add(fieldLabel("Movie Title"));
@@ -781,21 +911,21 @@ public class AdminPage{
      JTextField titleField = new JTextField(movieDetails[0]);
      styleTextField(titleField);
      form.add(titleField);
-     form.add(Box.createVerticalStrut(10));
+     form.add(Box.createVerticalStrut(8));
 
      form.add(fieldLabel("Genre"));
      form.add(Box.createVerticalStrut(4));
      JTextField genreField = new JTextField(movieDetails[1]);
      styleTextField(genreField);
      form.add(genreField);
-     form.add(Box.createVerticalStrut(10));
+     form.add(Box.createVerticalStrut(8));
 
      form.add(fieldLabel("Language"));
      form.add(Box.createVerticalStrut(4));
      JTextField languageField = new JTextField(movieDetails[2]);
      styleTextField(languageField);
      form.add(languageField);
-     form.add(Box.createVerticalStrut(10));
+     form.add(Box.createVerticalStrut(8));
 
      form.add(fieldLabel("Movie Rating"));
      form.add(Box.createVerticalStrut(4));
@@ -803,42 +933,42 @@ public class AdminPage{
      styleCombo(ratingBox);
      ratingBox.setSelectedItem(movieDetails[3]);
      form.add(ratingBox);
-     form.add(Box.createVerticalStrut(10));
+     form.add(Box.createVerticalStrut(8));
 
      form.add(fieldLabel("Release Date"));
      form.add(Box.createVerticalStrut(4));
      JTextField releaseDateField = new JTextField(movieDetails[4]);
      styleTextField(releaseDateField);
      form.add(releaseDateField);
-     form.add(Box.createVerticalStrut(10));
+     form.add(Box.createVerticalStrut(8));
 
      form.add(fieldLabel("Duration (mins)"));
      form.add(Box.createVerticalStrut(4));
      JTextField durationField = new JTextField(movieDetails[5]);
      styleTextField(durationField);
      form.add(durationField);
-     form.add(Box.createVerticalStrut(10));
+     form.add(Box.createVerticalStrut(8));
 
      form.add(fieldLabel("Director"));
      form.add(Box.createVerticalStrut(4));
      JTextField directorField = new JTextField(movieDetails[6]);
      styleTextField(directorField);
      form.add(directorField);
-     form.add(Box.createVerticalStrut(10));
+     form.add(Box.createVerticalStrut(8));
 
      form.add(fieldLabel("Cast"));
      form.add(Box.createVerticalStrut(4));
      JTextField castField = new JTextField(movieDetails[7]);
      styleTextField(castField);
      form.add(castField);
-     form.add(Box.createVerticalStrut(10));
+     form.add(Box.createVerticalStrut(8));
 
      form.add(fieldLabel("Subtitles"));
      form.add(Box.createVerticalStrut(4));
      JTextField subtitlesField = new JTextField(movieDetails[8]);
      styleTextField(subtitlesField);
      form.add(subtitlesField);
-     form.add(Box.createVerticalStrut(10));
+     form.add(Box.createVerticalStrut(8));
 
      form.add(fieldLabel("Description"));
      form.add(Box.createVerticalStrut(4));
@@ -852,7 +982,7 @@ public class AdminPage{
      descScroll.setMaximumSize(new Dimension(Integer.MAX_VALUE, 100));
      descScroll.getViewport().setBackground(inputbg);
      form.add(descScroll);
-     form.add(Box.createVerticalStrut(10));
+     form.add(Box.createVerticalStrut(12));
 
     // ===== BUTTON PANEL =====
      JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 12, 0));
@@ -1092,7 +1222,7 @@ public class AdminPage{
             while ((line = br.readLine()) != null) {
                 String[] details = line.split("\\|", -1);
 
-                if (details.length == 10) {
+                if (details.length == 11) {
                     tableModel.addRow(new Object[]{
                     details[0], // Title
                     details[1], // Genre
@@ -1137,13 +1267,26 @@ public class AdminPage{
     private JPanel sectionHeader(String title, String backCard){
         JPanel p = new JPanel(new BorderLayout());
         p.setBackground(panelcolor);
-        p.setBorder(new MatteBorder(0, 0, 2, 0, redcolor));
-        p.setPreferredSize(new Dimension(500, 48));
+        p.setBorder(new EmptyBorder(15,15,15,15));
+        
+        JButton backbtn = styledButton("← BACK",false);
+        backbtn.addActionListener(e -> cardlayout.show(adminpanel,backCard));
         
         JLabel lbl = new JLabel("  " + title);
         lbl.setFont(new Font("Courier New", Font.BOLD, 16));
         lbl.setForeground(textcolor);
-        p.add(lbl, BorderLayout.CENTER);
+        
+        JPanel left = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        left.setBackground(panelcolor);
+        left.add(backbtn);
+
+        JPanel center = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
+        center.setBackground(panelcolor);
+        center.add(lbl);
+
+        p.add(left, BorderLayout.WEST);
+        p.add(center, BorderLayout.CENTER);
+        
         return p;
     }
     
@@ -1299,6 +1442,11 @@ public class AdminPage{
         if(movieposter != null){
             movieposter.setIcon(null);
             movieposter.setText("No Poster");
+        }
+        
+        if(posterfilelabel != null){
+            posterfilelabel.setText("No file chosen");
+            posterfilelabel.setForeground(textcolor);
         }
     }
     
