@@ -115,14 +115,6 @@ public class MainMenuPage implements ActionListener {
 
         moviePanel.add(Box.createVerticalGlue());
 
-//        JButton moreButton = new JButton("More...");
-//        moreButton.setFocusable(false);
-//        moreButton.setFont(new Font("Courier New",Font.BOLD,20));
-//        //moreButton.addActionListener(this);
-//        moreButton.setForeground(new Color(0xF7F7F7));
-//        moreButton.setBackground(new Color(0xD44444));
-//        moviePanel.add(moreButton);
-
         JScrollPane scrollPane = new JScrollPane(moviePanel);
         scrollPane.setBorder(null);
         scrollPane.getVerticalScrollBar().setUnitIncrement(16);

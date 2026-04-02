@@ -7,6 +7,7 @@ public class Hall {
     public Seat[][] seats;
     private int rows;
     private int column;
+    private double price;
 
     Hall(String hallName,String hallType,int rows, int column, double price) {
         this.hallName = hallName;
@@ -14,6 +15,7 @@ public class Hall {
         this.column = column;
         this.rows = rows;
         this.seats = new Seat[rows][column];
+        this.price = price;
 
         char[] rowLetter = {'A' , 'B' , 'C' , 'D' , 'E' , 'F' , 'G' , 'H' , 'I' , 'J'};
 
@@ -39,6 +41,8 @@ public class Hall {
     public Seat getSeat(int r, int c){
         return seats[r][c];
     }
+
+    public double getPrice(){ return price; }
 
     public int getTotalSeat() {return rows*column;}
 
