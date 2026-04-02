@@ -5,7 +5,6 @@ import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.table.*;
 import java.awt.*;
-import static java.awt.Component.LEFT_ALIGNMENT;
 import java.awt.event.*;
 import java.io.*;
 import java.util.*;
