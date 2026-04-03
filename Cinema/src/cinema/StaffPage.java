@@ -6,6 +6,7 @@ import javax.swing.table.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class StaffPage {
@@ -24,8 +25,8 @@ public class StaffPage {
     final Color inputbg = new Color(0x1E1E1E);
     final Color greencolor = new Color(0x44AA66);
     final Color hovercolor = new Color(0xE85555);
-
-
+    
+    final String fnbfile = "FnBStock.txt";
 
 
     public StaffPage(){
@@ -71,16 +72,15 @@ public class StaffPage {
         inner.setBorder(new EmptyBorder(20, 40, 20, 40));
 
         String [][] buttons = {
-            {"CHECK STOCK", "Check_stock"}, {"REPLENISH STOCK", "Replenish_stock"}};
+            {"ADD F&B STOCK","Add_stock"},{"CHECK STOCK", "Check_stock"}, {"REPLENISH STOCK", "Replenish_stock"}};
 
         for(String[]btn : buttons){
             JButton b = menubtn(btn[0]);
             String card = btn[1];
 
             b.addActionListener(e -> {cardlayout.show(staffpanel, card);
-            if(card.equals("View_Movie")) refreshViewTable();
-            if(card.equals("Showtime_Schedule")) refreshScheduleTable();
-            if(card.equals("Salesreport")) generatereport();
+            if(card.equals("Check_stock")) clearAddForm();
+            if(card.equals("Replenish_stock")) clearAddForm();
             });
 
             inner.add(b);
@@ -114,19 +114,202 @@ public class StaffPage {
         return btn;
     }
     
-    private JPanel addstock(){
+    JTextField itemname, price, currentqty, minstockqty;
+    JComboBox<String> category;
+    
+    JPanel addstock(){
+        JPanel page = new JPanel(new BorderLayout());
+        page.setBackground(bgcolor);
+        page.add(sectionHeader("ADD F&B STOCK", "MENU"), BorderLayout.NORTH);
+        
+        JPanel form = new JPanel();
+        form.setLayout(new BoxLayout(form, BoxLayout.Y_AXIS));
+        form.setBackground(bgcolor);
+        form.setBorder(new EmptyBorder(15,30,15,30));
+        
+        itemname = formField(form, "Stock Name");
+        category = formCombo(form, "Category", new String[] {"Snacks","Drinks","Combo Deals"});
+        price = formField(form, "Price (RM)");
+        
+        currentqty = formField(form, "Current Quantity");
+        minstockqty = formField(form, "Minimum Stock Quantity");
+        
+        JPanel btnrow = new JPanel(new FlowLayout(FlowLayout.CENTER,15,5));
+        btnrow.setBackground(bgcolor);
+        
+        JButton clearbtn = styledButton("CLEAR", false);
+        JButton savebtn = styledButton("SAVE", true);
+        
+        clearbtn.addActionListener(e -> clearAddForm());
+        savebtn.addActionListener(e -> savestock());
+        
+        btnrow.add(clearbtn);
+        btnrow.add(savebtn);
+        
+        form.add(btnrow);
+        
+        JScrollPane scroll = new JScrollPane(form);
+        scroll.setBorder(null);
+        scroll.getViewport().setBackground(bgcolor);
+        page.add(scroll, BorderLayout.CENTER);
+        
+        return page;
+    }
+    
+    void savestock(){
+        String name = itemname.getText().trim();
+        if(name.isEmpty()){
+            showMsg("Stock name is required.",false);
+            return;
+        }
+        
+        String ctg = category.getSelectedItem().toString();
+        
+        String itemprice = price.getText().trim();
+        if(!itemprice.matches("\\d+(\\.\\d{1,2})?")){
+            showMsg("Price must be a valid number",false);
+            return;
+        }
+        
+        String qty = currentqty.getText().trim();
+        if(!qty.matches("\\d+")){
+            showMsg("Quantity must be a whole number",false);
+            return;
+        }
+        
+        String minqty = minstockqty.getText().trim();
+        if(!minqty.matches("\\d+")){
+            showMsg("Minimum stock must be a whole number",false);
+            return;
+        }
+        
+        try(BufferedReader read = new BufferedReader(new FileReader(fnbfile))){
+            String line;
+            
+            while((line = read.readLine()) != null){
+                String[] data = line.split("\\|");
+                if(data[0].equalsIgnoreCase(name)){
+                    showMsg("Stock already exists!",false);
+                    return;
+                }
+            }
+        }catch(IOException e){
+            
+        }
+        
+        String today = new SimpleDateFormat("dd/MM/yyyy HH:mm").format(new Date());
+        
+        try(BufferedWriter saveItem = new BufferedWriter(new FileWriter(fnbfile, true))){
+            saveItem.write(name + "|" + ctg + "|" + itemprice + "|" + qty + "|" + minqty + "|" + today);
+            
+            saveItem.newLine();
+            showMsg("Stock saved successfully", true);
+            clearAddForm();
+            
+        }catch(IOException e){
+            showMsg("Error saving:" + e.getMessage(),false);
+        }
+        
+        
         
     }
     
-    
-    
-    private JPanel checkstock(){
+    void loadstock(DefaultTableModel model){
+        model.setRowCount(0);
         
+        File file = new File(fnbfile);
+        if(!file.exists()) return;
+        
+        try(BufferedReader read = new BufferedReader(new FileReader(fnbfile))){
+            String line;
+            
+            while((line = read.readLine()) != null){
+                String[] data = line.split("\\|");
+                
+                int qty = Integer.parseInt(data[3]);
+                int min = Integer.parseInt(data[4]);
+                
+                String status = (qty<15)? "LOW" : "OK";
+                
+                model.addRow(new Object[]{data[0],data[1],data[2],qty,min,status,data[6]});
+            }
+        }catch(IOException e){
+            showMsg("Error loading stock: " + e.getMessage(), false);
+        }
     }
     
+    private JTable checktable;
+    private DefaultTableModel checkmodel;
     
-    private JPanel replenishstock(){
+    JPanel checkstock(){
+        JPanel page = new JPanel(new BorderLayout());
+        page.setBackground(bgcolor);
+        page.add(sectionHeader("CHECK STOCK", "MENU"), BorderLayout.NORTH);
         
+        JPanel filterbar = new JPanel(new BorderLayout(8,0));
+        filterbar.setBackground(panelcolor);
+        filterbar.setBorder(new EmptyBorder(8,15,8,15));
+        
+        JLabel filterlbl = new JLabel("Filter by Category: ");
+        filterlbl.setFont(new Font("Courier NEW", Font.BOLD, 12));
+        filterlbl.setForeground(textcolor);
+        
+        JComboBox<String> filtercombo = formCombo(filterbar,"Filter by Category: ",new String[] {"All Catogeries", "Snacks", "Drinks", "Combo Deals"});
+        
+        JButton filterbtn = styledButton("FILTER",false);
+        
+        filterbar.add(filtercombo, BorderLayout.WEST);
+        filterbar.add(filterbtn, BorderLayout.EAST);
+        
+        String[] cols = {"ITEM NAME","CATEGORY","PRICE(RM)","QUANTITY","MIN STOCK","STATUS"};
+        checkmodel = new DefaultTableModel(cols,0){
+            public boolean isCellEditable(int r, int c){return false;}
+        };
+        checktable = new JTable(checkmodel);
+        styleTable(checktable);
+        
+        checktable.getColumnModel().getColumn(3).setCellRenderer(new DefaultTableCellRenderer(){
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean focus,
+                    int row, int col){
+                
+                Component c = super.getTableCellRendererComponent(table, value, isSelected, focus, row, col);
+                
+                int qty = Integer.parseInt(value.toString());
+                
+                if(!isSelected){
+                    if(qty < 15){
+                        c.setForeground(redcolor);
+                    }else{
+                        c.setForeground(greencolor);
+                    }
+                }
+                return c;
+            }
+        });
+        
+        JScrollPane scroll = new JScrollPane(checktable);
+        styleScrollBar(scroll);
+        
+        page.add(scroll, BorderLayout.CENTER);
+        
+        loadstock(checkmodel);
+        return page;
+    }
+    
+    private JTable reptable;
+    private DefaultTableModel repmodel;
+    
+    JPanel replenishstock(){
+        JPanel page = new JPanel(new BorderLayout());
+        page.setBackground(bgcolor);
+        page.add(sectionHeader("REPLENISH STOCK", "MENU"), BorderLayout.NORTH);
+        
+        JPanel form = new JPanel();
+        form.setLayout(new BoxLayout(form, BoxLayout.Y_AXIS));
+        form.setBackground(bgcolor);
+        form.setBorder(new EmptyBorder(15,30,15,30));
+        
+        return page;
     }
     
     
@@ -358,27 +541,15 @@ public class StaffPage {
 
 
     private void clearAddForm(){
-        titleEnter.setText(""); genreEnter.setText(""); languageEnter.setText("");
-        durationEnter.setText(""); directorEnter.setText(""); castEnter.setText("");
-        subtitlesEnter.setText(""); descriptionEnter.setText("");
-        ratingEnter.setSelectedIndex(0);
-        releasedateEnter.setValue(new Date());
+        itemname.setText("");
+        category.setSelectedIndex(0);
+        price.setText("");
+        currentqty.setText("");
+        minstockqty.setText("");
     }
 
 
-    private void clearScheduleForm(){
-        if(schedulemoviebox.getItemCount() > 0){
-            schedulemoviebox.setSelectedIndex(0);
-        }
-
-        scheduletimebox.setSelectedIndex(0);
-        schedulehallbox.setSelectedIndex(0);
-        scheduledate.setValue(new Date());
-    }
-
-    private void backmenu(){
-        cardlayout.show(staffpanel, "MENU");
-    }
+   
 
     private void showMsg(String msg, boolean success) {
         JOptionPane.showMessageDialog(frame, msg, success ? "Success" : "Error",
