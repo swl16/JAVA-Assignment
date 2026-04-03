@@ -42,6 +42,7 @@ public class StaffPage {
         staffpanel.setBackground(bgcolor);
         
         staffpanel.add(menu(), "MENU");
+        staffpanel.add(addstock(), "Add_stock");
         staffpanel.add(checkstock(), "Check_stock");
         staffpanel.add(replenishstock(), "Replenish_stock");
         
@@ -113,11 +114,20 @@ public class StaffPage {
         return btn;
     }
     
+    private JPanel addstock(){
+        
+    }
     
     
     
+    private JPanel checkstock(){
+        
+    }
     
     
+    private JPanel replenishstock(){
+        
+    }
     
     
     
@@ -177,16 +187,33 @@ public class StaffPage {
     
     
     
-     private JPanel sectionHeader(String title, String backCard){
+    
+    
+    
+    
+    private JPanel sectionHeader(String title, String backCard){
         JPanel p = new JPanel(new BorderLayout());
         p.setBackground(panelcolor);
-        p.setBorder(new MatteBorder(0, 0, 2, 0, redcolor));
-        p.setPreferredSize(new Dimension(500, 48));
+        p.setBorder(new EmptyBorder(15,15,15,15));
+        
+        JButton backbtn = styledButton("← BACK",false);
+        backbtn.addActionListener(e -> cardlayout.show(staffpanel,backCard));
         
         JLabel lbl = new JLabel("  " + title);
         lbl.setFont(new Font("Courier New", Font.BOLD, 16));
         lbl.setForeground(textcolor);
-        p.add(lbl, BorderLayout.CENTER);
+        
+        JPanel left = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        left.setBackground(panelcolor);
+        left.add(backbtn);
+
+        JPanel center = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
+        center.setBackground(panelcolor);
+        center.add(lbl);
+
+        p.add(left, BorderLayout.WEST);
+        p.add(center, BorderLayout.CENTER);
+        
         return p;
     }
     
