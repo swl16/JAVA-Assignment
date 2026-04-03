@@ -217,29 +217,118 @@ public class MovieDetailPage implements ActionListener {
  class Movie{
     private String title;
     private String genre;
+    private String language;
+    private Date date;
+    private String rating;
     private String duration;
+    private String director;
+    private String cast;
+    private String subtitles;
+    private String description;
     private ImageIcon poster;
 
-    Movie(String title, String genre, String duration, ImageIcon poster){
+    Movie(String title, String genre, String language,Date date,String rating,String duration, String director, String cast, String subtitles, String description, ImageIcon poster){
         this.title = title;
         this.genre = genre;
-        this.duration =duration;
+        this.language = language;
+        this.date = date;
+        this.rating = rating;
+        this.duration = duration;
+        this.director = director;
+        this.cast = cast;
+        this.subtitles = subtitles;
+        this.description = description;
         this.poster = poster;
     }
 
-     public String getTitle() {
-         return title;
-     }
+    public String getTitle() {
+        return title;
+    }
 
-     public String getGenre() {
-         return genre;
-     }
+    public void setTitle(String title) {
+        this.title = title;
+    }
 
-     public String getDuration() {
-         return duration;
-     }
+    public String getGenre() {
+        return genre;
+    }
 
-     public ImageIcon getPoster() {
-         return poster;
-     }
- }
+    public void setGenre(String genre) {
+        this.genre = genre;
+    }
+
+    public String getLanguage() {
+        return language;
+    }
+
+    public void setLanguage(String language) {
+        this.language = language;
+    }
+
+    public Date getDate() {
+        return date;
+    }
+
+    public void setDate(Date date) {
+        this.date = date;
+    }
+
+    public String getRating() {
+        return rating;
+    }
+
+    public void setRating(String rating) {
+        this.rating = rating;
+    }
+
+    public String getDuration() {
+        return duration;
+    }
+
+    public void setDuration(String duration) {
+        this.duration = duration;
+    }
+
+    public String getDirector() {
+        return director;
+    }
+
+    public void setDirector(String director) {
+        this.director = director;
+    }
+
+    public String getCast() {
+        return cast;
+    }
+
+    public void setCast(String cast) {
+        this.cast = cast;
+    }
+
+    public String getSubtitles() {
+        return subtitles;
+    }
+
+    public void setSubtitles(String subtitles) {
+        this.subtitles = subtitles;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public ImageIcon getPoster() {
+        return poster;
+    }
+
+    public void setPoster(ImageIcon poster) {
+        this.poster = poster;
+    }
+    
+    
+    
+}
