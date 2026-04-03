@@ -9,6 +9,8 @@ import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Date;
+import java.util.HashSet;
 
 public class MainMenuPage implements ActionListener {
 
@@ -169,17 +171,22 @@ public class MainMenuPage implements ActionListener {
     }
 
     private void loadMovie() {
-        try(BufferedReader readLine = new BufferedReader(new FileReader("MovieDetail.txt"))){
+        try(BufferedReader readLine = new BufferedReader(new FileReader("MovieDetails.txt"))){
             String line;
             int i = 0;
+            HashSet<String> titles = new HashSet<>();
             while((line = readLine.readLine()) != null){
                 if (line.trim().isEmpty()) continue;
 
-                String[] parts = line.split(" , ");
-                ImageIcon poster = new ImageIcon(parts[3]);
-                movieDetail[i] = new Movie(parts[0],parts[1],parts[2],poster);
-                i++;
-                movieCount++;
+                String[] parts = line.split("\\|", -1);
+                if(parts.length == 11){
+                    titles.add(parts[0].trim());
+                }
+//                ImageIcon poster = new ImageIcon(parts[11]);
+//                Date date = new Date.parse(parts[3]);
+//                movieDetail[i] = new Movie(parts[0],parts[1],parts[2],parts[3],parts[4],parts[5],parts[6],parts[7],parts[8],parts[9],parts[10],poster);
+//                i++;
+//                movieCount++;
             }
         }
         catch (IOException e){
@@ -288,7 +295,7 @@ public class MainMenuPage implements ActionListener {
                 cardLayout.show(cardPanel, "home");
                 
             } else if (e.getSource() == FnBButton) {
-                new Concession();
+                //new Concession();
                 frame.dispose();
 
             } else if (e.getSource() == profileButton) {
