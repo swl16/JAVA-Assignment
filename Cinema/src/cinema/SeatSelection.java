@@ -4,9 +4,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +18,7 @@ public class SeatSelection implements ActionListener {
     ShowTime showTime;
     Movie movieDetail;
     List<Seat> selectedSeat = new ArrayList<>();
+    List<Seat> bookedSeat = new ArrayList<>();
     JLabel infoLabel, seatNoLabel, priceLabel;
     JButton expandPanelBtn,closeExpandBtn,confirmButton;
     JLayeredPane layeredPane;
@@ -39,6 +39,7 @@ public class SeatSelection implements ActionListener {
 
         loadHall();
         loadMovie();
+        loadBookDetail();
 
         baseSeat = new Seat('A',0,hall.getPrice());
 
@@ -130,8 +131,15 @@ public class SeatSelection implements ActionListener {
 
             for (int j = 0; j < hall.getColumn(); j++){
                 Seat seat = hall.getSeat(i,j);
+
                 JButton seatButton = createSeatButton(seat);
                 seatButtons[i][j] = seatButton;
+                if (isSeatBooked(seat.getRow(),seat.getColumn())){
+                    seatButton.setBackground(new Color(0xD44444));
+                    seatButton.setForeground(new Color(0xF7F7F7));
+                    seatButton.setEnabled(false);
+                    seatButton.setToolTipText(seat.getSeatId() + "  " + seat.getStatus());
+                }
                 seatPanel.add(seatButton);
             }
 
@@ -201,6 +209,7 @@ public class SeatSelection implements ActionListener {
         confirmButton.setBounds(20,90,430,30);
         confirmButton.setForeground(new Color(0xF7F7F7));
         confirmButton.setBackground(new Color(0xD44444));
+        confirmButton.addActionListener(this);
         lowerPanel.add(confirmButton);
 
         closeExpandBtn = new JButton("↓ Close the options");
@@ -294,6 +303,16 @@ public class SeatSelection implements ActionListener {
         return button;
     }
 
+    private boolean isSeatBooked(char row, int num) {
+        for (Seat s : bookedSeat) {
+            // Check if the loaded seat matches the one we are currently drawing
+            if (s.getRow() == row && s.getColumn() == num) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     void clickSeat(Seat seat,JButton btn){
         if (!seat.isAvailable()){
             JOptionPane.showMessageDialog(frame,
@@ -380,6 +399,32 @@ public class SeatSelection implements ActionListener {
         return label;
     }
 
+    public void loadBookDetail(){
+        File file = new File("BookingDetail.txt");
+        if (!file.exists()) {return;}
+
+        try(BufferedReader readLine = new BufferedReader(new FileReader(file))){
+            String line;
+
+            while((line = readLine.readLine()) != null){
+                if (line.trim().isEmpty()) continue;
+
+                String[] parts = line.split("\\|");
+
+                if (LocalDateTime.parse(parts[0]).isEqual(showTime.getStartTime()) && parts[1].equals(hall.getName())) {
+                    bookedSeat.add(new Seat(parts[2].charAt(0),Integer.parseInt(parts[3]),hall.getPrice()));
+                }
+            }
+            for (Seat s : bookedSeat){
+                s.book();
+            }
+        }
+        catch (IOException e){
+            System.out.println("Error reading booking file");
+        }
+
+    }
+
 
     public void loadHall(){
         try(BufferedReader readLine = new BufferedReader(new FileReader("Hall.txt"))){
@@ -420,17 +465,74 @@ public class SeatSelection implements ActionListener {
         }
     }
 
+    public void saveBooking(){
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("BookingDetail.txt",true))){
+            for (Seat s : selectedSeat){
+                writer.newLine();
+                writer.write(String.valueOf(showTime.getStartTime()) + "|" + hall.getName() + "|" + s.getRow() + "|" + s.getColumn());
+
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == backButton) {
-            frame.dispose();
-            homeFrame.setVisible(true);
+            if (!selectedSeat.isEmpty()){
+                int choice = JOptionPane.showConfirmDialog(null,"Are you confirm you want to exit? Your selection will be discard.","Confirm Exit",JOptionPane.YES_NO_OPTION);
+
+                if (choice == JOptionPane.YES_OPTION){
+                    frame.dispose();
+                    homeFrame.setVisible(true);
+                }else{
+                    return;
+                }
+            }
+
         } else if (e.getSource() == expandPanelBtn) {
             pullOutPanel.setVisible(true);
             expandPanelBtn.setVisible(false);
         } else if (e.getSource() == closeExpandBtn) {
             pullOutPanel.setVisible(false);
             expandPanelBtn.setVisible(true);
+        } else if (e.getSource() == confirmButton) {
+            int totalTicketsSelected = 0;
+            for (int count : countType) {
+                totalTicketsSelected += count;
+            }
+            if (totalTicketsSelected != selectedSeat.size()){
+                JOptionPane.showMessageDialog(null,
+                        "You have selected "+ selectedSeat.size() + " seats, but only " + totalTicketsSelected + " tickets was selected. Please select a valid ticket quantity.",
+                        "Invalid quantity of ticket",
+                        JOptionPane.WARNING_MESSAGE);
+            } else if (selectedSeat.isEmpty()) {
+                JOptionPane.showMessageDialog(null,
+                        "Please select at least one seat first.",
+                        "No Seats Selected", JOptionPane.WARNING_MESSAGE);
+            }else {
+                double totalPrice = 0;
+                StringBuilder msg = new StringBuilder("Please confirm your booking.\n\n");
+                for (Seat s : selectedSeat){
+                    msg.append(s.getSeatId()).append(" ");
+                }
+                for (int i = 0; i < countType.length; i++){
+                    totalPrice +=countType[i] * baseSeat.getPrice(allTypes[i]);
+                }
+                msg.append("\nTotal : RM ").append(String.format("%.2f",totalPrice));
+
+                int choice = JOptionPane.showConfirmDialog(null, msg.toString(), "Confirm Booking", JOptionPane.YES_NO_OPTION);
+                if (choice == JOptionPane.YES_OPTION){
+                    saveBooking();
+                    for (Seat s : selectedSeat) {
+                        s.book();
+                    }
+                    selectedSeat.clear();
+                    JOptionPane.showMessageDialog(null, "Booking Successful!");
+                    frame.setVisible(false);
+                }
+            }
         }
     }
 
