@@ -9,11 +9,11 @@ import java.io.*;
 import java.util.*;
 
 public class StaffPage {
-    
+
     JFrame frame;
     JPanel staffpanel;
     CardLayout cardlayout;
-    
+
     final Color bgcolor = new Color(0x242424);
     final Color panelcolor = new Color(0x2E2E2E);
     final Color bordercolor = new Color(0x444444);
@@ -24,10 +24,10 @@ public class StaffPage {
     final Color inputbg = new Color(0x1E1E1E);
     final Color greencolor = new Color(0x44AA66);
     final Color hovercolor = new Color(0xE85555);
-    
-    
-    
-    
+
+
+
+
     public StaffPage(){
         frame = new JFrame("TGC Cinema - Staff Page");
         frame.setSize(500,700);
@@ -36,62 +36,62 @@ public class StaffPage {
         frame.setResizable(false);
         frame.getContentPane().setBackground(bgcolor);
         frame.setVisible(true);
-        
+
         cardlayout = new CardLayout();
         staffpanel = new JPanel(cardlayout);
         staffpanel.setBackground(bgcolor);
-        
+
         staffpanel.add(menu(), "MENU");
         staffpanel.add(addstock(), "Add_stock");
         staffpanel.add(checkstock(), "Check_stock");
         staffpanel.add(replenishstock(), "Replenish_stock");
-        
+
         frame.add(staffpanel);
         frame.setVisible(true);
-        
+
         cardlayout.show(staffpanel, "MENU");
-        
+
     }
-    
-    
+
+
     public JPanel menu(){
         JPanel panel = new JPanel(new BorderLayout());
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         panel.setBackground(bgcolor);
-        
+
         JLabel title = new JLabel("TGC Cinema Staff", SwingConstants.CENTER);
         title.setForeground(textcolor);
         title.setFont(new Font("Courier New", Font.BOLD, 30));
         title.setBorder(BorderFactory.createEmptyBorder(35,100,15,0));
         panel.add(title);
-        
+
         JPanel inner = new JPanel();
         inner.setLayout(new BoxLayout(inner, BoxLayout.Y_AXIS));
         inner.setBackground(bgcolor);
         inner.setBorder(new EmptyBorder(20, 40, 20, 40));
-        
+
         String [][] buttons = {
             {"CHECK STOCK", "Check_stock"}, {"REPLENISH STOCK", "Replenish_stock"}};
-        
+
         for(String[]btn : buttons){
             JButton b = menubtn(btn[0]);
             String card = btn[1];
-            
+
             b.addActionListener(e -> {cardlayout.show(staffpanel, card);
             if(card.equals("View_Movie")) refreshViewTable();
             if(card.equals("Showtime_Schedule")) refreshScheduleTable();
             if(card.equals("Salesreport")) generatereport();
             });
-            
+
             inner.add(b);
             inner.add(Box.createVerticalStrut(14));
         }
-        
+
         panel.add(inner);
         return panel;
-        
+
     }
-    
+
     public JButton menubtn(String text){
         JButton btn = new JButton(text);
         btn.setFont(new Font("Courier New", Font.BOLD, 20));
@@ -216,7 +216,7 @@ public class StaffPage {
         
         return p;
     }
-    
+
     private JTextField formField(JPanel formpanel, String label){
         formpanel.add(fieldLabel(label));
         formpanel.add(Box.createVerticalStrut(4));
@@ -226,7 +226,7 @@ public class StaffPage {
         formpanel.add(Box.createVerticalStrut(10));
         return text;
     }
-    
+
     private JComboBox<String> formCombo(JPanel formpanel, String label, String[] options){
         formpanel.add(fieldLabel(label));
         formpanel.add(Box.createVerticalStrut(4));
@@ -236,7 +236,7 @@ public class StaffPage {
         formpanel.add(Box.createVerticalStrut(10));
         return choice;
     }
-    
+
     private JLabel fieldLabel(String text){
         JLabel l = new JLabel(text);
         l.setFont(new Font("Courier New", Font.BOLD, 12));
@@ -244,7 +244,7 @@ public class StaffPage {
         l.setAlignmentX(Component.LEFT_ALIGNMENT);
         return l;
     }
-    
+
     private void styleTextField(JTextField text){
         text.setBackground(bgcolor);
         text.setForeground(textcolor);
@@ -257,7 +257,7 @@ public class StaffPage {
         text.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
         text.setAlignmentX(Component.LEFT_ALIGNMENT);
     }
-    
+
     private void styleTextArea(JTextArea ta) {
         ta.setBackground(inputbg);
         ta.setForeground(textcolor);
@@ -266,7 +266,7 @@ public class StaffPage {
         ta.setBorder(new EmptyBorder(6, 8, 6, 8));
         ta.setAlignmentX(Component.LEFT_ALIGNMENT);
     }
- 
+
     private void styleCombo(JComboBox<String> combo) {
         combo.setBackground(inputbg);
         combo.setForeground(textcolor);
@@ -286,7 +286,7 @@ public class StaffPage {
             }
         });
     }
- 
+
     private void styleSpinner(JSpinner sp) {
         sp.setBackground(inputbg);
         sp.setForeground(textcolor);
@@ -304,7 +304,7 @@ public class StaffPage {
             tf.setBorder(new EmptyBorder(4, 8, 4, 8));
         }
     }
-    
+
     private void styleTable(JTable table) {
         table.setBackground(inputbg);
         table.setForeground(textcolor);
@@ -315,7 +315,7 @@ public class StaffPage {
         table.setSelectionForeground(textcolor);
         table.setShowGrid(true);
         table.setIntercellSpacing(new Dimension(1, 1));
- 
+
         JTableHeader header = table.getTableHeader();
         header.setBackground(panelcolor);
         header.setForeground(redcolor);
@@ -323,7 +323,7 @@ public class StaffPage {
         header.setBorder(new MatteBorder(0, 0, 2, 0, redcolor));
         header.setReorderingAllowed(false);
     }
- 
+
     private void styleScrollBar(JScrollPane sp) {
         sp.getVerticalScrollBar().setBackground(bgcolor);
         sp.getVerticalScrollBar().setUI(new javax.swing.plaf.basic.BasicScrollBarUI() {
@@ -337,7 +337,7 @@ public class StaffPage {
             }
         });
     }
- 
+
     private JButton styledButton(String text, boolean primary) {
         JButton btn = new JButton(text);
         btn.setFont(new Font("Courier New", Font.BOLD, 13));
@@ -355,8 +355,8 @@ public class StaffPage {
         });
         return btn;
     }
-    
-    
+
+
     private void clearAddForm(){
         titleEnter.setText(""); genreEnter.setText(""); languageEnter.setText("");
         durationEnter.setText(""); directorEnter.setText(""); castEnter.setText("");
@@ -364,22 +364,22 @@ public class StaffPage {
         ratingEnter.setSelectedIndex(0);
         releasedateEnter.setValue(new Date());
     }
-    
-    
+
+
     private void clearScheduleForm(){
         if(schedulemoviebox.getItemCount() > 0){
             schedulemoviebox.setSelectedIndex(0);
         }
-        
+
         scheduletimebox.setSelectedIndex(0);
         schedulehallbox.setSelectedIndex(0);
         scheduledate.setValue(new Date());
     }
-    
+
     private void backmenu(){
         cardlayout.show(staffpanel, "MENU");
     }
-    
+
     private void showMsg(String msg, boolean success) {
         JOptionPane.showMessageDialog(frame, msg, success ? "Success" : "Error",
             success ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.ERROR_MESSAGE);

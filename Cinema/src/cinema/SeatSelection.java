@@ -19,14 +19,28 @@ public class SeatSelection implements ActionListener {
     ShowTime showTime;
     Movie movieDetail;
     List<Seat> selectedSeat = new ArrayList<>();
+    JLabel infoLabel, seatNoLabel, priceLabel;
+    JButton expandPanelBtn,closeExpandBtn,confirmButton;
+    JLayeredPane layeredPane;
+    JPanel lowerPanel,pullOutPanel;
+    JLabel[] quantityLabel = new JLabel[4];
 
     JButton[][] seatButtons;
+    int[] countType = new int[4];
+    Seat baseSeat;
+    Seat.SeatType[] allTypes = Seat.SeatType.values();
 
     private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("EEE dd MMM , HH:mm");
+    String[] seatType = {"Adult","Student","Senior","OKU"};
 
     SeatSelection(JFrame homeFrame,ShowTime showTime){
         this.showTime = showTime;
         this.homeFrame = homeFrame;
+
+        loadHall();
+        loadMovie();
+
+        baseSeat = new Seat('A',0,hall.getPrice());
 
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setResizable(false);
@@ -52,9 +66,6 @@ public class SeatSelection implements ActionListener {
         backButton.addActionListener(this);
         backButton.setForeground(new Color(0xF7F7F7));
         upperPanel.add(backButton);
-
-        loadHall();
-        loadMovie();
 
         JPanel redPanel = new JPanel();
         redPanel.setBackground(new Color(0xD44444));
@@ -86,12 +97,30 @@ public class SeatSelection implements ActionListener {
         screenLabel.setBounds(0,140,500,40);
         upperPanel.add(screenLabel);
 
-        JPanel seatPanel = new JPanel(new GridLayout(hall.getRows() ,hall.getColumn()+2,5,5));
+        layeredPane = new JLayeredPane();
+        layeredPane.setPreferredSize(new Dimension(500, 500));
+        layeredPane.setLayout(null);
+        frame.add(layeredPane,BorderLayout.CENTER);
+
+        JPanel seatPanel = new JPanel(new GridLayout(hall.getRows(),hall.getColumn() + 2,5,5));
         seatPanel.setBackground(new Color(0x242424));
-        frame.add(seatPanel,BorderLayout.CENTER);
+        seatPanel.setBounds(0,0,485,300);
+        layeredPane.add(seatPanel,Integer.valueOf(0));
+
+        lowerPanel = new JPanel();
+        lowerPanel.setBackground(new Color(0x3B3B3B));
+        lowerPanel.setLayout(null);
+        lowerPanel.setBounds(0, 335, 500,140);
+        layeredPane.add(lowerPanel,Integer.valueOf(0));
+
+        pullOutPanel = new JPanel();
+        pullOutPanel.setBounds(0,100,500,240);
+        pullOutPanel.setBackground(new Color(0x3B3B3B));
+        pullOutPanel.setLayout(null);
+        layeredPane.add(pullOutPanel,Integer.valueOf(1));
+        pullOutPanel.setVisible(false);
+
         seatButtons = new JButton[hall.getRows()][hall.getColumn()];
-
-
 
         for (int i = 0; i < hall.getRows(); i++){
             JLabel rowLabel = new JLabel(String.valueOf(hall.seats[i][0].getRow()), SwingConstants.CENTER);
@@ -109,9 +138,145 @@ public class SeatSelection implements ActionListener {
             seatPanel.add(new JLabel(""));
         }
 
+        expandPanelBtn = new JButton("↑ Ticket type options");
+        expandPanelBtn.setBorderPainted(false);
+        expandPanelBtn.setFocusPainted(false);
+        expandPanelBtn.setFont(new Font("Courier New",Font.PLAIN,12));
+        expandPanelBtn.setBounds(280,10,180,30);
+        expandPanelBtn.setForeground(new Color(0xF7F7F7));
+        expandPanelBtn.setBackground(new Color(0xD44444));
+        expandPanelBtn.setMargin(new Insets(0,0,0,0));
+        expandPanelBtn.addActionListener(this);
+        lowerPanel.add(expandPanelBtn);
+
+        JLabel seatLabel = new JLabel("Seat Selection: ");
+        seatLabel.setForeground(new Color(0xF7F7F7));
+        seatLabel.setFont(new Font("Courier New",Font.BOLD,18));
+        seatLabel.setBounds(10,15,200,20);
+        lowerPanel.add(seatLabel);
+
+        double totalPrice = 0;
+        StringBuilder sbSeatNo = new StringBuilder();
+        for (Seat s : selectedSeat){
+            sbSeatNo.append(s.getSeatId()).append(" ");
+        }
+        for (int i = 0; i < countType.length; i++){
+            totalPrice +=countType[i] * baseSeat.getPrice(allTypes[i]);
+        }
+
+        StringBuilder sbType = new StringBuilder();
+        boolean isFirst = true;
+        for (int i = 0 ; i < 4; i++){
+            if (countType[i] != 0){
+                if (isFirst){
+                sbType.append(seatType[i]).append(" x ").append(countType[i]);
+                isFirst = false;
+                }else {
+                sbType.append(" , ").append(seatType[i]).append(" x ").append(countType[i]); }
+            }
+        }
+
+        infoLabel = new JLabel(sbType.toString());
+        infoLabel.setForeground(new Color(0xF7F7F7));
+        infoLabel.setFont(new Font("Courier New",Font.BOLD,15));
+        infoLabel.setBounds(10,40,350,20);
+        lowerPanel.add(infoLabel);
+
+        seatNoLabel = new JLabel(sbSeatNo.toString());
+        seatNoLabel.setForeground(new Color(0xF7F7F7));
+        seatNoLabel.setFont(new Font("Courier New",Font.BOLD,15));
+        seatNoLabel.setBounds(10,60,350,20);
+        lowerPanel.add(seatNoLabel);
+
+        priceLabel = new JLabel("RM " + String.format("%.2f",totalPrice));
+        priceLabel.setForeground(new Color(0xF7F7F7));
+        priceLabel.setFont(new Font("Courier New",Font.BOLD,15));
+        priceLabel.setBounds(380,60,100,20);
+        lowerPanel.add(priceLabel);
+
+        confirmButton = new JButton("Confirm - " + selectedSeat.size() + " ticket(s)");
+        confirmButton.setBorderPainted(false);
+        confirmButton.setFocusPainted(false);
+        confirmButton.setFont(new Font("Courier New",Font.BOLD,15));
+        confirmButton.setBounds(20,90,430,30);
+        confirmButton.setForeground(new Color(0xF7F7F7));
+        confirmButton.setBackground(new Color(0xD44444));
+        lowerPanel.add(confirmButton);
+
+        closeExpandBtn = new JButton("↓ Close the options");
+        closeExpandBtn.setBorderPainted(false);
+        closeExpandBtn.setFocusPainted(false);
+        closeExpandBtn.setFont(new Font("Courier New",Font.PLAIN,12));
+        closeExpandBtn.setBounds(280,10,180,30);
+        closeExpandBtn.setForeground(new Color(0xF7F7F7));
+        closeExpandBtn.setBackground(new Color(0xD44444));
+        closeExpandBtn.setMargin(new Insets(0,0,0,0));
+        closeExpandBtn.addActionListener(this);
+        pullOutPanel.add(closeExpandBtn);
+
+
+        for (int i = 0;i < seatType.length ; i++){
+            int index = i;
+            pullOutPanel.add(SeatTypeLabel(seatType[i],i*40));
+            pullOutPanel.add(seatPriceLabel(baseSeat.getPrice(allTypes[i]),i * 40));
+
+            JButton minusButton = new JButton("-");
+            minusButton.setBorderPainted(false);
+            minusButton.setFocusPainted(false);
+            minusButton.setContentAreaFilled(false);
+            minusButton.setFocusable(false);
+            minusButton.setBounds(350,55 + i * 40,20,20);
+            minusButton.setFont(new Font("Courier New",Font.BOLD,15));
+            minusButton.setForeground(new Color(0xF7F7F7));
+            minusButton.setMargin(new Insets(0,0,0,0));
+
+            quantityLabel[i] = new JLabel(String.valueOf(countType[i]));
+            quantityLabel[i].setForeground(new Color(0xF7F7F7));
+            quantityLabel[i].setFont(new Font("Courier New",Font.BOLD,15));
+            quantityLabel[i].setBounds(390,55 + i * 40,20,20);
+
+            JButton addButton = new JButton("+");
+            addButton.setBorderPainted(false);
+            addButton.setFocusPainted(false);
+            addButton.setContentAreaFilled(false);
+            addButton.setFocusable(false);
+            addButton.setBounds(415,55 + i * 40,20,20);
+            addButton.setFont(new Font("Courier New",Font.BOLD,15));
+            addButton.addActionListener(e -> {});
+            addButton.setForeground(new Color(0xF7F7F7));
+            addButton.setMargin(new Insets(0,0,0,0));
+
+            minusButton.addActionListener(e -> {
+                if (countType[index] > 0 ) {
+                    countType[index]--;
+                    quantityLabel[index].setText(String.valueOf(countType[index]));
+                    updateSeatSummary();
+                }});
+            addButton.addActionListener(e -> {
+                int totalTicketsSelected = 0;
+                for (int count : countType) {
+                    totalTicketsSelected += count;
+                }
+                if (totalTicketsSelected < selectedSeat.size()){
+                    countType[index]++;
+                    quantityLabel[index].setText(String.valueOf(countType[index]));
+                    updateSeatSummary();
+                }else {
+                    JOptionPane.showMessageDialog(null,
+                            "You have already assigned a ticket type to every selected seat!",
+                            "Limit Reached",
+                            JOptionPane.WARNING_MESSAGE);
+                }
+            });
+
+            pullOutPanel.add(minusButton);
+            pullOutPanel.add(quantityLabel[i]);
+            pullOutPanel.add(addButton);
+        }
 
 
     }
+
 
     JButton createSeatButton(Seat seat){
         JButton button = new JButton(seat.getSeatId());
@@ -139,14 +304,23 @@ public class SeatSelection implements ActionListener {
 
         if (selectedSeat.contains(seat)){
             selectedSeat.remove(seat);
+            seat.cancel();
+            countType[0]--;
+            quantityLabel[0].setText(String.valueOf(countType[0]));
+            btn.setToolTipText(seat.getSeatId() + "  " + seat.getStatus());
             updateBtnColor(btn,seat);
+
 
         }else {
             selectedSeat.add(seat);
+            seat.select();
+            countType[0]++;
+            btn.setToolTipText(seat.getSeatId() + "  " + seat.getStatus());
+            quantityLabel[0].setText(String.valueOf(countType[0]));
             btn.setBackground(new Color(0x6e7075));
             btn.setForeground(new Color(0xF7F7F7));
         }
-
+        updateSeatSummary();
     }
 
     void updateBtnColor(JButton btn, Seat seat){
@@ -161,6 +335,51 @@ public class SeatSelection implements ActionListener {
             btn.setForeground(new Color(0x242424));
         }
     }
+
+    void updateSeatSummary(){
+        double totalPrice = 0;
+        StringBuilder sbSeatNo = new StringBuilder();
+        for (Seat s : selectedSeat){
+            sbSeatNo.append(s.getSeatId()).append(" ");
+        }
+        for (int i = 0; i < countType.length; i++){
+            totalPrice +=countType[i] *baseSeat.getPrice(allTypes[i]);
+        }
+
+        StringBuilder sbType = new StringBuilder();
+        boolean isFirst = true;
+        for (int i = 0 ; i < 4; i++){
+            if (countType[i] != 0){
+                if (isFirst){
+                    sbType.append(seatType[i]).append(" x ").append(countType[i]);
+                    isFirst = false;
+                }else {
+                    sbType.append(" , ").append(seatType[i]).append(" x ").append(countType[i]); }
+            }
+        }
+
+        infoLabel.setText(sbType.toString());
+        seatNoLabel.setText(sbSeatNo.toString());
+        priceLabel.setText("RM " + String.format("%.2f", totalPrice));
+        confirmButton.setText("Confirm - " + selectedSeat.size() + " ticket(s)");
+    }
+
+    JLabel SeatTypeLabel(String type, int i){
+        JLabel label = new JLabel(type);
+        label.setForeground(new Color(0xF7F7F7));
+        label.setFont(new Font("Courier New",Font.BOLD,20));
+        label.setBounds(10,55 + i,200,20);
+        return label;
+    }
+
+    JLabel seatPriceLabel(double price, int i){
+        JLabel label = new JLabel("RM" + String.format("%.2f",price) + " x");
+        label.setForeground(new Color(0xF7F7F7));
+        label.setFont(new Font("Courier New",Font.BOLD,18));
+        label.setBounds(210,55 + i,120,20);
+        return label;
+    }
+
 
     public void loadHall(){
         try(BufferedReader readLine = new BufferedReader(new FileReader("Hall.txt"))){
@@ -206,6 +425,12 @@ public class SeatSelection implements ActionListener {
         if (e.getSource() == backButton) {
             frame.dispose();
             homeFrame.setVisible(true);
+        } else if (e.getSource() == expandPanelBtn) {
+            pullOutPanel.setVisible(true);
+            expandPanelBtn.setVisible(false);
+        } else if (e.getSource() == closeExpandBtn) {
+            pullOutPanel.setVisible(false);
+            expandPanelBtn.setVisible(true);
         }
     }
 
