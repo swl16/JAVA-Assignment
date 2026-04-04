@@ -56,18 +56,9 @@ public class AdminPage{
         adminpanel.add(showtimeschedule(), "Showtime_Schedule");
         adminpanel.add(salesreport(), "Salesreport");
         
-        JButton logout = styledButton("Log Out",true);
-        logout.setAlignmentX(Component.CENTER_ALIGNMENT);
-//        logout.setPreferredSize(new Dimension(50,40));
-        logout.addActionListener(e -> {
-            frame.dispose();
-            new LoginPage();
-        });
         
-//        adminpanel.add(logout);
         
         frame.add(adminpanel);
-        frame.add(logout,BorderLayout.SOUTH);
         frame.setVisible(true);
         
         cardlayout.show(adminpanel, "MENU");
