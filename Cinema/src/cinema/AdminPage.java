@@ -56,7 +56,18 @@ public class AdminPage{
         adminpanel.add(showtimeschedule(), "Showtime_Schedule");
         adminpanel.add(salesreport(), "Salesreport");
         
+        JButton logout = styledButton("Log Out",true);
+        logout.setAlignmentX(Component.CENTER_ALIGNMENT);
+//        logout.setPreferredSize(new Dimension(50,40));
+        logout.addActionListener(e -> {
+            frame.dispose();
+            new LoginPage();
+        });
+        
+//        adminpanel.add(logout);
+        
         frame.add(adminpanel);
+        frame.add(logout,BorderLayout.SOUTH);
         frame.setVisible(true);
         
         cardlayout.show(adminpanel, "MENU");
@@ -293,12 +304,12 @@ public class AdminPage{
     
     private boolean validatetext(String fieldname, String value){
         if(value.isEmpty()){
-            showMsg(fieldname + "cannot be empty!", false);
+            showMsg(fieldname + " cannot be empty!", false);
             return false;
         }
         
         if(containsnumber(value)){
-            showMsg(fieldname + "cannot contain numbers! Please try again.", false);
+            showMsg(fieldname + " cannot contain numbers! Please try again.", false);
             return false;
         }
         
@@ -1461,9 +1472,6 @@ public class AdminPage{
         scheduledate.setValue(new Date());
     }
     
-    private void backmenu(){
-        cardlayout.show(adminpanel, "MENU");
-    }
     
     private void showMsg(String msg, boolean success) {
         JOptionPane.showMessageDialog(frame, msg, success ? "Success" : "Error",
