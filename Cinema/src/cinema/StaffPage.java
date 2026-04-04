@@ -46,7 +46,7 @@ public class StaffPage {
         staffpanel.add(addstock(), "Add_stock");
         staffpanel.add(checkstock(), "Check_stock");
         staffpanel.add(replenishstock(), "Replenish_stock");
-
+        
         frame.add(staffpanel);
         frame.setVisible(true);
 
@@ -72,7 +72,7 @@ public class StaffPage {
         inner.setBorder(new EmptyBorder(20, 40, 20, 40));
 
         String [][] buttons = {
-            {"ADD F&B STOCK","Add_stock"},{"CHECK STOCK", "Check_stock"}, {"REPLENISH STOCK", "Replenish_stock"}};
+            {"ADD F&B ITEM","Add_stock"},{"CHECK STOCK", "Check_stock"}, {"REPLENISH STOCK", "Replenish_stock"}};
 
         for(String[]btn : buttons){
             JButton b = menubtn(btn[0]);
@@ -88,6 +88,7 @@ public class StaffPage {
         }
 
         panel.add(inner);
+
         return panel;
 
     }
@@ -120,14 +121,14 @@ public class StaffPage {
     JPanel addstock(){
         JPanel page = new JPanel(new BorderLayout());
         page.setBackground(bgcolor);
-        page.add(sectionHeader("ADD F&B STOCK", "MENU"), BorderLayout.NORTH);
+        page.add(sectionHeader("ADD F&B ITEM", "MENU"), BorderLayout.NORTH);
         
         JPanel form = new JPanel();
         form.setLayout(new BoxLayout(form, BoxLayout.Y_AXIS));
         form.setBackground(bgcolor);
         form.setBorder(new EmptyBorder(15,30,15,30));
         
-        itemname = formField(form, "Stock Name");
+        itemname = formField(form, "Item Name");
         category = formCombo(form, "Category", new String[] {"Snacks","Drinks","Combo Deals"});
         price = formField(form, "Price (RM)");
         
@@ -159,7 +160,7 @@ public class StaffPage {
     void savestock(){
         String name = itemname.getText().trim();
         if(name.isEmpty()){
-            showMsg("Stock name is required.",false);
+            showMsg("Item name is required.",false);
             return;
         }
         
@@ -189,7 +190,7 @@ public class StaffPage {
             while((line = read.readLine()) != null){
                 String[] data = line.split("\\|");
                 if(data[0].equalsIgnoreCase(name)){
-                    showMsg("Stock already exists!",false);
+                    showMsg("Item already exists!",false);
                     return;
                 }
             }
@@ -203,7 +204,7 @@ public class StaffPage {
             saveItem.write(name + "|" + ctg + "|" + itemprice + "|" + qty + "|" + minqty + "|" + today);
             
             saveItem.newLine();
-            showMsg("Stock saved successfully", true);
+            showMsg("Item saved successfully", true);
             clearAddForm();
             
         }catch(IOException e){
@@ -214,8 +215,8 @@ public class StaffPage {
         
     }
     
-    void loadstock(DefaultTableModel model){
-        model.setRowCount(0);
+    void loadstock(){
+        checkmodel.setRowCount(0);
         
         File file = new File(fnbfile);
         if(!file.exists()) return;
@@ -229,9 +230,16 @@ public class StaffPage {
                 int qty = Integer.parseInt(data[3]);
                 int min = Integer.parseInt(data[4]);
                 
-                String status = (qty<15)? "LOW" : "OK";
-                
-                model.addRow(new Object[]{data[0],data[1],data[2],qty,min,status,data[6]});
+                String status;
+                if (qty == 0){
+                    status = "OUT OF STOCK";
+                }else if(qty < 15){
+                    status = "LOW";
+                }else{
+                    status = "OK";
+                }
+               
+                checkmodel.addRow(new Object[]{data[0],data[1],data[2],qty,min,status});
             }
         }catch(IOException e){
             showMsg("Error loading stock: " + e.getMessage(), false);
@@ -258,8 +266,13 @@ public class StaffPage {
         
         JButton filterbtn = styledButton("FILTER",false);
         
-        filterbar.add(filtercombo, BorderLayout.WEST);
-        filterbar.add(filterbtn, BorderLayout.EAST);
+        JPanel filterpanel = new JPanel(new FlowLayout(FlowLayout.RIGHT,8,0));
+        filterpanel.setBackground(panelcolor);
+        filterpanel.add(filtercombo);
+        filterpanel.add(filterbtn);
+        
+        filterbar.add(filterlbl, BorderLayout.WEST);
+        filterbar.add(filterpanel, BorderLayout.EAST);
         
         String[] cols = {"ITEM NAME","CATEGORY","PRICE(RM)","QUANTITY","MIN STOCK","STATUS"};
         checkmodel = new DefaultTableModel(cols,0){
@@ -268,21 +281,31 @@ public class StaffPage {
         checktable = new JTable(checkmodel);
         styleTable(checktable);
         
-        checktable.getColumnModel().getColumn(3).setCellRenderer(new DefaultTableCellRenderer(){
+        checktable.setDefaultRenderer(Object.class, new DefaultTableCellRenderer(){
             public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean focus,
                     int row, int col){
                 
                 Component c = super.getTableCellRendererComponent(table, value, isSelected, focus, row, col);
-                
-                int qty = Integer.parseInt(value.toString());
-                
-                if(!isSelected){
-                    if(qty < 15){
-                        c.setForeground(redcolor);
-                    }else{
-                        c.setForeground(greencolor);
-                    }
+                if(isSelected){
+                    setBackground(redcolor);
+                    setForeground(textcolor);
+                    return c;
                 }
+                String status = String.valueOf(table.getValueAt(row, 5));
+                switch(status){
+                    case "OUT OF STOCK":
+                        setBackground(new Color(0x5A1A1A));
+                        setForeground(redcolor);
+                        break;
+                    case "LOW":
+                        setBackground(new Color(0x3A2E00));
+                        setForeground(new Color(0xFFAA33));
+                        break;
+                    default : 
+                        setBackground(bgcolor);
+                        setForeground(textcolor);
+                }
+                
                 return c;
             }
         });
@@ -290,9 +313,78 @@ public class StaffPage {
         JScrollPane scroll = new JScrollPane(checktable);
         styleScrollBar(scroll);
         
-        page.add(scroll, BorderLayout.CENTER);
+        JPanel south = new JPanel(new BorderLayout());
+        south.setBackground(panelcolor);
+        south.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, bordercolor));
         
-        loadstock(checkmodel);
+        JPanel label = new JPanel(new FlowLayout(FlowLayout.LEFT,16,6));
+        label.setBackground(panelcolor);
+        label.add(colorlabel("● OK",greencolor));
+        label.add(colorlabel("● LOW",new Color(0xFFAA33)));
+        label.add(colorlabel("● OUT OF STOCK", redcolor));
+        
+        JPanel btnrow = new JPanel(new FlowLayout(FlowLayout.CENTER,12,6));
+        btnrow.setBackground(panelcolor);
+        JButton delete = styledButton("DELETE",true);
+        delete.addActionListener(e -> {
+            int row = checktable.getSelectedRow();
+            if(row<0){
+                showMsg("Please select an item",false);
+                return;
+            }
+            String name = checkmodel.getValueAt(row, 0).toString();
+            
+            int confirm = JOptionPane.showConfirmDialog(frame, "Delete \"" + name + "\" from stock?","Confirm Delete",JOptionPane.YES_NO_OPTION);
+            
+            if(confirm == JOptionPane.YES_OPTION){
+                ArrayList<String[]> fnb = new ArrayList<>();
+                
+                try (BufferedReader br = new BufferedReader(new FileReader(fnbfile))) {
+                    String line;
+                    while ((line = br.readLine()) != null) {
+                        String[] details = line.split("\\|", -1);
+                        if (details.length == 6 && !details[0].equals(name)) {
+                        fnb.add(details);
+                        }
+                    }
+                } catch (IOException ex) {
+                    showMsg("Error reading FnB: " + ex.getMessage(), false);
+                    return;
+                }
+                
+                try (BufferedWriter bw = new BufferedWriter(new FileWriter(fnbfile))) {
+                    for (String[] m : fnb) {
+                        bw.write(String.join("|", m));
+                        bw.newLine();
+                    }
+                }catch(IOException ex) {
+                    showMsg("Error saving movies: " + ex.getMessage(), false);
+                    return;
+                }
+                
+                refreshchecktable();
+                loadstock();
+                showMsg("Item deleted successfully!", true);
+            }
+            
+        });
+        
+        south.add(label, BorderLayout.NORTH);
+        south.add(btnrow, BorderLayout.CENTER);
+        
+        filterbtn.addActionListener(e -> {
+            String selected = filtercombo.getSelectedItem().toString();
+            filterstock(selected);
+        });
+        
+        JPanel center = new JPanel(new BorderLayout());
+        center.setBackground(bgcolor);
+        center.add(filterbar, BorderLayout.NORTH);
+        center.add(scroll, BorderLayout.CENTER);
+        
+        page.add(center, BorderLayout.CENTER);
+        page.add(south,BorderLayout.SOUTH);
+        
         return page;
     }
     
@@ -314,9 +406,75 @@ public class StaffPage {
     
     
     
+    void refreshchecktable(){
+        if(checkmodel == null) return;
+        
+        checkmodel.setRowCount(0);
+        
+        File file = new File(fnbfile);
+        if(!file.exists()) return;
+        
+        try(BufferedReader read = new BufferedReader(new FileReader(file))){
+            String line;
+            
+            while((line = read.readLine()) != null){
+                String[] details = line.split("\\|", -1);
+                if(details.length == 6){
+                    checkmodel.addRow(new Object[]{
+                       details[0],
+                       details[1],
+                       details[2],
+                       details[3],
+                       details[4],
+                       details[5]
+                       
+                    });
+                }
+            }
+        }catch(IOException e){
+            showMsg("Error loading stocks: " + e.getMessage(),false);
+            }
+    }
     
-    
-    
+    void filterstock(String categoryFilter){
+        checkmodel.setRowCount(0); // clear table
+
+        File file = new File(fnbfile);
+        if(!file.exists()) return;
+
+        try(BufferedReader read = new BufferedReader(new FileReader(file))){
+            String line;
+
+            while((line = read.readLine()) != null){
+                String[] data = line.split("\\|");
+
+                String category = data[1];
+
+             // ✅ filter logic
+                if(categoryFilter.equals("All Catogeries") || category.equals(categoryFilter)){
+
+                    int qty = Integer.parseInt(data[3]);
+                    int min = Integer.parseInt(data[4]);
+
+                    String status;
+                    if(qty == 0){
+                        status = "OUT OF STOCK";
+                    } else if(qty < 15){
+                        status = "LOW";
+                    } else {
+                        status = "OK";
+                    }
+
+                    checkmodel.addRow(new Object[]{
+                        data[0], data[1], data[2], qty, min, status
+                    });
+                }
+            }   
+
+        }catch(IOException e){
+            showMsg("Error filtering stock: " + e.getMessage(), false);
+        }
+    }
     
     
     
@@ -537,6 +695,13 @@ public class StaffPage {
             public void mouseExited(MouseEvent e)  { btn.setBackground(base); }
         });
         return btn;
+    }
+    
+    JLabel colorlabel(String text, Color color){
+        JLabel lbl = new JLabel(text);
+        lbl.setFont(new Font("Courier New", Font.PLAIN, 13));
+        lbl.setForeground(color);
+        return lbl;
     }
 
 
