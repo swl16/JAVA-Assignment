@@ -79,8 +79,8 @@ public class StaffPage {
             String card = btn[1];
 
             b.addActionListener(e -> {cardlayout.show(staffpanel, card);
-            if(card.equals("Check_stock")) clearAddForm();
-            if(card.equals("Replenish_stock")) clearAddForm();
+            if(card.equals("Check_stock")) refreshchecktable();
+            if(card.equals("Replenish_stock")) loadreptable();
             });
 
             inner.add(b);
@@ -184,6 +184,14 @@ public class StaffPage {
             return;
         }
         
+        int quantity = Integer.parseInt(qty);
+        int min = Integer.parseInt(minqty);
+        
+        if(quantity < min){
+                showMsg("\"" + name + "\" stock is below minimum level.",false);
+                return;
+            }
+        
         try(BufferedReader read = new BufferedReader(new FileReader(fnbfile))){
             String line;
             
@@ -205,6 +213,7 @@ public class StaffPage {
             
             saveItem.newLine();
             showMsg("Item saved successfully", true);
+            
             clearAddForm();
             
         }catch(IOException e){
@@ -233,7 +242,7 @@ public class StaffPage {
                 String status;
                 if (qty == 0){
                     status = "OUT OF STOCK";
-                }else if(qty < 15){
+                }else if(qty < min){
                     status = "LOW";
                 }else{
                     status = "OK";
@@ -262,7 +271,7 @@ public class StaffPage {
         filterlbl.setFont(new Font("Courier NEW", Font.BOLD, 12));
         filterlbl.setForeground(textcolor);
         
-        JComboBox<String> filtercombo = formCombo(filterbar,"Filter by Category: ",new String[] {"All Catogeries", "Snacks", "Drinks", "Combo Deals"});
+        JComboBox<String> filtercombo = formCombo(filterbar,"Filter by Category: ",new String[] {"All Categories", "Snacks", "Drinks", "Combo Deals"});
         
         JButton filterbtn = styledButton("FILTER",false);
         
@@ -387,6 +396,8 @@ public class StaffPage {
         
         page.add(center, BorderLayout.CENTER);
         page.add(south,BorderLayout.SOUTH);
+        
+        loadstock();
         
         return page;
     }
@@ -567,18 +578,28 @@ public class StaffPage {
             
             while((line = read.readLine()) != null){
                 String[] details = line.split("\\|", -1);
-                if(details.length == 6){
-                    checkmodel.addRow(new Object[]{
-                       details[0],
-                       details[1],
-                       details[2],
-                       details[3],
-                       details[4],
-                       details[5]
-                       
-                    });
+                
+                int qty = Integer.parseInt(details[3]);
+                int min = Integer.parseInt(details[4]);
+
+                String status;
+                if(qty == 0){
+                    status = "OUT OF STOCK";
+                } else if(qty < min){
+                    status = "LOW";
+                } else {
+                    status = "OK";
                 }
-            }
+
+                checkmodel.addRow(new Object[]{
+                    details[0],      // name
+                    details[1],      // category
+                    details[2],      // price
+                    qty,             // quantity
+                    details[4],      // min stock
+                    status           // ✅ correct status
+                });
+            }    
         }catch(IOException e){
             showMsg("Error loading stocks: " + e.getMessage(),false);
             }
@@ -607,7 +628,7 @@ public class StaffPage {
                     String status;
                     if(qty == 0){
                         status = "OUT OF STOCK";
-                    } else if(qty < 15){
+                    } else if(qty < min){
                         status = "LOW";
                     } else {
                         status = "OK";
@@ -702,18 +723,19 @@ public class StaffPage {
                 String[] data = line.split("\\|");
                 
                 int qty = Integer.parseInt(data[3]);
+                int min = Integer.parseInt(data[4]);
                 
                 String status;
                 if(qty == 0){
                     status = "OUT OF STOCK";
-                }else if(qty < 15){
+                }else if(qty < min){
                     status = "LOW";
                 }else{
                     status = "OK";
                 }
                 
                 repmodel.addRow(new Object[]{
-                    data[0],data[1],data[2],data[3],data[4],status,data[5]
+                    data[0],data[1],data[3],data[4],status,data[5]
                 });
             }
         }catch(IOException e){
