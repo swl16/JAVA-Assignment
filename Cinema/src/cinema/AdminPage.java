@@ -1077,7 +1077,7 @@ public class AdminPage{
             return;
         }
         
-        if (posterpath == null || posterpath.isEmpty()) {
+        if (editposterpath == null || editposterpath.isEmpty()) {
             showMsg("Please upload a movie poster!", false);
             return;
         }
@@ -1160,7 +1160,7 @@ public class AdminPage{
                     String[] details = line.split("\\|", -1);
                     
                     if (details.length == 11){
-                        if(!details[0].equals(selectedTitle)){
+                        if(details[0].equals(selectedTitle)){
                             deleteposter(details[10]);
                         }else{
                             allMovies.add(details);
