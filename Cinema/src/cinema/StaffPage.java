@@ -31,7 +31,7 @@ public class StaffPage {
 
     public StaffPage(){
         frame = new JFrame("TGC Cinema - Staff Page");
-        frame.setSize(500,700);
+        frame.setSize(550,700);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new BorderLayout());
         frame.setResizable(false);
@@ -304,6 +304,7 @@ public class StaffPage {
                     default : 
                         setBackground(bgcolor);
                         setForeground(textcolor);
+                        break;
                 }
                 
                 return c;
@@ -312,6 +313,7 @@ public class StaffPage {
         
         JScrollPane scroll = new JScrollPane(checktable);
         styleScrollBar(scroll);
+        scroll.getViewport().setBackground(bgcolor);
         
         JPanel south = new JPanel(new BorderLayout());
         south.setBackground(panelcolor);
@@ -368,6 +370,7 @@ public class StaffPage {
             }
             
         });
+        btnrow.add(delete);
         
         south.add(label, BorderLayout.NORTH);
         south.add(btnrow, BorderLayout.CENTER);
@@ -398,8 +401,153 @@ public class StaffPage {
         
         JPanel form = new JPanel();
         form.setLayout(new BoxLayout(form, BoxLayout.Y_AXIS));
-        form.setBackground(bgcolor);
-        form.setBorder(new EmptyBorder(15,30,15,30));
+        form.setBackground(panelcolor);
+        form.setBorder(new EmptyBorder(8,15,8,15));
+        
+        JLabel formtitle = new JLabel("QUICK REPLENISH - Select a row to replenish.");
+        formtitle.setFont(new Font("Courier New", Font.BOLD, 13));
+        formtitle.setForeground(redcolor);
+        formtitle.setAlignmentX(Component.LEFT_ALIGNMENT);
+        form.add(formtitle);
+        form.add(Box.createVerticalStrut(10));
+        
+        JPanel row = new JPanel(new GridLayout(1,4,8,0));
+        row.setBackground(panelcolor);
+        row.setAlignmentX(Component.LEFT_ALIGNMENT);
+        row.setMaximumSize(new Dimension(Integer.MAX_VALUE,50));
+        
+        JPanel itempanel = new JPanel(new BorderLayout(0,3));
+        itempanel.setBackground(panelcolor);
+        
+        JLabel itemlabel = new JLabel("Selected Item");
+        itemlabel.setFont(new Font("Courier New", Font.PLAIN, 13));
+        itemlabel.setForeground(textcolor);
+        
+        JTextField itemfield = new JTextField("select a row");
+        itemfield.setEditable(false);
+        styleTextField(itemfield);
+        itemfield.setForeground(textmutedcolor);
+        
+        itempanel.add(itemlabel,BorderLayout.NORTH);
+        itempanel.add(itemfield, BorderLayout.CENTER);
+        
+        JPanel addqty = new JPanel(new BorderLayout(0,3));
+        addqty.setBackground(panelcolor);
+        
+        JLabel addlabel = new JLabel("Add Quantity");
+        addlabel.setFont(new Font("Courier New", Font.PLAIN, 13));
+        addlabel.setForeground(textcolor);
+        
+        JTextField addfield = new JTextField("0");
+        styleTextField(addfield);
+        
+        addqty.add(addlabel, BorderLayout.NORTH);
+        addqty.add(addfield, BorderLayout.CENTER);
+        
+        JPanel minPanel = new JPanel(new BorderLayout(0, 3));
+        minPanel.setBackground(panelcolor);
+        
+        JLabel minLbl = new JLabel("New Min Stock");
+        minLbl.setFont(new Font("Courier New", Font.PLAIN, 13));
+        minLbl.setForeground(textcolor);
+        
+        JTextField repMinField = new JTextField("");
+        styleTextField(repMinField);
+        
+        minPanel.add(minLbl, BorderLayout.NORTH);
+        minPanel.add(repMinField, BorderLayout.CENTER);
+        
+        JPanel addbtnpanel = new JPanel(new BorderLayout(0,3));
+        addbtnpanel.setBackground(panelcolor);
+        addbtnpanel.add(new JLabel(" "), BorderLayout.NORTH);
+        
+        JButton addbtn = styledButton("ADD STOCK",true);
+        addbtn.setEnabled(false);
+        addbtnpanel.add(addbtn, BorderLayout.CENTER);
+        
+        row.add(itempanel);
+        row.add(addqty);
+        row.add(minPanel);
+        row.add(addbtnpanel);
+        
+        form.add(row);
+        
+        String[] cols = {"Item Name", "Category","Current QTY","Min Stock","Status","Last Updated"};
+        repmodel = new DefaultTableModel(cols,0){
+            public boolean isCellEditable(int r, int c){return false;}
+        };
+        reptable = new JTable(repmodel);
+        styleTable(reptable);
+        
+        reptable.setDefaultRenderer(Object.class, new DefaultTableCellRenderer(){
+            public Component getTableCellRendererComponent(JTable t, Object val, boolean select, boolean focus, int row2, int col){
+                
+                Component c = super.getTableCellRendererComponent(t, val, select, focus, row2, col);
+                if(select){
+                    setBackground(redcolor);
+                    setForeground(textcolor);
+                    return c;
+                }
+                String status = String.valueOf(t.getValueAt(row2, 4));
+                switch(status){
+                    case "OUT OF STOCK":
+                        setBackground(new Color(0x5A1A1A));
+                        setForeground(redcolor);
+                        break;
+                    case "LOW":
+                        setBackground(new Color(0x3A2E00));
+                        setForeground(new Color(0xFFAA33));
+                        break;
+                    default : 
+                        setBackground(bgcolor);
+                        setForeground(textcolor);
+                        break;
+                }
+                
+                return c;
+            }
+        });
+        
+        reptable.getSelectionModel().addListSelectionListener(ex ->{
+            if(!ex.getValueIsAdjusting()){
+                int selrow = reptable.getSelectedRow();
+                if(selrow >= 0){
+                    String itemName = String.valueOf(repmodel.getValueAt(selrow,0));
+                    itemfield.setText(itemName);
+                    itemfield.setForeground(textcolor);
+                    
+                    repMinField.setText(String.valueOf(repmodel.getValueAt(selrow, 3)));
+                    addbtn.setEnabled(true);
+                }
+            }
+        });
+        
+        JScrollPane scroll = new JScrollPane(reptable);
+        styleScrollBar(scroll);
+        scroll.getViewport().setBackground(bgcolor);
+        
+        JPanel center = new JPanel(new BorderLayout());
+        center.add(form, BorderLayout.NORTH);
+        center.add(scroll, BorderLayout.CENTER);
+        
+        JPanel south = new JPanel(new BorderLayout());
+        south.setBackground(panelcolor);
+        south.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, bordercolor));
+        
+        JPanel label = new JPanel(new FlowLayout(FlowLayout.LEFT,16,6));
+        label.setBackground(panelcolor);
+        label.add(colorlabel("● OK",greencolor));
+        label.add(colorlabel("● LOW",new Color(0xFFAA33)));
+        label.add(colorlabel("● OUT OF STOCK", redcolor));
+        
+        addbtn.addActionListener(e -> replenishitem(itemfield,addfield,repMinField));
+        
+        south.add(label, BorderLayout.NORTH);
+        
+        page.add(center,BorderLayout.CENTER);
+        page.add(south,BorderLayout.SOUTH);
+
+        loadreptable();
         
         return page;
     }
@@ -451,7 +599,7 @@ public class StaffPage {
                 String category = data[1];
 
              // ✅ filter logic
-                if(categoryFilter.equals("All Catogeries") || category.equals(categoryFilter)){
+                if(categoryFilter.equals("All Categories") || category.equals(categoryFilter)){
 
                     int qty = Integer.parseInt(data[3]);
                     int min = Integer.parseInt(data[4]);
@@ -476,60 +624,102 @@ public class StaffPage {
         }
     }
     
+    void replenishitem(JTextField itemfield, JTextField addfield, JTextField repMinField){
+        String itemName = itemfield.getText().trim();
+        if(itemName.isEmpty() || itemName.equals("select a row")){
+            showMsg("Please select an item from the table",false);
+            return;
+        }
+        
+        String addqty = addfield.getText().trim();
+        if(!addqty.matches("\\d+") || addqty.equals("0")){
+            showMsg("Add quantity must be a positive number.",false);
+            return;
+        }
+        
+        int addQty = Integer.parseInt(addqty);
+        
+        ArrayList<String[]> items = new ArrayList<>();
+        boolean found = false;
+        
+        try(BufferedReader read = new BufferedReader(new FileReader(fnbfile))){
+            String line;
+            
+            while((line = read.readLine())!= null){
+                String[] data = line.split("\\|");
+            
+                if(data[0].equalsIgnoreCase(itemName)){
+                    int current = Integer.parseInt(data[3]);
+                    data[3] = String.valueOf(current + addQty);
+                
+                    String newmin = repMinField.getText().trim();
+                    if(newmin.matches("\\d+")){
+                        data[4] = newmin;
+                    }
+                
+                    data[5] = new SimpleDateFormat("dd/MM/yyyy HH:mm").format(new Date());
+                
+                    found = true;
+                }
+                items.add(data);
+            }
+        }catch(IOException e){
+            showMsg("Error reading file: " + e.getMessage(),false);
+        }
+        
+        if(!found){
+            showMsg("Item not found in stock file",false);
+            return;
+        }
+        
+        try(BufferedWriter wr = new BufferedWriter(new FileWriter(fnbfile))){
+            for(String[] item : items){
+                wr.write(String.join("|", item));
+                wr.newLine();
+            }
+        }catch(IOException e){
+            showMsg("Error saving file:" + e.getMessage(),false);
+            return;
+        }
+        
+        loadstock();
+        loadreptable();
+        addfield.setText("0");
+        
+        showMsg("Added "+ addQty + " units to \"" + itemName + "\".", true);
+    }
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+    void loadreptable(){
+        repmodel.setRowCount(0);
+        
+        File file = new File(fnbfile);
+        if(!file.exists()) return;
+        
+        try(BufferedReader read = new BufferedReader(new FileReader(file))){
+            String line;
+            
+            while((line = read.readLine())!= null){
+                String[] data = line.split("\\|");
+                
+                int qty = Integer.parseInt(data[3]);
+                
+                String status;
+                if(qty == 0){
+                    status = "OUT OF STOCK";
+                }else if(qty < 15){
+                    status = "LOW";
+                }else{
+                    status = "OK";
+                }
+                
+                repmodel.addRow(new Object[]{
+                    data[0],data[1],data[2],data[3],data[4],status,data[5]
+                });
+            }
+        }catch(IOException e){
+            showMsg("Error loading file: " +e.getMessage(),false);
+        }
+    }
     
     
     private JPanel sectionHeader(String title, String backCard){
@@ -599,14 +789,6 @@ public class StaffPage {
         text.setAlignmentX(Component.LEFT_ALIGNMENT);
     }
 
-    private void styleTextArea(JTextArea ta) {
-        ta.setBackground(inputbg);
-        ta.setForeground(textcolor);
-        ta.setCaretColor(redcolor);
-        ta.setFont(new Font("Courier New", Font.PLAIN, 13));
-        ta.setBorder(new EmptyBorder(6, 8, 6, 8));
-        ta.setAlignmentX(Component.LEFT_ALIGNMENT);
-    }
 
     private void styleCombo(JComboBox<String> combo) {
         combo.setBackground(inputbg);
@@ -628,23 +810,6 @@ public class StaffPage {
         });
     }
 
-    private void styleSpinner(JSpinner sp) {
-        sp.setBackground(inputbg);
-        sp.setForeground(textcolor);
-        sp.setFont(new Font("Courier New", Font.PLAIN, 13));
-        sp.setBorder(new LineBorder(bordercolor));
-        sp.setMaximumSize(new Dimension(Integer.MAX_VALUE, 36));
-        sp.setAlignmentX(Component.LEFT_ALIGNMENT);
-        JComponent editor = sp.getEditor();
-        if (editor instanceof JSpinner.DefaultEditor) {
-            JTextField tf = ((JSpinner.DefaultEditor) editor).getTextField();
-            tf.setBackground(inputbg);
-            tf.setForeground(textcolor);
-            tf.setCaretColor(redcolor);
-            tf.setFont(new Font("Courier New", Font.PLAIN, 13));
-            tf.setBorder(new EmptyBorder(4, 8, 4, 8));
-        }
-    }
 
     private void styleTable(JTable table) {
         table.setBackground(inputbg);
