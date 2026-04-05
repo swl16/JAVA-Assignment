@@ -7,6 +7,7 @@ import javax.swing.table.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
+import java.nio.file.*;
 import java.util.*;
 
 
@@ -28,7 +29,7 @@ public class AdminPage{
     final Color hovercolor = new Color(0xE85555);
     
     final String moviefile = "MovieDetails.txt";
-    final String schedulefile = "ShowtimeSchedule.txt";
+    final String schedulefile = "Showtime.txt";
     
     JTextField titleEnter,genreEnter,languageEnter,durationEnter,directorEnter,castEnter,subtitlesEnter;
     JComboBox<String> ratingEnter;
@@ -287,7 +288,52 @@ public class AdminPage{
             movieposter.setIcon(new ImageIcon(img));
             
         }
+        
+        String copypath = copyposter(posterpath);
+        posterpath = copypath;
     }
+    
+    private String copyposter(String oripath){
+        try{
+            File sourcefile = new File(oripath);
+            
+            File folder = new File("src/posters/");
+            if(!folder.exists()){
+                folder.mkdirs();
+            }
+            
+            String newfilename = sourcefile.getName();
+            File destination = new File(folder,newfilename);
+            
+            Files.copy(
+                    sourcefile.toPath(),
+                    destination.toPath(),
+                    StandardCopyOption.REPLACE_EXISTING
+            );
+            
+            return destination.getPath();
+            
+        }catch(IOException e){
+            showMsg("Error copying poster: " + e.getMessage(),false);
+        }
+
+        return null;
+    }
+    
+    private void deleteposter(String path){
+        try{
+            if(path != null && !path.trim().isEmpty()){
+                File file = new File(path);
+                if(file.exists()){
+                    file.delete();
+                }
+            }
+        }catch(Exception e){
+            showMsg("Failed to delete poster: " + e.getMessage(),false);
+        }
+    }
+    
+    
     
     private boolean containsnumber(String text){
         return text.matches(".*\\d.*");
@@ -886,6 +932,12 @@ public class AdminPage{
              editmovieposter.revalidate();
              editmovieposter.repaint();
             }
+         String copiedPath = copyposter(editposterpath);
+
+         if (copiedPath != null) {
+         editposterpath = copiedPath;
+         }
+          
         });
      
      removeposter.addActionListener(e -> {
@@ -1106,8 +1158,13 @@ public class AdminPage{
                 String line;
                 while ((line = br.readLine()) != null) {
                     String[] details = line.split("\\|", -1);
-                    if (details.length == 11 && !details[0].equals(selectedTitle)) {
-                        allMovies.add(details);
+                    
+                    if (details.length == 11){
+                        if(!details[0].equals(selectedTitle)){
+                            deleteposter(details[10]);
+                        }else{
+                            allMovies.add(details);
+                        }
                     }
                 }
             } catch (IOException e) {
