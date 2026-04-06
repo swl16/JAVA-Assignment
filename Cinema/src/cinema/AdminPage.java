@@ -25,7 +25,6 @@ public class AdminPage{
     final Color cardcolor = new Color(0x363636);
     final Color redcolor = new Color(0xD44444);
     final Color inputbg = new Color(0x1E1E1E);
-    final Color greencolor = new Color(0x44AA66);
     final Color hovercolor = new Color(0xE85555);
     
     final String moviefile = "MovieDetails.txt";
