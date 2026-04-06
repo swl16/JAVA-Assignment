@@ -164,15 +164,15 @@ public class PaymentFrame extends JFrame {
         JButton confirm = new JButton("I have paid");
         styleButton(confirm, new Color(255, 204, 0), Color.BLACK);
 
+        // Inside qrPanel's confirm.addActionListener:
         confirm.addActionListener(e -> {
-            // Show a confirmation dialog before proceeding
             int response = JOptionPane.showConfirmDialog(this,
                     "Confirm payment of RM " + String.format("%.2f", finalAmount) + "?",
                     "Confirm Transaction",
-                    JOptionPane.YES_NO_OPTION);
+                    JOptionPane.YES_NO_OPTION); //
 
             if (response == JOptionPane.YES_OPTION) {
-                if (countdownTimer != null) countdownTimer.stop();
+                if (countdownTimer != null) countdownTimer.stop(); // Stop timer on success
                 updateReceipt();
                 layout.show(container, "receipt");
             }
