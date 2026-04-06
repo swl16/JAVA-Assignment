@@ -115,7 +115,7 @@ public class StaffPage {
         return btn;
     }
     
-    JTextField itemname, price, currentqty, minstockqty;
+    JTextField itemname, price, currentqty, minstockqty, combodetails;
     JComboBox<String> category;
     
     JPanel addstock(){
@@ -134,6 +134,17 @@ public class StaffPage {
         
         currentqty = formField(form, "Current Quantity");
         minstockqty = formField(form, "Minimum Stock Quantity");
+        
+        combodetails = formField(form, "Combo Items (use + to separate)");
+
+        combodetails.setVisible(false);
+
+        category.addActionListener(e -> {
+            String selected = category.getSelectedItem().toString();
+            combodetails.setVisible(selected.equals("Combo Deals"));
+            form.revalidate();
+            form.repaint();
+        });
         
         JPanel btnrow = new JPanel(new FlowLayout(FlowLayout.CENTER,15,5));
         btnrow.setBackground(bgcolor);
@@ -188,8 +199,11 @@ public class StaffPage {
         int min = Integer.parseInt(minqty);
         
         if(quantity < min){
-                showMsg("\"" + name + "\" stock is below minimum level.",false);
-                return;
+                int confirm = JOptionPane.showConfirmDialog(frame,"\""+ name +"\" stock ("+ quantity + ") is below the minimum level (" + min + "). \n Save anyway?",
+                        "Stock Warning", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+                if(confirm != JOptionPane.YES_OPTION){
+                    return;
+                }
             }
         
         try(BufferedReader read = new BufferedReader(new FileReader(fnbfile))){
@@ -203,13 +217,18 @@ public class StaffPage {
                 }
             }
         }catch(IOException e){
-            
+            //File may not exist yet. We will create it on write
         }
         
         String today = new SimpleDateFormat("dd/MM/yyyy HH:mm").format(new Date());
         
+        String details = "";
+        if(ctg.equals("Combo Deals")){
+            details = combodetails.getText().trim();
+        }
+        
         try(BufferedWriter saveItem = new BufferedWriter(new FileWriter(fnbfile, true))){
-            saveItem.write(name + "|" + ctg + "|" + itemprice + "|" + qty + "|" + minqty + "|" + today);
+            saveItem.write(name + "|" + ctg + "|" + itemprice + "|" + qty + "|" + minqty + "|" + today + "|" + details);
             
             saveItem.newLine();
             showMsg("Item saved successfully", true);
@@ -222,37 +241,6 @@ public class StaffPage {
         
         
         
-    }
-    
-    void loadstock(){
-        checkmodel.setRowCount(0);
-        
-        File file = new File(fnbfile);
-        if(!file.exists()) return;
-        
-        try(BufferedReader read = new BufferedReader(new FileReader(fnbfile))){
-            String line;
-            
-            while((line = read.readLine()) != null){
-                String[] data = line.split("\\|");
-                
-                int qty = Integer.parseInt(data[3]);
-                int min = Integer.parseInt(data[4]);
-                
-                String status;
-                if (qty == 0){
-                    status = "OUT OF STOCK";
-                }else if(qty < min){
-                    status = "LOW";
-                }else{
-                    status = "OK";
-                }
-               
-                checkmodel.addRow(new Object[]{data[0],data[1],data[2],qty,min,status});
-            }
-        }catch(IOException e){
-            showMsg("Error loading stock: " + e.getMessage(), false);
-        }
     }
     
     private JTable checktable;
@@ -271,7 +259,9 @@ public class StaffPage {
         filterlbl.setFont(new Font("Courier NEW", Font.BOLD, 12));
         filterlbl.setForeground(textcolor);
         
-        JComboBox<String> filtercombo = formCombo(filterbar,"Filter by Category: ",new String[] {"All Categories", "Snacks", "Drinks", "Combo Deals"});
+        JComboBox<String> filtercombo = new JComboBox<>(
+            new String[]{"All Categories", "Snacks", "Drinks", "Combo Deals"});
+        styleCombo(filtercombo);
         
         JButton filterbtn = styledButton("FILTER",false);
         
@@ -283,7 +273,7 @@ public class StaffPage {
         filterbar.add(filterlbl, BorderLayout.WEST);
         filterbar.add(filterpanel, BorderLayout.EAST);
         
-        String[] cols = {"ITEM NAME","CATEGORY","PRICE(RM)","QUANTITY","MIN STOCK","STATUS"};
+        String[] cols = {"ITEM NAME","CATEGORY","PRICE(RM)","QUANTITY","MIN STOCK","STATUS","DETAILS"};
         checkmodel = new DefaultTableModel(cols,0){
             public boolean isCellEditable(int r, int c){return false;}
         };
@@ -354,8 +344,13 @@ public class StaffPage {
                     String line;
                     while ((line = br.readLine()) != null) {
                         String[] details = line.split("\\|", -1);
-                        if (details.length == 6 && !details[0].equals(name)) {
-                        fnb.add(details);
+                        
+                        if (details.length != 7) {
+                            showMsg("Skipped malformed line: " + line, false);
+                            continue;
+                        }
+                        if (!details[0].equals(name)) {
+                            fnb.add(details);
                         }
                     }
                 } catch (IOException ex) {
@@ -374,7 +369,7 @@ public class StaffPage {
                 }
                 
                 refreshchecktable();
-                loadstock();
+//                loadstock();
                 showMsg("Item deleted successfully!", true);
             }
             
@@ -384,7 +379,7 @@ public class StaffPage {
         south.add(label, BorderLayout.NORTH);
         south.add(btnrow, BorderLayout.CENTER);
         
-        filterbtn.addActionListener(e -> {
+        filtercombo.addActionListener(e -> {
             String selected = filtercombo.getSelectedItem().toString();
             filterstock(selected);
         });
@@ -397,7 +392,7 @@ public class StaffPage {
         page.add(center, BorderLayout.CENTER);
         page.add(south,BorderLayout.SOUTH);
         
-        loadstock();
+        refreshchecktable();
         
         return page;
     }
@@ -590,6 +585,8 @@ public class StaffPage {
                 } else {
                     status = "OK";
                 }
+                
+                String detail = (details.length > 6) ? details[6] : "";
 
                 checkmodel.addRow(new Object[]{
                     details[0],      // name
@@ -597,7 +594,8 @@ public class StaffPage {
                     details[2],      // price
                     qty,             // quantity
                     details[4],      // min stock
-                    status           // ✅ correct status
+                    status,          // ✅ correct status
+                    detail
                 });
             }    
         }catch(IOException e){
@@ -615,12 +613,14 @@ public class StaffPage {
             String line;
 
             while((line = read.readLine()) != null){
-                String[] data = line.split("\\|");
+                String[] data = line.split("\\|",-1);
 
-                String category = data[1];
+                if(data.length != 7) continue;
+                
+                String cat = data[1];
 
              // ✅ filter logic
-                if(categoryFilter.equals("All Categories") || category.equals(categoryFilter)){
+                if(categoryFilter.equals("All Categories") || cat.equals(categoryFilter)){
 
                     int qty = Integer.parseInt(data[3]);
                     int min = Integer.parseInt(data[4]);
@@ -635,7 +635,7 @@ public class StaffPage {
                     }
 
                     checkmodel.addRow(new Object[]{
-                        data[0], data[1], data[2], qty, min, status
+                        data[0], data[1], data[2], qty, min, status, data[6]
                     });
                 }
             }   
@@ -653,12 +653,22 @@ public class StaffPage {
         }
         
         String addqty = addfield.getText().trim();
-        if(!addqty.matches("\\d+") || addqty.equals("0")){
+        if(!addqty.matches("\\d+")){
             showMsg("Add quantity must be a positive number.",false);
             return;
         }
         
         int addQty = Integer.parseInt(addqty);
+        if(addQty <= 0){
+            showMsg("Add Quantity must be greater than zero.",false);
+            return;
+        }
+        
+        String newMinStr = repMinField.getText().trim();
+        if (!newMinStr.isEmpty() && !newMinStr.matches("\\d+")) {
+            showMsg("New minimum stock must be a whole number (or leave blank to keep current).", false);
+            return;
+        }
         
         ArrayList<String[]> items = new ArrayList<>();
         boolean found = false;
@@ -667,16 +677,17 @@ public class StaffPage {
             String line;
             
             while((line = read.readLine())!= null){
-                String[] data = line.split("\\|");
+                String[] data = line.split("\\|", -1);
+                if (data.length != 7) continue;
             
                 if(data[0].equalsIgnoreCase(itemName)){
                     int current = Integer.parseInt(data[3]);
                     data[3] = String.valueOf(current + addQty);
                 
-                    String newmin = repMinField.getText().trim();
-                    if(newmin.matches("\\d+")){
-                        data[4] = newmin;
+                    if (!newMinStr.isEmpty()) {
+                        data[4] = newMinStr;
                     }
+
                 
                     data[5] = new SimpleDateFormat("dd/MM/yyyy HH:mm").format(new Date());
                 
@@ -703,7 +714,7 @@ public class StaffPage {
             return;
         }
         
-        loadstock();
+        refreshchecktable();
         loadreptable();
         addfield.setText("0");
         
@@ -711,6 +722,7 @@ public class StaffPage {
     }
     
     void loadreptable(){
+        if (repmodel == null) return;
         repmodel.setRowCount(0);
         
         File file = new File(fnbfile);
@@ -720,7 +732,8 @@ public class StaffPage {
             String line;
             
             while((line = read.readLine())!= null){
-                String[] data = line.split("\\|");
+                String[] data = line.split("\\|",-1);
+                 if (data.length != 7) continue; 
                 
                 int qty = Integer.parseInt(data[3]);
                 int min = Integer.parseInt(data[4]);
@@ -898,6 +911,7 @@ public class StaffPage {
         price.setText("");
         currentqty.setText("");
         minstockqty.setText("");
+        combodetails.setText("");
     }
 
 
