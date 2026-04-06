@@ -1,19 +1,30 @@
 package cinema;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class PaymentService {
+    // Simulate a database of members and their specific discount rates
+    private final Map<String, Double> memberDatabase;
+
+    public PaymentService() {
+        memberDatabase = new HashMap<>();
+        memberDatabase.put("MEM10", 0.10); // 10% off
+        memberDatabase.put("VIP20", 0.20); // 20% off
+    }
 
     public double calculateTotal(Order order) {
-        // This now automatically gets (Seats + F&B)
-        return order.getSubtotal();
+        return order.getSubtotal(); //
     }
 
     public double applyDiscount(double total, String memberCode) {
-        if (memberCode == null || memberCode.isEmpty()) return total;
+        if (memberCode == null) return total;
 
-        switch (memberCode.toUpperCase()) {
-            case "MEM10": return total * 0.9; // 10% discount [cite: 2]
-            case "VIP20": return total * 0.8; // 20% discount [cite: 2]
-            default: return total;
+        String code = memberCode.toUpperCase().trim();
+        if (memberDatabase.containsKey(code)) {
+            double rate = memberDatabase.get(code);
+            return total * (1 - rate); //
         }
+        return total;
     }
 }
