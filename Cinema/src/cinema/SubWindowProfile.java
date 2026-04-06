@@ -4,18 +4,23 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class SubWindowProfile extends JFrame implements ActionListener {
     JFrame frame = new JFrame("TGC Cinema");
+    String username;
     JFrame homeFrame;
     JPanel cardPanel;
     CardLayout cardLayout;
-    JButton backButton1;
-    JButton backButton2;
-    JButton backButton3;
+    JButton backButton1,backButton2,backButton3,backButton4;
+    JButton delAccBtn;
 
-    public SubWindowProfile(JFrame homeFrame, int choice){
+
+    public SubWindowProfile(JFrame homeFrame, int choice, String username){
         this.homeFrame = homeFrame;
+        this.username = username;
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setResizable(false);
         frame.setSize(500,700);
@@ -28,17 +33,22 @@ public class SubWindowProfile extends JFrame implements ActionListener {
         JPanel ticketPanel = createTicketPanel();
         JPanel historyPanel = createHistoryPanel();
         JPanel contactUsPanel = createContactUsPanel();
+        JPanel settingPanel = createSettingPanel();
+        JPanel changePassPanel = createChangePassPanel();
 
         cardPanel.add(ticketPanel,"ticket");
         cardPanel.add(historyPanel,"history");
         cardPanel.add(contactUsPanel,"contactUs");
+        cardPanel.add(settingPanel,"setting");
+        cardPanel.add(changePassPanel, "changePass");
 
         frame.add(cardPanel);
 
         switch (choice) {
-            case 1 : cardLayout.show(cardPanel, "ticket");
-            case 2 : cardLayout.show(cardPanel, "history");
-            case 3 : cardLayout.show(cardPanel, "contactUs");
+            case 1 : cardLayout.show(cardPanel, "ticket"); break;
+            case 2 : cardLayout.show(cardPanel, "history"); break;
+            case 3 : cardLayout.show(cardPanel, "contactUs"); break;
+            case 4 : cardLayout.show(cardPanel,"setting"); break;
         }
 
     }
@@ -124,8 +134,221 @@ public class SubWindowProfile extends JFrame implements ActionListener {
         return contactUsPanel;
     }
 
+    private JPanel createSettingPanel(){
+        JPanel panel = new JPanel();
+        panel.setLayout(null);
+        panel.setBackground(new Color(0x242424));
+
+        backButton4 = new JButton("< Back");
+        backButton4.setBorderPainted(false);
+        backButton4.setFocusPainted(false);
+        backButton4.setContentAreaFilled(false);
+        backButton4.setFocusable(false);
+        backButton4.setBounds(8,10,400,40);
+        backButton4.setFont(new Font("Courier New",Font.PLAIN,17));
+        backButton4.setHorizontalAlignment(JButton.LEFT);
+        backButton4.addActionListener(this);
+        backButton4.setForeground(new Color(0xF7F7F7));
+        panel.add(backButton4);
+
+        JLabel settingLabel = new JLabel("Setting");
+        settingLabel.setForeground(new Color(0xF7F7F7));
+        settingLabel.setFont(new Font("Courier New",Font.BOLD,40));
+        settingLabel.setBounds(40,60,500,50);
+        panel.add(settingLabel);
+
+        JLabel securityLabel = new JLabel("Security");
+        securityLabel.setForeground(new Color(0x6e7075));
+        securityLabel.setFont(new Font("Courier New",Font.BOLD,20));
+        securityLabel.setBounds(40,120,500,30);
+        panel.add(securityLabel);
+
+        JButton changePassBtn = new JButton("Change Password                   >");
+        changePassBtn.setBorderPainted(false);
+        changePassBtn.setFocusPainted(false);
+        changePassBtn.setContentAreaFilled(false);
+        changePassBtn.setFocusable(false);
+        changePassBtn.setBounds(40,150,400,30);
+        changePassBtn.setFont(new Font("Courier New",Font.PLAIN,17));
+        changePassBtn.setHorizontalAlignment(JButton.LEFT);
+        changePassBtn.addActionListener(e -> cardLayout.show(cardPanel, "changePass"));
+        changePassBtn.setForeground(new Color(0xF7F7F7));
+        panel.add(changePassBtn);
+
+        JLabel accManageLabel = new JLabel("Account Management");
+        accManageLabel.setForeground(new Color(0x6e7075));
+        accManageLabel.setFont(new Font("Courier New",Font.BOLD,20));
+        accManageLabel.setBounds(45,200,500,30);
+        panel.add(accManageLabel);
+
+        delAccBtn = new JButton("Delete Account                    >");
+        delAccBtn.setBorderPainted(false);
+        delAccBtn.setFocusPainted(false);
+        delAccBtn.setContentAreaFilled(false);
+        delAccBtn.setFocusable(false);
+        delAccBtn.setBounds(40,230,400,30);
+        delAccBtn.setFont(new Font("Courier New",Font.PLAIN,17));
+        delAccBtn.setHorizontalAlignment(JButton.LEFT);
+        delAccBtn.addActionListener(this);
+        delAccBtn.setForeground(new Color(0xF7F7F7));
+        panel.add(delAccBtn);
+
+
+
+        return panel;
+    }
+
+    private JPanel createChangePassPanel(){
+        JPanel panel = new JPanel();
+        panel.setLayout(null);
+        panel.setBackground(new Color(0x242424));
+
+        JButton backButton = new JButton("< Back");
+        backButton.setBorderPainted(false);
+        backButton.setFocusPainted(false);
+        backButton.setContentAreaFilled(false);
+        backButton.setFocusable(false);
+        backButton.setBounds(8,10,400,40);
+        backButton.setFont(new Font("Courier New",Font.PLAIN,17));
+        backButton.setHorizontalAlignment(JButton.LEFT);
+        backButton.addActionListener(e -> cardLayout.show(cardPanel,"setting") );
+        backButton.setForeground(new Color(0xF7F7F7));
+        backButton.setBackground(new Color(0x3B3B3B));
+        panel.add(backButton);
+
+        JLabel changePassLabel = new JLabel("Change Password");
+        changePassLabel.setForeground(new Color(0xF7F7F7));
+        changePassLabel.setFont(new Font("Courier New",Font.BOLD,30));
+        changePassLabel.setBounds(40,60,500,50);
+        panel.add(changePassLabel);
+
+        JLabel tipsLabel = new JLabel("*Password must at least 6 characters.");
+        tipsLabel.setForeground(new Color(0xD44444));
+        tipsLabel.setFont(new Font("Courier New",Font.BOLD,12));
+        tipsLabel.setBounds(40,120,500,15);
+        panel.add(tipsLabel);
+
+        JLabel currentPassLabel = new JLabel("Current Password");
+        currentPassLabel.setForeground(new Color(0xF7F7F7));
+        currentPassLabel.setFont(new Font("Courier New",Font.BOLD,20));
+        currentPassLabel.setBounds(40,150,500,30);
+        panel.add(currentPassLabel);
+
+        JTextField currentPassType = new JTextField();
+        currentPassType.setBounds(40,180,400,20);
+        currentPassType.setFont(new Font("Courier New",Font.PLAIN,15));
+        currentPassType.setForeground(new Color(0xF7F7F7));
+        currentPassType.setBackground(new Color(0x3B3B3B));
+        currentPassType.setCaretColor(new Color(0xF7F7F7));
+        currentPassType.setBorder(null);
+        panel.add(currentPassType);
+
+        JLabel newPassLabel = new JLabel("New Password");
+        newPassLabel.setForeground(new Color(0xF7F7F7));
+        newPassLabel.setFont(new Font("Courier New",Font.BOLD,20));
+        newPassLabel.setBounds(40,220,500,30);
+        panel.add(newPassLabel);
+
+        JTextField newPassType = new JTextField();
+        newPassType.setBounds(40,250,400,20);
+        newPassType.setFont(new Font("Courier New",Font.PLAIN,15));
+        newPassType.setForeground(new Color(0xF7F7F7));
+        newPassType.setBackground(new Color(0x3B3B3B));
+        newPassType.setCaretColor(new Color(0xF7F7F7));
+        newPassType.setBorder(null);
+        panel.add(newPassType);
+
+        JLabel repeatPassLabel = new JLabel("Re-type Password");
+        repeatPassLabel.setForeground(new Color(0xF7F7F7));
+        repeatPassLabel.setFont(new Font("Courier New",Font.BOLD,20));
+        repeatPassLabel.setBounds(40,290,500,30);
+        panel.add(repeatPassLabel);
+
+        JTextField repeatPassType = new JTextField();
+        repeatPassType.setBounds(40,320,400,20);
+        repeatPassType.setFont(new Font("Courier New",Font.PLAIN,15));
+        repeatPassType.setForeground(new Color(0xF7F7F7));
+        repeatPassType.setBackground(new Color(0x3B3B3B));
+        repeatPassType.setCaretColor(new Color(0xF7F7F7));
+        repeatPassType.setBorder(null);
+        panel.add(repeatPassType);
+
+        JButton confirmButton = new JButton("Confirm");
+        confirmButton.setBorderPainted(false);
+        confirmButton.setFocusPainted(false);
+        confirmButton.setFont(new Font("Courier New",Font.BOLD,15));
+        confirmButton.setBounds(25,600,430,30);
+        confirmButton.setForeground(new Color(0xF7F7F7));
+        confirmButton.setBackground(new Color(0xD44444));
+        confirmButton.addActionListener(e -> {
+
+            String oldPassword = currentPassType.getText();
+            String newPassword = newPassType.getText();
+            String reTypePassword = repeatPassType.getText();
+
+            changePassword(oldPassword, newPassword, reTypePassword);
+        });
+        panel.add(confirmButton);
+
+        return panel;
+    }
+
+    public void changePassword(String oldPassword, String newPassword, String reTypePassword){
+        List <String> lines = new ArrayList<>();
+        boolean success = false;
+        String password = "";
+        try(BufferedReader readUser = new BufferedReader(new FileReader("Cinema/Users.txt"))){
+            String line;
+            while((line = readUser.readLine()) != null){
+                String[] parts = line.split(",");
+                if(parts[0].equals(username) ){
+                    password = parts[1];
+
+                    if (!password.equals(oldPassword)){
+                        JOptionPane.showMessageDialog(null,
+                                "Incorrect current password, please try again!", "Incorrect password", JOptionPane.WARNING_MESSAGE);
+                        lines.add(line);
+                    } else if (newPassword.length() < 6) {
+                        JOptionPane.showMessageDialog(null,
+                                "New password must at least 6 character!", "New password error", JOptionPane.WARNING_MESSAGE);
+                        lines.add(line);
+                    } else if (!newPassword.equals(reTypePassword)) {
+                        JOptionPane.showMessageDialog(null,
+                                "Re-type password are different with new password!", "Incorrect password", JOptionPane.WARNING_MESSAGE);
+                        lines.add(line);
+                    } else if (password.equals(newPassword)) {
+                        JOptionPane.showMessageDialog(null,
+                                "New password cannot be same as the current password!", "", JOptionPane.WARNING_MESSAGE);
+                        lines.add(line);
+                    } else{
+                        lines.add(username + "," + newPassword);
+                        success = true;
+                    }
+                }else {
+                    lines.add(line);
+                }
+            }
+        }catch(IOException e){
+            System.out.println("Error reading users file");
+        }
+
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("Cinema/Users.txt"))){
+            for (String l : lines){
+                writer.write(l);
+                writer.newLine();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if (success) {
+            JOptionPane.showMessageDialog(null, "Password updated successfully!");
+            cardLayout.show(cardPanel,"setting");
+        }
+    }
+
+
     public void actionPerformed(ActionEvent e) {
-        if (e.getSource() == backButton1 || e.getSource() == backButton2 || e.getSource() == backButton3){
+        if (e.getSource() == backButton1 || e.getSource() == backButton2 || e.getSource() == backButton3 || e.getSource() == backButton4){
             frame.dispose();
             homeFrame.setVisible(true);
         }
@@ -134,6 +357,6 @@ public class SubWindowProfile extends JFrame implements ActionListener {
 
     //testing use only
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new SubWindowProfile(new JFrame(),1));
+        SwingUtilities.invokeLater(() -> new SubWindowProfile(new JFrame(),1,"tang"));
     }
 }

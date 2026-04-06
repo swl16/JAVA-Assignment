@@ -16,6 +16,7 @@ import java.util.*;
 
 public class MovieDetailPage implements ActionListener {
     JFrame frame = new JFrame("TGC Cinema - Movie Detail");
+    String username;
     JFrame homeFrame;
     Movie movie;
     JButton backButton;
@@ -31,7 +32,8 @@ public class MovieDetailPage implements ActionListener {
     private static final DateTimeFormatter dateFmt = DateTimeFormatter.ofPattern("dd MMM");
 
 
-    MovieDetailPage (JFrame homeFrame, Movie movieSelected){
+    MovieDetailPage (JFrame homeFrame, Movie movieSelected,String username){
+        this.username = username;
         movie = movieSelected;
         this.homeFrame = homeFrame;
 
@@ -195,7 +197,7 @@ public class MovieDetailPage implements ActionListener {
 
     public void callSeatSelect(ShowTime showTime){
         frame.setVisible(false);
-        new SeatSelection(frame,showTime);
+        new SeatSelection(frame, showTime, username);
     }
 
     @Override
@@ -227,7 +229,7 @@ public class MovieDetailPage implements ActionListener {
     private String description;
     private ImageIcon poster;
 
-    Movie(String title, String genre, String language,Date date,String rating,String duration, String director, String cast, String subtitles, String description, ImageIcon poster){
+    Movie(String title, String genre, String language,String rating,Date date,String duration, String director, String cast, String subtitles, String description, ImageIcon poster){
         this.title = title;
         this.genre = genre;
         this.language = language;

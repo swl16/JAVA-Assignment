@@ -30,7 +30,7 @@ public class Seat {
 
     public double getPrice(SeatType type){
         switch (type){
-            case STUDENT: {return price*0.7;}
+            case STUDENT: {return price*0.7; }
             case OKU,SENIOR: {return price*0.5;}
             default: {return price;}
         }

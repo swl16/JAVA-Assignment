@@ -8,10 +8,12 @@ import java.io.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class SeatSelection implements ActionListener {
     JFrame frame = new JFrame("TGC Cinema - Seat Selection");
+    String username;
     JFrame homeFrame;
     JButton backButton;
     Hall hall;
@@ -33,9 +35,10 @@ public class SeatSelection implements ActionListener {
     private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("EEE dd MMM , HH:mm");
     String[] seatType = {"Adult","Student","Senior","OKU"};
 
-    SeatSelection(JFrame homeFrame,ShowTime showTime){
+    SeatSelection(JFrame homeFrame,ShowTime showTime,String username){
         this.showTime = showTime;
         this.homeFrame = homeFrame;
+        this.username = username;
 
         loadHall();
         loadMovie();
@@ -138,7 +141,7 @@ public class SeatSelection implements ActionListener {
                     seatButton.setBackground(new Color(0xD44444));
                     seatButton.setForeground(new Color(0xF7F7F7));
                     seatButton.setEnabled(false);
-                    seatButton.setToolTipText(seat.getSeatId() + "  " + seat.getStatus());
+                    seatButton.setToolTipText(seat.getSeatId() + "  " + Seat.SeatStatus.BOOKED);
                 }
                 seatPanel.add(seatButton);
             }
@@ -411,8 +414,8 @@ public class SeatSelection implements ActionListener {
 
                 String[] parts = line.split("\\|");
 
-                if (LocalDateTime.parse(parts[0]).isEqual(showTime.getStartTime()) && parts[1].equals(hall.getName())) {
-                    bookedSeat.add(new Seat(parts[2].charAt(0),Integer.parseInt(parts[3]),hall.getPrice()));
+                if (LocalDateTime.parse(parts[1]).isEqual(showTime.getStartTime()) && parts[2].equals(hall.getName())) {
+                    bookedSeat.add(new Seat(parts[3].charAt(0),Integer.parseInt(parts[4]),hall.getPrice()));
                 }
             }
             for (Seat s : bookedSeat){
@@ -455,8 +458,10 @@ public class SeatSelection implements ActionListener {
                 String[] parts = line.split(" , ");
 
                 if (parts[0].equals(showTime.getMovieName())) {
-                    ImageIcon poster = new ImageIcon(parts[3]);
-                    movieDetail = new Movie(parts[0], parts[1], parts[2], poster);
+                    ImageIcon poster = new ImageIcon(parts[10]);
+                    long timestamp = Long.parseLong(parts[4]);
+                    Date date = new Date(timestamp);
+                    movieDetail = new Movie(parts[0],parts[1],parts[2],parts[3],date,parts[5],parts[6],parts[7],parts[8],parts[9],poster);
                 }
             }
         }
@@ -469,7 +474,7 @@ public class SeatSelection implements ActionListener {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter("BookingDetail.txt",true))){
             for (Seat s : selectedSeat){
                 writer.newLine();
-                writer.write(String.valueOf(showTime.getStartTime()) + "|" + hall.getName() + "|" + s.getRow() + "|" + s.getColumn());
+                writer.write(username + "|" + String.valueOf(showTime.getStartTime()) + "|" + hall.getName() + "|" + s.getRow() + "|" + s.getColumn());
 
             }
         } catch (IOException e) {
