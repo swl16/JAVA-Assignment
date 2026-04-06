@@ -95,7 +95,7 @@ public class LoginPage implements ActionListener {
     }
     
     private boolean validateLogin(String username, String password){
-        try(BufferedReader readUser = new BufferedReader(new FileReader("Users.txt"))){
+        try(BufferedReader readUser = new BufferedReader(new FileReader("Cinema/Users.txt"))){
             String line;
             while((line = readUser.readLine()) != null){
                 String[] parts = line.split(",");
@@ -122,7 +122,7 @@ public class LoginPage implements ActionListener {
             
             if(validateLogin(username,password)){
                 frame.dispose();
-                new MainMenuPage();
+                new MainMenuPage(username);
             }else{
                 JOptionPane.showMessageDialog(frame, "Invalid username or password. Please try again.", "Login Failed", JOptionPane.ERROR_MESSAGE);
             }

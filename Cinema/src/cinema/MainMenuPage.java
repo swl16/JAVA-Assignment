@@ -15,6 +15,7 @@ import java.util.HashSet;
 public class MainMenuPage implements ActionListener {
 
     JFrame frame = new JFrame("TGC Cinema");
+    String username;
     JPanel homePanel;
     JPanel profilePanel;
     JPanel cardPanel;
@@ -23,14 +24,14 @@ public class MainMenuPage implements ActionListener {
     JButton mainPageButton;
     JButton FnBButton;
     JButton profileButton;
-    JButton myTicket;
-    JButton orderHistory;
-    JButton contactUs;
+    JButton myTicket,orderHistory,contactUs,setting;
     JButton logOut;
     Movie[] movieDetail;
     private int movieCount = 0;
 
-    public MainMenuPage(){
+    public MainMenuPage(String username){
+        this.username = username;
+
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new BorderLayout());
         frame.setResizable(false);
@@ -163,7 +164,7 @@ public class MainMenuPage implements ActionListener {
     }
 
     private void loadMovie() {
-        try(BufferedReader readLine = new BufferedReader(new FileReader("MovieDetails.txt"))){
+        try(BufferedReader readLine = new BufferedReader(new FileReader("Cinema/MovieDetails.txt"))){
             String line;
             int i = 0;
             HashSet<String> titles = new HashSet<>();
@@ -174,11 +175,11 @@ public class MainMenuPage implements ActionListener {
                 if(parts.length == 11){
                     titles.add(parts[0].trim());
                 }
-//                ImageIcon poster = new ImageIcon(parts[11]);
-//                Date date = new Date.parse(parts[3]);
-//                movieDetail[i] = new Movie(parts[0],parts[1],parts[2],parts[3],parts[4],parts[5],parts[6],parts[7],parts[8],parts[9],parts[10],poster);
-//                i++;
-//                movieCount++;
+                ImageIcon poster = new ImageIcon(parts[10]);
+                Date date = new Date(parts[4]);
+                movieDetail[i] = new Movie(parts[0],parts[1],parts[2],parts[3],date,parts[5],parts[6],parts[7],parts[8],parts[9],poster);
+                i++;
+                movieCount++;
             }
         }
         catch (IOException e){
@@ -211,7 +212,7 @@ public class MainMenuPage implements ActionListener {
         profilePanel.setLayout(null);
         profilePanel.setBackground(new Color(0x242424));
 
-        JLabel welcomeUser = new JLabel("Welcome, ");
+        JLabel welcomeUser = new JLabel("Welcome, " + username);
         welcomeUser.setForeground(new Color(0xF7F7F7));
         welcomeUser.setFont(new Font("Courier New",Font.BOLD,40));
         welcomeUser.setBounds(40,60,500,50);
@@ -219,8 +220,6 @@ public class MainMenuPage implements ActionListener {
 
         myTicket = new JButton("My Ticket");
         myTicket.setBorderPainted(false);
-//        myTicket.setFocusPainted(false);
-//        myTicket.setContentAreaFilled(false);
         myTicket.setFocusable(false);
         myTicket.setBounds(40,170,400,40);
         myTicket.setFont(new Font("Courier New",Font.PLAIN,25));
@@ -232,8 +231,6 @@ public class MainMenuPage implements ActionListener {
 
         orderHistory = new JButton("Order History");
         orderHistory.setBorderPainted(false);
-//        orderHistory.setFocusPainted(false);
-//        orderHistory.setContentAreaFilled(false);
         orderHistory.setFocusable(false);
         orderHistory.setBounds(40,230,400,40);
         orderHistory.setFont(new Font("Courier New",Font.PLAIN,25));
@@ -245,8 +242,6 @@ public class MainMenuPage implements ActionListener {
 
         contactUs = new JButton("Contact Us");
         contactUs.setBorderPainted(false);
-//        contactUs.setFocusPainted(false);
-//        contactUs.setContentAreaFilled(false);
         contactUs.setFocusable(false);
         contactUs.setBounds(40,290,400,40);
         contactUs.setFont(new Font("Courier New",Font.PLAIN,25));
@@ -255,6 +250,17 @@ public class MainMenuPage implements ActionListener {
         contactUs.setForeground(new Color(0xF7F7F7));
         contactUs.setBackground(new Color(0x3B3B3B));
         profilePanel.add(contactUs);
+
+        setting = new JButton("Setting");
+        setting.setBorderPainted(false);
+        setting.setFocusable(false);
+        setting.setBounds(40,350,400,40);
+        setting.setFont(new Font("Courier New",Font.PLAIN,25));
+        setting.setHorizontalAlignment(JButton.LEFT);
+        setting.addActionListener(this);
+        setting.setForeground(new Color(0xF7F7F7));
+        setting.setBackground(new Color(0x3B3B3B));
+        profilePanel.add(setting);
 
         logOut = new JButton("Log Out");
         logOut.setBorderPainted(false);
@@ -279,7 +285,7 @@ public class MainMenuPage implements ActionListener {
             int index = Integer.parseInt(commandNum);
             Movie selectedMovie = movieDetail[index];
             frame.setVisible(false);
-            new MovieDetailPage(frame,selectedMovie);
+            new MovieDetailPage(frame,selectedMovie,username);
 
 
         }catch (NumberFormatException ex) {
@@ -287,7 +293,7 @@ public class MainMenuPage implements ActionListener {
                 cardLayout.show(cardPanel, "home");
                 
             } else if (e.getSource() == FnBButton) {
-                //new Concession();
+                new Concession();
                 frame.dispose();
 
             } else if (e.getSource() == profileButton) {
@@ -295,16 +301,19 @@ public class MainMenuPage implements ActionListener {
 
             } else if (e.getSource() == myTicket) {
                 frame.setVisible(false);
-                new SubWindowProfile(frame, 1);
+                new SubWindowProfile(frame, 1, username);
 
             } else if (e.getSource() == orderHistory) {
                 frame.setVisible(false);
-                new SubWindowProfile(frame, 2);
+                new SubWindowProfile(frame, 2, username);
 
             } else if (e.getSource() == contactUs) {
                 frame.setVisible(false);
-                new SubWindowProfile(frame, 3);
+                new SubWindowProfile(frame, 3, username);
 
+            } else if (e.getSource() == setting) {
+                frame.setVisible(false);
+                new SubWindowProfile(frame, 4, username);
             } else if (e.getSource() == logOut) {
                 frame.dispose();
                 new LoginPage();
@@ -316,6 +325,6 @@ public class MainMenuPage implements ActionListener {
 
     //testing use only
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new MainMenuPage());
+        SwingUtilities.invokeLater(() -> new MainMenuPage("tang"));
     }
 }

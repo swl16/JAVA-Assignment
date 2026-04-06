@@ -29,14 +29,20 @@ public class SignUpPage implements ActionListener {
         loginLabel.setHorizontalAlignment(JLabel.CENTER);
         frame.add(loginLabel);
 
+        JLabel tipsLabel = new JLabel("*Password must at least 6 characters.");
+        tipsLabel.setForeground(new Color(0xD44444));
+        tipsLabel.setFont(new Font("Courier New",Font.BOLD,12));
+        tipsLabel.setBounds(40,90,400,15);
+        frame.add(tipsLabel);
+
         JLabel usernameLabel = new JLabel("Username:");
         usernameLabel.setForeground(new Color(0xF7F7F7));
         usernameLabel.setFont(new Font("Courier New",Font.PLAIN,20));
-        usernameLabel.setBounds(40,80,350,50);
+        usernameLabel.setBounds(40,100,350,50);
         frame.add(usernameLabel);
 
         usernameEnter = new JTextField();
-        usernameEnter.setBounds(160,95,160,20);
+        usernameEnter.setBounds(160,115,160,20);
         usernameEnter.setFont(new Font("Courier New",Font.PLAIN,15));
         usernameEnter.setForeground(new Color(0xF7F7F7));
         usernameEnter.setBackground(new Color(0x3B3B3B));
@@ -47,11 +53,11 @@ public class SignUpPage implements ActionListener {
         JLabel passwordLabel = new JLabel("Password:");
         passwordLabel.setForeground(new Color(0xF7F7F7));
         passwordLabel.setFont(new Font("Courier New",Font.PLAIN,20));
-        passwordLabel.setBounds(40,135,350,50);
+        passwordLabel.setBounds(40,155,350,50);
         frame.add(passwordLabel);
 
         passwordEnter = new JTextField();
-        passwordEnter.setBounds(160,150,160,20);
+        passwordEnter.setBounds(160,170,160,20);
         passwordEnter.setFont(new Font("Courier New",Font.PLAIN,15));
         passwordEnter.setForeground(new Color(0xF7F7F7));
         passwordEnter.setBackground(new Color(0x3B3B3B));
@@ -61,7 +67,7 @@ public class SignUpPage implements ActionListener {
 
         signUpButton = new JButton("Sign Up");
         signUpButton.setFocusable(false);
-        signUpButton.setBounds(95,210,190,50);
+        signUpButton.setBounds(95,230,190,50);
         signUpButton.setFont(new Font("Courier New",Font.BOLD,30));
         signUpButton.addActionListener(this);
         signUpButton.setForeground(new Color(0xF7F7F7));
@@ -83,7 +89,7 @@ public class SignUpPage implements ActionListener {
     
     public void saveuser(String username, String password){
         
-        try (BufferedWriter saveusers = new BufferedWriter(new FileWriter("Users.txt",true))){
+        try (BufferedWriter saveusers = new BufferedWriter(new FileWriter("Cinema/Users.txt",true))){
          saveusers.write(username + ","+ password + "\n");
         }catch(IOException e){
             System.out.println("An error occurred");
@@ -92,7 +98,7 @@ public class SignUpPage implements ActionListener {
     }
     
     public boolean usernameExists(String username){
-        try(BufferedReader reader = new BufferedReader(new FileReader("Users.txt"))){
+        try(BufferedReader reader = new BufferedReader(new FileReader("Cinema/Users.txt"))){
             String line;
             while((line = reader.readLine()) != null){
                 String[] parts = line.split(" , ");
@@ -114,6 +120,10 @@ public class SignUpPage implements ActionListener {
             
             if(username.isEmpty() || password.isEmpty()){
                 JOptionPane.showMessageDialog(frame, "Username and password cannot be empty! Please try again.", "Sign Up Failed", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            if (password.length() < 6){
+                JOptionPane.showMessageDialog(frame, "Password must at least 6 characters! Please try again.", "Sign Up Failed", JOptionPane.ERROR_MESSAGE);
                 return;
             }
             if(usernameExists(username)){
