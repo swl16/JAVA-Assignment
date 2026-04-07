@@ -11,6 +11,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.Date;
 import java.util.HashSet;
+import javax.swing.border.EmptyBorder;
 
 public class MainMenuPage implements ActionListener {
 
@@ -105,9 +106,10 @@ public class MainMenuPage implements ActionListener {
         headerPanel.add(nowShowing);
 
         JPanel moviePanel = new JPanel();
-        moviePanel.setLayout(new GridLayout(0,2,0,0));
+        moviePanel.setLayout(new GridLayout(0,2,15,20));
         moviePanel.setBackground(new Color(0x3B3B3B));
-        moviePanel.setPreferredSize(new Dimension(330,1000));
+        moviePanel.setBorder(new EmptyBorder(10,10,10,10));
+//        moviePanel.setPreferredSize(new Dimension(330,1000));
 
         movieDetail = new Movie[100];
         loadMovie();
@@ -164,7 +166,7 @@ public class MainMenuPage implements ActionListener {
     }
 
     private void loadMovie() {
-        try(BufferedReader readLine = new BufferedReader(new FileReader("Cinema/MovieDetails.txt"))){
+        try(BufferedReader readLine = new BufferedReader(new FileReader("MovieDetails.txt"))){
             String line;
             int i = 0;
             HashSet<String> titles = new HashSet<>();
@@ -174,12 +176,20 @@ public class MainMenuPage implements ActionListener {
                 String[] parts = line.split("\\|", -1);
                 if(parts.length == 11){
                     titles.add(parts[0].trim());
+
+                    ImageIcon poster = new ImageIcon(parts[10]);
+
+                    Date date = new Date(); // safe
+
+                    movieDetail[i] = new Movie(
+                        parts[0], parts[1], parts[2], parts[3],
+                        date, parts[5], parts[6], parts[7],
+                        parts[8], parts[9], poster
+                    );
+
+                    i++;
+                    movieCount++;
                 }
-                ImageIcon poster = new ImageIcon(parts[10]);
-                Date date = new Date(parts[4]);
-                movieDetail[i] = new Movie(parts[0],parts[1],parts[2],parts[3],date,parts[5],parts[6],parts[7],parts[8],parts[9],poster);
-                i++;
-                movieCount++;
             }
         }
         catch (IOException e){
@@ -189,7 +199,7 @@ public class MainMenuPage implements ActionListener {
 
     private JButton MovieCard(String title, ImageIcon poster, int index){
         movie = new JButton(title);
-        Image scaledPoster = poster.getImage().getScaledInstance(108, 160, Image.SCALE_SMOOTH);
+        Image scaledPoster = poster.getImage().getScaledInstance(90, 130, Image.SCALE_SMOOTH);
         poster = new ImageIcon(scaledPoster);
         movie.setBackground(new Color(0x3B3B3B));
         movie.setBorderPainted(false);
@@ -204,6 +214,9 @@ public class MainMenuPage implements ActionListener {
         movie.setActionCommand(String.valueOf(index));
         movie.addActionListener(this);
         movie.setForeground(new Color(0xF7F7F7));
+        
+        movie.setPreferredSize(new Dimension(120, 180));
+        movie.setMaximumSize(new Dimension(120, 180));
         return movie;
     }
 
