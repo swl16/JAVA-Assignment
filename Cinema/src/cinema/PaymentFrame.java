@@ -122,21 +122,64 @@ public class PaymentFrame extends JFrame {
     }
 
     private JPanel cardPanel() {
-        JPanel panel = new JPanel(new GridLayout(0, 1, 10, 10));
+        JPanel panel = new JPanel(new GridBagLayout());
         panel.setBackground(new Color(18, 18, 18));
-        panel.setBorder(BorderFactory.createEmptyBorder(40, 40, 40, 40));
+        panel.setBorder(BorderFactory.createEmptyBorder(30, 40, 30, 40));
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(8, 0, 8, 0);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        panel.add(createLabel("Card Details", 20, Color.WHITE));
-        JTextField cardNum = new JTextField("Card Number (16-digits)");
-        JTextField expiry = new JTextField("MM/YY");
-        JTextField cvv = new JTextField("CVV");
+        // --- Title ---
+        JLabel title = createLabel("Card Details", 22, Color.WHITE);
+        gbc.gridx = 0; gbc.gridy = 0; gbc.gridwidth = 2;
+        panel.add(title, gbc);
 
-        JButton payBtn = new JButton("Pay RM " + String.format("%.2f", finalAmount));
+        // --- Card Holder Name ---
+        gbc.gridy++; gbc.gridwidth = 2;
+        panel.add(createInputLabel("Card Holder Name"), gbc);
+        JTextField holderField = createStyledTextField("Full Name");
+        gbc.gridy++;
+        panel.add(holderField, gbc);
+
+        // --- Card Number ---
+        gbc.gridy++;
+        panel.add(createInputLabel("Card Number"), gbc);
+        JTextField cardNumField = createStyledTextField("••••  ••••  ••••  ••••");
+        gbc.gridy++;
+        panel.add(cardNumField, gbc);
+
+        // --- Expiry and CVC (Side by Side) ---
+        JPanel row = new JPanel(new GridLayout(1, 2, 20, 0));
+        row.setBackground(new Color(18, 18, 18));
+
+        // Expiry Group
+        JPanel expiryGroup = new JPanel(new BorderLayout(0, 5));
+        expiryGroup.setBackground(new Color(18, 18, 18));
+        expiryGroup.add(createInputLabel("Expiry (MM/YY)"), BorderLayout.NORTH);
+        expiryGroup.add(createStyledTextField("MM / YY"), BorderLayout.CENTER);
+
+        // CVC Group
+        JPanel cvcGroup = new JPanel(new BorderLayout(0, 5));
+        cvcGroup.setBackground(new Color(18, 18, 18));
+        cvcGroup.add(createInputLabel("CVC"), BorderLayout.NORTH);
+        cvcGroup.add(createStyledTextField("•••"), BorderLayout.CENTER);
+
+        row.add(expiryGroup);
+        row.add(cvcGroup);
+
+        gbc.gridy++;
+        panel.add(row, gbc);
+
+        // --- Submit Button ---
+        JButton payBtn = new JButton("Submit Payment");
         styleButton(payBtn, new Color(212, 68, 68), Color.WHITE);
+        gbc.gridy++; gbc.insets = new Insets(25, 0, 10, 0);
+        panel.add(payBtn, gbc);
 
+        // --- Action Logic ---
         payBtn.addActionListener(e -> {
-            if (cardNum.getText().trim().isEmpty() || cardNum.getText().equals("Card Number (16-digits)")) {
-                JOptionPane.showMessageDialog(this, "Please enter a valid card number.", "Validation Error", JOptionPane.WARNING_MESSAGE);
+            if (cardNumField.getText().trim().isEmpty() || cardNumField.getText().contains("•")) {
+                JOptionPane.showMessageDialog(this, "Please enter valid card details.", "Validation Error", JOptionPane.WARNING_MESSAGE);
                 return;
             }
             paymentMethod = "Credit/Debit Card";
@@ -144,8 +187,39 @@ public class PaymentFrame extends JFrame {
             layout.show(container, "receipt");
         });
 
-        panel.add(cardNum); panel.add(expiry); panel.add(cvv); panel.add(payBtn);
         return panel;
+    }
+
+    // Helper for smaller, gray input labels
+    private JLabel createInputLabel(String text) {
+        JLabel lbl = new JLabel(text);
+        lbl.setForeground(new Color(180, 180, 180));
+        lbl.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        return lbl;
+    }
+
+    // Helper for consistent text field styling
+    private JTextField createStyledTextField(String placeholder) {
+        JTextField field = new JTextField(placeholder);
+        field.setPreferredSize(new Dimension(0, 40));
+        field.setBackground(new Color(30, 30, 30));
+        field.setForeground(Color.GRAY);
+        field.setCaretColor(Color.WHITE);
+        field.setBorder(BorderFactory.createCompoundBorder(
+                new LineBorder(new Color(60, 60, 60), 1),
+                BorderFactory.createEmptyBorder(0, 10, 0, 10)
+        ));
+
+        // Simple focus effect
+        field.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusGained(java.awt.event.FocusEvent evt) {
+                if (field.getText().equals(placeholder)) {
+                    field.setText("");
+                    field.setForeground(Color.WHITE);
+                }
+            }
+        });
+        return field;
     }
 
     private JPanel qrPanel() {
