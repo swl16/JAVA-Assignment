@@ -66,7 +66,7 @@ public class FoodPaymentFrame extends JFrame {
         sep.setForeground(new Color(0x333333));
         gbc.gridy = 1; panel.add(sep, gbc);
 
-        JButton cardBtn = createMenuButton("CREDIT / DEBIT CARD", "Secure Encryption");
+        JButton cardBtn = createMenuButton("CREDIT / DEBIT CARD", "Visa / Mastercard / AMEX");
         cardBtn.addActionListener(e -> { paymentMethod = "Credit/Debit Card"; cardLayout.show(mainContainer, "CARD"); });
         gbc.gridy = 2; panel.add(cardBtn, gbc);
 

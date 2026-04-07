@@ -113,7 +113,7 @@ public class PaymentFrame extends JFrame {
 
         gbc.gridy = 0; panel.add(createHeaderLabel("SELECT PAYMENT", 22), gbc);
 
-        JButton creditBtn = createMenuButton("CREDIT / DEBIT CARD", "Visa, Mastercard, AMEX");
+        JButton creditBtn = createMenuButton("CREDIT / DEBIT CARD", "Visa / Mastercard / AMEX");
         creditBtn.addActionListener(e -> layout.show(container, "card_input"));
         gbc.gridy = 1; panel.add(creditBtn, gbc);
 
