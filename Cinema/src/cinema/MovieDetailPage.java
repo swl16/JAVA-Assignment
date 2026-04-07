@@ -115,7 +115,7 @@ public class MovieDetailPage implements ActionListener {
             while((line = readLine.readLine()) != null){
                 if (line.trim().isEmpty()) continue;
 
-                String[] parts = line.split(" , ");
+                String[] parts = line.split("\\|");
                 hall[i] = new Hall(parts[0],parts[1], Integer.parseInt(parts[2]), Integer.parseInt(parts[3]),Double.parseDouble(parts[4]));
                 i++;
                 hallCount++;
@@ -130,13 +130,19 @@ public class MovieDetailPage implements ActionListener {
         try(BufferedReader readLine = new BufferedReader(new FileReader("Showtime.txt"))){
             String line;
             int i = 0;
+            
             while((line = readLine.readLine()) != null){
                 if (line.trim().isEmpty()) continue;
 
-                String[] parts = line.split(" , ");
+                String[] parts = line.split("\\|");
 
-                if (parts[0].equals(movie.getTitle())){
-                    showTime[i] = new ShowTime(parts[0], parts[1], LocalDateTime.parse(parts[2]));
+            if(parts.length == 3 && parts[0].equals(movie.getTitle())){
+
+                showTime[i] = new ShowTime(
+                    parts[0],
+                    parts[1],
+                    LocalDateTime.parse(parts[2])
+                );
                     i++;
                     showTimeCount++;
                 }
