@@ -310,7 +310,7 @@ public class AdminPage{
                     StandardCopyOption.REPLACE_EXISTING
             );
             
-            return destination.getPath();
+            return "src/posters/" + newfilename;
             
         }catch(IOException e){
             showMsg("Error copying poster: " + e.getMessage(),false);
