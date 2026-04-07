@@ -1246,26 +1246,6 @@ public class AdminPage{
         }
     }
     
-//    private void saveMoviesToFile(){
-//        try(BufferedWriter savemovie = new BufferedWriter(new FileWriter(moviefile))){
-//            for(int i=0; i<tableModel.getRowCount(); i++){
-//                StringBuilder line = new StringBuilder();
-//                
-//                for(int j=0; j < tableModel.getColumnCount();j++){
-//                    line.append(tableModel.getValueAt(i, j).toString());
-//                    if(j < tableModel.getColumnCount()-1){
-//                        line.append("|");
-//                    }
-//                }
-//                
-//                savemovie.write(line.toString());
-//                savemovie.newLine();
-//            }
-//        }catch(IOException e){
-//            showMsg("Error saving movies: " + e.getMessage(), false);
-//        }
-//    }
-    
     private void refreshViewTable(){
         if(tableModel == null) return;
         
