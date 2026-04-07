@@ -4,6 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
 import java.io.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -24,7 +25,7 @@ public class SeatSelection implements ActionListener {
     JLabel infoLabel, seatNoLabel, priceLabel;
     JButton expandPanelBtn,closeExpandBtn,confirmButton;
     JLayeredPane layeredPane;
-    JPanel lowerPanel,pullOutPanel;
+    JPanel lowerPanel,pullOutPanel,shield;
     JLabel[] quantityLabel = new JLabel[4];
 
     JButton[][] seatButtons;
@@ -83,22 +84,32 @@ public class SeatSelection implements ActionListener {
         movieLabel.setBounds(10,5,400,20);
         redPanel.add(movieLabel);
 
-        JLabel detailsLabel = new JLabel(movieDetail.getDuration() + "   " + hall.getHallType());
+        int duration = movieDetail.getDuration();
+        int hours = duration / 60;
+        int minutes = duration % 60;
+
+        JLabel detailsLabel = new JLabel( hours + "h " + String.format("%02d",minutes) + "m   " + hall.getHallType());
         detailsLabel.setForeground(new Color(0xF7F7F7));
         detailsLabel.setFont(new Font("Courier New",Font.BOLD,13));
         detailsLabel.setBounds(10,25,400,20);
         redPanel.add(detailsLabel);
 
+        JLabel locationLabel = new JLabel("Location: Mit Valley Megamall");
+        locationLabel.setForeground(new Color(0xF7F7F7));
+        locationLabel.setFont(new Font("Courier New",Font.BOLD,15));
+        locationLabel.setBounds(10,105,400,20);
+        upperPanel.add(locationLabel);
+
         JLabel showtimeLabel = new JLabel("Show time: " + showTime.getStartTime().format(FMT) + " at " + hall.getName());
         showtimeLabel.setForeground(new Color(0xF7F7F7));
         showtimeLabel.setFont(new Font("Courier New",Font.BOLD,15));
-        showtimeLabel.setBounds(10,105,400,30);
+        showtimeLabel.setBounds(10,125,400,20);
         upperPanel.add(showtimeLabel);
 
         JLabel screenLabel = new JLabel("Screen", SwingConstants.CENTER);
         screenLabel.setForeground(new Color(0xF7F7F7));
         screenLabel.setFont(new Font("Courier New",Font.BOLD,20));
-        screenLabel.setBounds(0,140,500,40);
+        screenLabel.setBounds(0,150,500,30);
         upperPanel.add(screenLabel);
 
         layeredPane = new JLayeredPane();
@@ -115,13 +126,13 @@ public class SeatSelection implements ActionListener {
         lowerPanel.setBackground(new Color(0x3B3B3B));
         lowerPanel.setLayout(null);
         lowerPanel.setBounds(0, 335, 500,140);
-        layeredPane.add(lowerPanel,Integer.valueOf(0));
+        layeredPane.add(lowerPanel,Integer.valueOf(2));
 
         pullOutPanel = new JPanel();
         pullOutPanel.setBounds(0,100,500,240);
         pullOutPanel.setBackground(new Color(0x3B3B3B));
         pullOutPanel.setLayout(null);
-        layeredPane.add(pullOutPanel,Integer.valueOf(1));
+        layeredPane.add(pullOutPanel,Integer.valueOf(2));
         pullOutPanel.setVisible(false);
 
         seatButtons = new JButton[hall.getRows()][hall.getColumn()];
@@ -449,19 +460,18 @@ public class SeatSelection implements ActionListener {
     }
 
     private void loadMovie() {
-        try(BufferedReader readLine = new BufferedReader(new FileReader("MovieDetail.txt"))){
+        try(BufferedReader readLine = new BufferedReader(new FileReader("Cinema/MovieDetails.txt"))){
             String line;
 
             while((line = readLine.readLine()) != null){
                 if (line.trim().isEmpty()) continue;
 
-                String[] parts = line.split(" , ");
+                String[] parts = line.split("\\|");
 
                 if (parts[0].equals(showTime.getMovieName())) {
                     ImageIcon poster = new ImageIcon(parts[10]);
-                    long timestamp = Long.parseLong(parts[4]);
-                    Date date = new Date(timestamp);
-                    movieDetail = new Movie(parts[0],parts[1],parts[2],parts[3],date,parts[5],parts[6],parts[7],parts[8],parts[9],poster);
+                    Date date = new Date(parts[4]);
+                    movieDetail = new Movie(parts[0],parts[1],parts[2],parts[3],date,Integer.valueOf(parts[5]),parts[6],parts[7],parts[8],parts[9],poster);
                 }
             }
         }
@@ -499,9 +509,17 @@ public class SeatSelection implements ActionListener {
         } else if (e.getSource() == expandPanelBtn) {
             pullOutPanel.setVisible(true);
             expandPanelBtn.setVisible(false);
+            shield = new JPanel();
+            shield.setBounds(0,0,500,500);
+            shield.addMouseListener(new MouseAdapter() {});
+            layeredPane.add(shield,Integer.valueOf(1));
+            shield.setOpaque(false);
+
         } else if (e.getSource() == closeExpandBtn) {
             pullOutPanel.setVisible(false);
             expandPanelBtn.setVisible(true);
+            layeredPane.remove(shield);
+
         } else if (e.getSource() == confirmButton) {
             int totalTicketsSelected = 0;
             for (int count : countType) {

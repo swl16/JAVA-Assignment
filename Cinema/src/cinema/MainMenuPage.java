@@ -190,6 +190,11 @@ public class MainMenuPage implements ActionListener {
                     i++;
                     movieCount++;
                 }
+//                ImageIcon poster = new ImageIcon(parts[10]);
+//                Date date = new Date(parts[4]);
+//                movieDetail[i] = new Movie(parts[0],parts[1],parts[2],parts[3],date,Integer.parseInt(parts[5]),parts[6],parts[7],parts[8],parts[9],poster);
+//                i++;
+//                movieCount++;
             }
         }
         catch (IOException e){

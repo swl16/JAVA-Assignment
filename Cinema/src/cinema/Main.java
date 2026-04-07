@@ -16,7 +16,7 @@ public class Main {
                 "English",           // 3. language (String)
                 "P13",               // 4. rating (String) - Previously you put Date here
                 new Date(),          // 5. date (java.util.Date) - This belongs here
-                "120m",              // 6. duration (String)
+                120,              // 6. duration (String)
                 "Unknown",           // 7. director (String)
                 "Unknown",           // 8. cast (String)
                 "English",           // 9. subtitles (String)

@@ -95,7 +95,7 @@ public class LoginPage implements ActionListener {
     }
     
     private boolean validateLogin(String username, String password){
-        try(BufferedReader readUser = new BufferedReader(new FileReader("Cinema/Users.txt"))){
+        try(BufferedReader readUser = new BufferedReader(new FileReader("Users.txt"))){
             String line;
             while((line = readUser.readLine()) != null){
                 String[] parts = line.split(",");

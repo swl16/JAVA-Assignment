@@ -228,14 +228,14 @@ public class MovieDetailPage implements ActionListener {
     private String language;
     private Date date;
     private String rating;
-    private String duration;
+    private int duration;
     private String director;
     private String cast;
     private String subtitles;
     private String description;
     private ImageIcon poster;
 
-    Movie(String title, String genre, String language,String rating,Date date,String duration, String director, String cast, String subtitles, String description, ImageIcon poster){
+    Movie(String title, String genre, String language,String rating,Date date,int duration, String director, String cast, String subtitles, String description, ImageIcon poster){
         this.title = title;
         this.genre = genre;
         this.language = language;
@@ -289,11 +289,11 @@ public class MovieDetailPage implements ActionListener {
         this.rating = rating;
     }
 
-    public String getDuration() {
+    public int getDuration() {
         return duration;
     }
 
-    public void setDuration(String duration) {
+    public void setDuration(int duration) {
         this.duration = duration;
     }
 
