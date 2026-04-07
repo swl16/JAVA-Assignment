@@ -160,14 +160,20 @@ public class PaymentFrame extends JFrame {
         qrAmountLabel = createLabel("Amount: RM " + String.format("%.2f", finalAmount), 20, Color.WHITE);
         qrAmountLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        JPanel qrBox = new JPanel(new GridBagLayout());
+        // QR Image Box
+        JPanel qrBox = new JPanel(new BorderLayout());
         qrBox.setPreferredSize(new Dimension(200, 200));
         qrBox.setMaximumSize(new Dimension(200, 200));
         qrBox.setBackground(Color.WHITE);
         qrBox.setBorder(new LineBorder(new Color(255, 204, 0), 4));
-        JLabel qrText = new JLabel("SCAN TO PAY");
-        qrText.setFont(new Font("Monospaced", Font.BOLD, 20));
-        qrBox.add(qrText);
+
+        try {
+            ImageIcon rawIcon = new ImageIcon("Cinema/src/cinema/qr_code.png");
+            Image scaledImg = rawIcon.getImage().getScaledInstance(180, 180, Image.SCALE_SMOOTH);
+            qrBox.add(new JLabel(new ImageIcon(scaledImg)), BorderLayout.CENTER);
+        } catch (Exception e) {
+            qrBox.add(new JLabel("SCAN TO PAY", SwingConstants.CENTER), BorderLayout.CENTER);
+        }
         qrBox.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         timerLabel = new JLabel("Expires in 05:00", SwingConstants.CENTER);
@@ -203,22 +209,30 @@ public class PaymentFrame extends JFrame {
         receiptArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
         receiptArea.setBorder(BorderFactory.createEmptyBorder(20, 20, 10, 20));
 
+        // Redemption Section with Entry QR Image
         JPanel redemptionPanel = new JPanel(new GridBagLayout());
         redemptionPanel.setBackground(Color.WHITE);
-        redemptionPanel.setPreferredSize(new Dimension(420, 150));
+        redemptionPanel.setPreferredSize(new Dimension(420, 160));
 
-        JPanel entryQR = new JPanel(new GridBagLayout());
+        JPanel entryQR = new JPanel(new BorderLayout());
         entryQR.setPreferredSize(new Dimension(100, 100));
         entryQR.setBackground(Color.WHITE);
         entryQR.setBorder(new LineBorder(Color.BLACK, 2));
-        entryQR.add(new JLabel("ENTRY"));
+
+        try {
+            ImageIcon rawEntry = new ImageIcon("Cinema/src/cinema/entry_qr.png");
+            Image scaledEntry = rawEntry.getImage().getScaledInstance(90, 90, Image.SCALE_SMOOTH);
+            entryQR.add(new JLabel(new ImageIcon(scaledEntry)), BorderLayout.CENTER);
+        } catch (Exception e) {
+            entryQR.add(new JLabel("ENTRY", SwingConstants.CENTER), BorderLayout.CENTER);
+        }
 
         JLabel instruct = new JLabel("<html><center>Scan for Hall Entry &<br>Food Redemption</center></html>");
         instruct.setFont(new Font("Segoe UI", Font.BOLD, 12));
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0; gbc.gridy = 0; redemptionPanel.add(entryQR, gbc);
-        gbc.gridy = 1; redemptionPanel.add(instruct, gbc);
+        gbc.gridy = 1; gbc.insets = new Insets(5, 0, 0, 0); redemptionPanel.add(instruct, gbc);
 
         JButton done = new JButton("Save & Close");
         styleButton(done, new Color(50, 50, 50), Color.WHITE);
