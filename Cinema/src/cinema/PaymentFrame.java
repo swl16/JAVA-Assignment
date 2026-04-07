@@ -10,9 +10,7 @@ public class PaymentFrame extends JFrame {
 
     private CardLayout layout;
     private JPanel container;
-
     private Order order;
-    private PaymentService service;
 
     private double finalAmount = 0;
     private String paymentMethod = "";
@@ -21,26 +19,25 @@ public class PaymentFrame extends JFrame {
     private JLabel timerLabel;
     private JTextArea receiptArea;
     private Timer countdownTimer;
-    private int secondsRemaining = 300; // 5 minutes
+    private int secondsRemaining = 300;
 
     public PaymentFrame(Order order) {
         this.order = order;
-        this.service = new PaymentService();
         this.finalAmount = order.getSubtotal();
 
         layout = new CardLayout();
         container = new JPanel(layout);
 
         container.add(summaryPanel(), "summary");
-        container.add(discountPanel(), "discount");
         container.add(paymentPanel(), "payment");
         container.add(qrPanel(), "qr");
+        container.add(cardPanel(), "card_input");
         container.add(receiptPanel(), "receipt");
 
         add(container);
 
-        setTitle("Cinema Payment System");
-        setSize(420, 600);
+        setTitle("TGC Cinema - Payment");
+        setSize(420, 650);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
         setVisible(true);
@@ -48,11 +45,9 @@ public class PaymentFrame extends JFrame {
         layout.show(container, "summary");
     }
 
-    // ================= DYNAMIC TIMER LOGIC =================
     private void startTimer() {
         if (countdownTimer != null) countdownTimer.stop();
         secondsRemaining = 300;
-
         countdownTimer = new Timer(1000, e -> {
             secondsRemaining--;
             if (secondsRemaining >= 0) {
@@ -61,137 +56,13 @@ public class PaymentFrame extends JFrame {
                 timerLabel.setText(String.format("Expires in %02d:%02d", mins, secs));
             } else {
                 countdownTimer.stop();
-                JOptionPane.showMessageDialog(this, "Session expired. Please restart payment.", "Timed Out", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Session expired. Returning to payment selection.", "Timed Out", JOptionPane.ERROR_MESSAGE);
                 layout.show(container, "payment");
             }
         });
         countdownTimer.start();
     }
 
-    // ================= DISCOUNT PANEL =================
-    private JPanel discountPanel() {
-        JPanel panel = new JPanel(new GridBagLayout());
-        panel.setBackground(new Color(18, 18, 18));
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(10, 10, 10, 10);
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-
-        JLabel title = createValueLabel("Member Discount", 22, Color.WHITE);
-        gbc.gridx = 0; gbc.gridy = 0; gbc.gridwidth = 2;
-        panel.add(title, gbc);
-
-        JTextField memberField = new JTextField(15);
-        memberField.setPreferredSize(new Dimension(200, 35));
-        memberField.setBackground(new Color(30, 30, 30));
-        memberField.setForeground(Color.WHITE);
-        memberField.setCaretColor(Color.WHITE);
-        memberField.setBorder(new LineBorder(Color.GRAY));
-        gbc.gridy = 1; gbc.gridwidth = 2;
-        panel.add(memberField, gbc);
-
-        JButton applyBtn = new JButton("Apply Member ID");
-        styleButton(applyBtn, Color.DARK_GRAY, Color.WHITE);
-        gbc.gridy = 2; gbc.gridwidth = 2;
-        panel.add(applyBtn, gbc);
-
-        JLabel totalLabel = createValueLabel("Payable: RM " + String.format("%.2f", finalAmount), 18, new Color(255, 204, 0));
-        gbc.gridy = 3; gbc.gridwidth = 2;
-        panel.add(totalLabel, gbc);
-
-        JButton nextBtn = new JButton("Proceed to Payment");
-        styleButton(nextBtn, new Color(255, 204, 0), Color.BLACK);
-        gbc.gridy = 4; gbc.gridwidth = 2;
-        panel.add(nextBtn, gbc);
-
-        applyBtn.addActionListener(e -> {
-            String id = memberField.getText().trim();
-            if (id.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Please enter a Member ID!", "Error", JOptionPane.WARNING_MESSAGE);
-            } else {
-                double sub = service.calculateTotal(order);
-                double discounted = service.applyDiscount(sub, id);
-
-                if (discounted < sub) {
-                    finalAmount = discounted;
-                    totalLabel.setText("Payable: RM " + String.format("%.2f", finalAmount));
-                    qrAmountLabel.setText("Amount: RM " + String.format("%.2f", finalAmount));
-                    JOptionPane.showMessageDialog(this, "Discount Applied Successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
-                } else {
-                    JOptionPane.showMessageDialog(this, "Invalid Member ID. No discount applied.", "Invalid ID", JOptionPane.ERROR_MESSAGE);
-                }
-            }
-        });
-
-        nextBtn.addActionListener(e -> layout.show(container, "payment"));
-
-        return panel;
-    }
-
-    // ================= QR PANEL (WITH REAL-TIME TIMER) =================
-    private JPanel qrPanel() {
-        JPanel panel = new JPanel(new BorderLayout());
-        panel.setBackground(new Color(18, 18, 18));
-        panel.setBorder(BorderFactory.createEmptyBorder(30, 30, 30, 30));
-
-        JPanel centerContent = new JPanel();
-        centerContent.setLayout(new BoxLayout(centerContent, BoxLayout.Y_AXIS));
-        centerContent.setBackground(new Color(18, 18, 18));
-
-        qrAmountLabel = createValueLabel("Amount: RM " + String.format("%.2f", finalAmount), 20, Color.WHITE);
-        qrAmountLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-        JPanel qrBox = new JPanel(new GridBagLayout());
-        qrBox.setPreferredSize(new Dimension(200, 200));
-        qrBox.setMaximumSize(new Dimension(200, 200));
-        qrBox.setBackground(Color.WHITE);
-        qrBox.setBorder(new LineBorder(new Color(255, 204, 0), 4));
-        JLabel qrText = new JLabel("SCAN QR");
-        qrText.setFont(new Font("Monospaced", Font.BOLD, 22));
-        qrBox.add(qrText);
-        qrBox.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-        timerLabel = new JLabel("Expires in 05:00", SwingConstants.CENTER);
-        timerLabel.setForeground(new Color(200, 200, 200));
-        timerLabel.setFont(new Font("Segoe UI", Font.ITALIC, 14));
-        timerLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-        centerContent.add(qrAmountLabel);
-        centerContent.add(Box.createVerticalStrut(25));
-        centerContent.add(qrBox);
-        centerContent.add(Box.createVerticalStrut(15));
-        centerContent.add(timerLabel);
-
-        JButton confirm = new JButton("I have paid");
-        styleButton(confirm, new Color(255, 204, 0), Color.BLACK);
-
-        // Inside qrPanel's confirm.addActionListener:
-        confirm.addActionListener(e -> {
-            int response = JOptionPane.showConfirmDialog(this,
-                    "Confirm payment of RM " + String.format("%.2f", finalAmount) + "?",
-                    "Confirm Transaction",
-                    JOptionPane.YES_NO_OPTION); //
-
-            if (response == JOptionPane.YES_OPTION) {
-                if (countdownTimer != null) countdownTimer.stop(); // Stop timer on success
-                updateReceipt();
-                layout.show(container, "receipt");
-            }
-        });
-
-        panel.add(centerContent, BorderLayout.CENTER);
-        panel.add(confirm, BorderLayout.SOUTH);
-
-        // Start timer only when this panel is shown
-        this.addComponentListener(new java.awt.event.ComponentAdapter() {
-            public void componentShown(java.awt.event.ComponentEvent e) {
-                if (container.getComponent(3).isVisible()) startTimer();
-            }
-        });
-
-        return panel;
-    }
-
-    // ================= REMAINING PANELS (STYLED) =================
     private JPanel summaryPanel() {
         JPanel main = new JPanel(new BorderLayout());
         main.setBackground(new Color(18, 18, 18));
@@ -200,7 +71,7 @@ public class PaymentFrame extends JFrame {
         content.setBackground(new Color(18, 18, 18));
         content.setBorder(BorderFactory.createEmptyBorder(25, 25, 25, 25));
 
-        content.add(createValueLabel("Review Summary", 22, Color.WHITE));
+        content.add(createLabel("Booking Summary", 22, Color.WHITE));
         content.add(Box.createVerticalStrut(20));
         content.add(createRow("Movie", order.getMovieTitle()));
         content.add(createRow("Cinema", order.getCinemaLocation()));
@@ -208,15 +79,17 @@ public class PaymentFrame extends JFrame {
         content.add(Box.createVerticalStrut(15));
         content.add(new JSeparator());
         content.add(Box.createVerticalStrut(15));
+
         double ticketOnly = order.getSubtotal() - order.getFoodTotal();
         content.add(createRow("Tickets Total", "RM " + String.format("%.2f", ticketOnly)));
         content.add(createRow("F&B Total", "RM " + String.format("%.2f", order.getFoodTotal())));
         content.add(Box.createVerticalStrut(20));
-        content.add(createTotalRow("Total Price", "RM " + String.format("%.2f", order.getSubtotal())));
+        content.add(createTotalRow("Grand Total", "RM " + String.format("%.2f", order.getSubtotal())));
 
-        JButton next = new JButton("Next Step");
-        styleButton(next, new Color(255, 204, 0), Color.BLACK);
-        next.addActionListener(e -> layout.show(container, "discount"));
+        JButton next = new JButton("Proceed to payment");
+        styleButton(next, new Color(212, 68, 68), Color.WHITE);
+        next.addActionListener(e -> layout.show(container, "payment"));
+
         main.add(content, BorderLayout.CENTER);
         main.add(next, BorderLayout.SOUTH);
         return main;
@@ -229,69 +102,163 @@ public class PaymentFrame extends JFrame {
         gbc.insets = new Insets(10, 0, 10, 0);
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        gbc.gridy = 0; panel.add(createValueLabel("Select Payment", 20, Color.WHITE), gbc);
+        gbc.gridy = 0; panel.add(createLabel("Select Payment", 20, Color.WHITE), gbc);
 
-        JButton tng = new JButton("TNG eWallet");
+        JButton creditBtn = new JButton("Pay by Credit / Debit Card");
+        styleButton(creditBtn, new Color(60, 60, 60), Color.WHITE);
+        creditBtn.addActionListener(e -> layout.show(container, "card_input"));
+        gbc.gridy = 1; panel.add(creditBtn, gbc);
+
+        JButton tng = new JButton("Pay by QR (TNG / DuitNow)");
         styleButton(tng, new Color(0, 122, 255), Color.WHITE);
-        tng.addActionListener(e -> { paymentMethod = "TNG eWallet"; startTimer(); layout.show(container, "qr"); });
-        gbc.gridy = 1; panel.add(tng, gbc);
+        tng.addActionListener(e -> {
+            paymentMethod = "Mobile Wallet QR";
+            startTimer();
+            layout.show(container, "qr");
+        });
+        gbc.gridy = 2; panel.add(tng, gbc);
 
-        JButton duitnow = new JButton("DuitNow QR");
-        styleButton(duitnow, new Color(237, 27, 36), Color.WHITE);
-        duitnow.addActionListener(e -> { paymentMethod = "DuitNow"; startTimer(); layout.show(container, "qr"); });
-        gbc.gridy = 2; panel.add(duitnow, gbc);
+        return panel;
+    }
 
+    private JPanel cardPanel() {
+        JPanel panel = new JPanel(new GridLayout(0, 1, 10, 10));
+        panel.setBackground(new Color(18, 18, 18));
+        panel.setBorder(BorderFactory.createEmptyBorder(40, 40, 40, 40));
+
+        panel.add(createLabel("Card Details", 20, Color.WHITE));
+        JTextField cardNum = new JTextField("Card Number (16-digits)");
+        JTextField expiry = new JTextField("MM/YY");
+        JTextField cvv = new JTextField("CVV");
+
+        JButton payBtn = new JButton("Pay RM " + String.format("%.2f", finalAmount));
+        styleButton(payBtn, new Color(212, 68, 68), Color.WHITE);
+
+        payBtn.addActionListener(e -> {
+            if (cardNum.getText().trim().isEmpty() || cardNum.getText().equals("Card Number (16-digits)")) {
+                JOptionPane.showMessageDialog(this, "Please enter a valid card number.", "Validation Error", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            paymentMethod = "Credit/Debit Card";
+            updateReceipt();
+            layout.show(container, "receipt");
+        });
+
+        panel.add(cardNum); panel.add(expiry); panel.add(cvv); panel.add(payBtn);
+        return panel;
+    }
+
+    private JPanel qrPanel() {
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBackground(new Color(18, 18, 18));
+        panel.setBorder(BorderFactory.createEmptyBorder(30, 30, 30, 30));
+
+        JPanel centerContent = new JPanel();
+        centerContent.setLayout(new BoxLayout(centerContent, BoxLayout.Y_AXIS));
+        centerContent.setBackground(new Color(18, 18, 18));
+
+        qrAmountLabel = createLabel("Amount: RM " + String.format("%.2f", finalAmount), 20, Color.WHITE);
+        qrAmountLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        JPanel qrBox = new JPanel(new GridBagLayout());
+        qrBox.setPreferredSize(new Dimension(200, 200));
+        qrBox.setMaximumSize(new Dimension(200, 200));
+        qrBox.setBackground(Color.WHITE);
+        qrBox.setBorder(new LineBorder(new Color(255, 204, 0), 4));
+        JLabel qrText = new JLabel("SCAN TO PAY");
+        qrText.setFont(new Font("Monospaced", Font.BOLD, 20));
+        qrBox.add(qrText);
+        qrBox.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        timerLabel = new JLabel("Expires in 05:00", SwingConstants.CENTER);
+        timerLabel.setForeground(Color.LIGHT_GRAY);
+        timerLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        centerContent.add(qrAmountLabel);
+        centerContent.add(Box.createVerticalStrut(20));
+        centerContent.add(qrBox);
+        centerContent.add(Box.createVerticalStrut(15));
+        centerContent.add(timerLabel);
+
+        JButton confirm = new JButton("I have paid");
+        styleButton(confirm, new Color(212, 68, 68), Color.WHITE);
+        confirm.addActionListener(e -> {
+            if (countdownTimer != null) countdownTimer.stop();
+            updateReceipt();
+            layout.show(container, "receipt");
+        });
+
+        panel.add(centerContent, BorderLayout.CENTER);
+        panel.add(confirm, BorderLayout.SOUTH);
         return panel;
     }
 
     private JPanel receiptPanel() {
         JPanel panel = new JPanel(new BorderLayout());
-        panel.setBackground(new Color(18, 18, 18));
-        panel.setBorder(BorderFactory.createEmptyBorder(20, 30, 20, 30));
+        panel.setBackground(new Color(245, 245, 245));
+
         receiptArea = new JTextArea();
         receiptArea.setEditable(false);
-        receiptArea.setBackground(new Color(240, 240, 240));
-        receiptArea.setFont(new Font("Monospaced", Font.PLAIN, 13));
-        receiptArea.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        JButton done = new JButton("Finish");
-        styleButton(done, Color.DARK_GRAY, Color.WHITE);
+        receiptArea.setBackground(new Color(245, 245, 245));
+        receiptArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
+        receiptArea.setBorder(BorderFactory.createEmptyBorder(20, 20, 10, 20));
 
-        done.addActionListener(e -> {
-            JOptionPane.showMessageDialog(this, "Booking Successful! Enjoy your movie.", "Success", JOptionPane.INFORMATION_MESSAGE);
-            dispose();
-        });
+        JPanel redemptionPanel = new JPanel(new GridBagLayout());
+        redemptionPanel.setBackground(Color.WHITE);
+        redemptionPanel.setPreferredSize(new Dimension(420, 150));
+
+        JPanel entryQR = new JPanel(new GridBagLayout());
+        entryQR.setPreferredSize(new Dimension(100, 100));
+        entryQR.setBackground(Color.WHITE);
+        entryQR.setBorder(new LineBorder(Color.BLACK, 2));
+        entryQR.add(new JLabel("ENTRY"));
+
+        JLabel instruct = new JLabel("<html><center>Scan for Hall Entry &<br>Food Redemption</center></html>");
+        instruct.setFont(new Font("Segoe UI", Font.BOLD, 12));
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = 0; gbc.gridy = 0; redemptionPanel.add(entryQR, gbc);
+        gbc.gridy = 1; redemptionPanel.add(instruct, gbc);
+
+        JButton done = new JButton("Save & Close");
+        styleButton(done, new Color(50, 50, 50), Color.WHITE);
+        done.addActionListener(e -> dispose());
+
         panel.add(new JScrollPane(receiptArea), BorderLayout.CENTER);
-        panel.add(done, BorderLayout.SOUTH);
+        panel.add(redemptionPanel, BorderLayout.SOUTH);
+        panel.add(done, BorderLayout.NORTH);
         return panel;
     }
 
     private void updateReceipt() {
         String dt = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
-
-        // Join the list ["A1", "A2"] into "A1, A2"
         String seatDisplay = String.join(", ", order.getSeats());
 
-        receiptArea.setText("      CINEMA RECEIPT\n" +
-                "--------------------------\n" +
-                "Date: " + dt + "\n" +
-                "Movie: " + order.getMovieTitle() + "\n" +
-                "Seats: " + seatDisplay + "\n" +
-                "--------------------------\n" +
-                "Paid: RM " + String.format("%.2f", finalAmount) + "\n" +
-                "Method: " + paymentMethod + "\n" +
-                "--------------------------\n" +
-                "    THANK YOU FOR BUYING");
+        receiptArea.setText("\n" +
+                "         TGC CINEMA OFFICIAL RECEIPT\n" +
+                "==========================================\n" +
+                " TRANSACTION ID: " + System.currentTimeMillis() + "\n" +
+                " DATE/TIME:    " + dt + "\n" +
+                " MOVIE:        " + order.getMovieTitle() + "\n" +
+                " LOCATION:     " + order.getCinemaLocation() + "\n" +
+                " SEATS:        " + seatDisplay + "\n" +
+                "==========================================\n" +
+                " TICKETS:      RM " + String.format("%.2f", order.getSubtotal() - order.getFoodTotal()) + "\n" +
+                " CONCESSIONS:  RM " + String.format("%.2f", order.getFoodTotal()) + "\n" +
+                " TOTAL PAID:   RM " + String.format("%.2f", finalAmount) + "\n" +
+                " METHOD:       " + paymentMethod + "\n" +
+                "==========================================\n" +
+                "      ENJOY YOUR CINEMATIC EXPERIENCE!");
     }
 
     private void styleButton(JButton btn, Color bg, Color fg) {
         btn.setBackground(bg); btn.setForeground(fg);
         btn.setFont(new Font("Segoe UI", Font.BOLD, 14));
         btn.setFocusPainted(false);
-        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        btn.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+        btn.setBorder(BorderFactory.createEmptyBorder(12, 0, 12, 0));
     }
 
-    private JLabel createValueLabel(String text, int size, Color color) {
+    private JLabel createLabel(String text, int size, Color color) {
         JLabel l = new JLabel(text, SwingConstants.CENTER);
         l.setForeground(color); l.setFont(new Font("Segoe UI", Font.BOLD, size));
         return l;
