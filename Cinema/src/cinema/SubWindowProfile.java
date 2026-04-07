@@ -6,6 +6,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 
 public class SubWindowProfile extends JFrame implements ActionListener {
@@ -16,6 +18,8 @@ public class SubWindowProfile extends JFrame implements ActionListener {
     CardLayout cardLayout;
     JButton backButton1,backButton2,backButton3,backButton4;
     JButton delAccBtn;
+
+    String[][] orderHistory;
 
 
     public SubWindowProfile(JFrame homeFrame, int choice, String username){
@@ -77,6 +81,8 @@ public class SubWindowProfile extends JFrame implements ActionListener {
         ticketLabel.setBounds(40,60,500,50);
         ticketPanel.add(ticketLabel);
 
+
+
         return ticketPanel;
     }
 
@@ -84,6 +90,9 @@ public class SubWindowProfile extends JFrame implements ActionListener {
         JPanel historyPanel = new JPanel();
         historyPanel.setLayout(null);
         historyPanel.setBackground(new Color(0x242424));
+
+        orderHistory = new String[100][3];
+        loadUserOrder();
 
         backButton2 = new JButton("< Back");
         backButton2.setBorderPainted(false);
@@ -103,6 +112,8 @@ public class SubWindowProfile extends JFrame implements ActionListener {
         historyLabel.setFont(new Font("Courier New",Font.BOLD,40));
         historyLabel.setBounds(40,60,500,50);
         historyPanel.add(historyLabel);
+
+
 
         return historyPanel;
     }
@@ -293,6 +304,26 @@ public class SubWindowProfile extends JFrame implements ActionListener {
         return panel;
     }
 
+    public void loadUserOrder(){
+        try(BufferedReader readLine = new BufferedReader(new FileReader("BookingDetail.txt"))){
+            String line;
+            int i = 0;
+
+            while((line = readLine.readLine()) != null){
+                if (line.trim().isEmpty()) continue;
+                String[] parts = line.split("\\|", -1);
+
+                if (username.equals(parts[0])){
+                    orderHistory[i] = new String[] {parts[1], parts[2], parts[3]+parts[4]};
+                    i++;
+                }
+            }
+        }
+        catch (IOException e){
+            System.out.println("Error reading booking file");
+        }
+    }
+
     public void changePassword(String oldPassword, String newPassword, String reTypePassword){
         List <String> lines = new ArrayList<>();
         boolean success = false;
@@ -346,11 +377,45 @@ public class SubWindowProfile extends JFrame implements ActionListener {
         }
     }
 
+    public void deleteAccount(){
+        List <String> lines = new ArrayList<>();
+        try(BufferedReader readUser = new BufferedReader(new FileReader("Cinema/Users.txt"))){
+            String line;
+            while((line = readUser.readLine()) != null){
+                String[] parts = line.split(",");
+                if(parts[0].equals(username) ){
+                    continue;
+                }else {
+                    lines.add(line);
+                }
+            }
+        }catch(IOException e){
+            System.out.println("Error reading users file");
+        }
+
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("Cinema/Users.txt"))){
+            for (String l : lines){
+                writer.write(l);
+                writer.newLine();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == backButton1 || e.getSource() == backButton2 || e.getSource() == backButton3 || e.getSource() == backButton4){
             frame.dispose();
             homeFrame.setVisible(true);
+        } else if (e.getSource() == delAccBtn) {
+            int choice = JOptionPane.showConfirmDialog(null, "This action will permanently delete your account, along with all of your information. Are you sure you want to delete your account?", "Delete Account", JOptionPane.YES_NO_OPTION);
+            if (choice == JOptionPane.YES_OPTION){
+                deleteAccount();
+                JOptionPane.showMessageDialog(null, "Your account is deleted successfully!");
+                frame.dispose();
+                new LoginPage();
+            }
         }
 
     }
