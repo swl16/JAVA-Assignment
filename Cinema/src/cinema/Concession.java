@@ -266,15 +266,19 @@ public class Concession {
     }
 
     private void checkout() {
+        // 1. Check if the cart is empty before proceeding
         if (basket.isEmpty()) {
             JOptionPane.showMessageDialog(frame, "Your cart is empty!");
             return;
         }
+
+        // 2. Calculation Logic: Sum up the price * quantity for every item in the basket
         double total = basket.stream().mapToDouble(i -> i.price * i.quantity).sum();
-        JOptionPane.showMessageDialog(frame, "Order Received!\nTotal Paid: RM " + String.format("%.2f", total));
-        basket.clear();
-        cartModel.setRowCount(0);
-        updateTotal();
+
+        // 3. Hide the Concession window and launch your FoodPaymentFrame
+        // We pass 'frame' (the current window), 'basket', and the 'total' calculation
+        frame.setVisible(false);
+        new FoodPaymentFrame(frame, basket, total);
     }
 
     private void updateTotal() {
