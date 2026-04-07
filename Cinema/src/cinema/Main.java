@@ -3,7 +3,7 @@ package cinema;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.ImageIcon;
-import java.util.Date; // Added this import for the 4th argument
+import java.util.Date;
 
 public class Main {
     public static void main(String[] args) {
@@ -11,17 +11,17 @@ public class Main {
         // String, String, String, Date, String, String, String, String, String, String, ImageIcon
 
         Movie dummyMovie = new Movie(
-                "Hoppers",           // 1. Title (String)
-                "Comedy",            // 2. Genre (String)
-                "English",           // 3. Language (String)
-                new Date(),          // 4. Date (java.util.Date) - This was missing!
-                "P13",               // 5. Rating (String)
-                "120m",              // 6. Duration (String)
-                "Unknown",           // 7. Director (String)
-                "Unknown",           // 8. Cast (String)
-                "English",           // 9. Subtitles (String)
-                "A comedy movie.",   // 10. Description (String)
-                null                 // 11. Poster (ImageIcon)
+                "Hoppers",           // 1. title (String)
+                "Comedy",            // 2. genre (String)
+                "English",           // 3. language (String)
+                "P13",               // 4. rating (String) - Previously you put Date here
+                new Date(),          // 5. date (java.util.Date) - This belongs here
+                "120m",              // 6. duration (String)
+                "Unknown",           // 7. director (String)
+                "Unknown",           // 8. cast (String)
+                "English",           // 9. subtitles (String)
+                "A comedy movie.",   // 10. description (String)
+                null                 // 11. poster (ImageIcon)
         );
 
         List<Seat> selectedSeats = new ArrayList<>();
