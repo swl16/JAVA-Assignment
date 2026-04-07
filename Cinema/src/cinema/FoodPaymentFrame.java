@@ -94,7 +94,7 @@ public class FoodPaymentFrame extends JFrame {
 
         JLabel title = new JLabel("CARD DETAILS", SwingConstants.CENTER);
         title.setForeground(offWhite);
-        title.setFont(new Font("Segoe UI", Font.BOLD, 20));
+        title.setFont(new Font("Segoe UI", Font.BOLD, 25));
         gbc.gridy = 0; panel.add(title, gbc);
 
         gbc.gridy++; panel.add(createInputLabel("CARDHOLDER NAME"), gbc);
