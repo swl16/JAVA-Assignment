@@ -291,9 +291,11 @@ public class MainMenuPage implements ActionListener {
         }catch (NumberFormatException ex) {
             if (e.getSource() == mainPageButton) {
                 cardLayout.show(cardPanel, "home");
-                
+
             } else if (e.getSource() == FnBButton) {
-                new Concession();
+                // You must pass 'false' because the user is entering from the Main Menu,
+                // not directly from a ticket purchase.
+                new Concession(false);
                 frame.dispose();
 
             } else if (e.getSource() == profileButton) {
@@ -319,6 +321,8 @@ public class MainMenuPage implements ActionListener {
                 new LoginPage();
 
             }
+
+
         }
 
     }
