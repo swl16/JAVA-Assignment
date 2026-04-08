@@ -1,3 +1,1 @@
-Pegasus 3|07/04/2026|5:00 PM|Hall 2
-Pegasus 3|08/04/2026|2:00 PM|Hall 4
-Pegasus 3 , Hall 2 , 2026-04-07T17:00
+Pegasus 3 , Hall 2 , 2026-04-08T17:00

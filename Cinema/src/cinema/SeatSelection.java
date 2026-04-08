@@ -27,6 +27,7 @@ public class SeatSelection implements ActionListener {
     JLayeredPane layeredPane;
     JPanel lowerPanel,pullOutPanel,shield;
     JLabel[] quantityLabel = new JLabel[4];
+    int bookingID = 0;
 
     JButton[][] seatButtons;
     int[] countType = new int[4];
@@ -425,9 +426,11 @@ public class SeatSelection implements ActionListener {
 
                 String[] parts = line.split("\\|");
 
-                if (LocalDateTime.parse(parts[1]).isEqual(showTime.getStartTime()) && parts[2].equals(hall.getName())) {
-                    bookedSeat.add(new Seat(parts[3].charAt(0),Integer.parseInt(parts[4]),hall.getPrice()));
+                if (LocalDateTime.parse(parts[2]).isEqual(showTime.getStartTime()) && parts[3].equals(hall.getName())) {
+
+                    bookedSeat.add(new Seat(parts[4].charAt(0),Integer.parseInt(parts[5]),hall.getPrice()));
                 }
+                bookingID = Integer.valueOf(parts[0]);
             }
             for (Seat s : bookedSeat){
                 s.book();
@@ -447,7 +450,7 @@ public class SeatSelection implements ActionListener {
             while((line = readLine.readLine()) != null){
                 if (line.trim().isEmpty()) continue;
 
-                String[] parts = line.split(" , ");
+                String[] parts = line.split("\\|");
 
                 if (parts[0].equals(showTime.getHallName())) {
                     hall = new Hall(parts[0], parts[1], Integer.parseInt(parts[2]), Integer.parseInt(parts[3]), Double.parseDouble(parts[4]));
@@ -481,11 +484,12 @@ public class SeatSelection implements ActionListener {
     }
 
     public void saveBooking(){
+        bookingID++;
         try (BufferedWriter writer = new BufferedWriter(new FileWriter("BookingDetail.txt",true))){
-            for (Seat s : selectedSeat){
-                writer.newLine();
-                writer.write(username + "|" + String.valueOf(showTime.getStartTime()) + "|" + hall.getName() + "|" + s.getRow() + "|" + s.getColumn());
 
+            for (Seat s : selectedSeat){
+                writer.write(String.format("%04d",bookingID) + "|" + username + "|" + String.valueOf(showTime.getStartTime()) + "|" + hall.getName() + "|" + s.getRow() + "|" + s.getColumn());
+                writer.newLine();
             }
         } catch (IOException e) {
             e.printStackTrace();
