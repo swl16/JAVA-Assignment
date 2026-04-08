@@ -68,6 +68,17 @@ public class MovieDetailPage implements ActionListener {
         posterLabel.setVerticalTextPosition(JButton.BOTTOM);
         posterLabel.setBounds(0,50,500,200);
         frame.add(posterLabel);
+        
+        JButton info = new JButton("More Info");
+        info.setBounds(180, 220, 140, 30);
+        info.setBackground(new Color(0x3B3B3B));
+        info.setForeground(new Color(0xF7F7F7));
+        info.setFocusPainted(false);
+        info.setBorderPainted(false);
+
+        info.addActionListener(e -> showMoreInfo());
+
+        frame.add(info);
 
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 8));
         panel.setBackground(new Color(0x242424));
@@ -115,7 +126,7 @@ public class MovieDetailPage implements ActionListener {
             while((line = readLine.readLine()) != null){
                 if (line.trim().isEmpty()) continue;
 
-                String[] parts = line.split("\\|");
+                String[] parts = line.split(" , ");
                 hall[i] = new Hall(parts[0],parts[1], Integer.parseInt(parts[2]), Integer.parseInt(parts[3]),Double.parseDouble(parts[4]));
                 i++;
                 hallCount++;
@@ -152,6 +163,57 @@ public class MovieDetailPage implements ActionListener {
         catch (IOException e){
             System.out.println("Error reading show time file");
         }
+    }
+    
+    private void showMoreInfo(){
+        JDialog dialog = new JDialog(frame, "Movie Information", true);
+        dialog.setSize(500, 700);
+        dialog.setLayout(new BorderLayout());
+        dialog.getContentPane().setBackground(new Color(0x242424));
+
+        // ===== Poster =====
+        JLabel posterLabel = new JLabel();
+        Image img = movie.getPoster().getImage().getScaledInstance(120, 180, Image.SCALE_SMOOTH);
+        posterLabel.setIcon(new ImageIcon(img));
+        posterLabel.setHorizontalAlignment(JLabel.CENTER);
+
+        dialog.add(posterLabel, BorderLayout.NORTH);
+
+        // ===== Info =====
+        JTextArea info = new JTextArea();
+        info.setEditable(false);
+        info.setLineWrap(true);
+        info.setWrapStyleWord(true);
+        info.setBackground(new Color(0x242424));
+        info.setForeground(new Color(0xF7F7F7));
+        info.setFont(new Font("Courier New", Font.PLAIN, 13));
+
+        info.setText(
+            "Title: " + movie.getTitle() + "\n\n" +
+            "Genre: \n" + movie.getGenre() + "\n\n" +
+            "Language: \n" + movie.getLanguage() + "\n\n" +
+            "Rating: \n" + movie.getRating() + "\n\n" +
+            "Release Date: \n" + formatDate(movie.getDate()) + "\n\n" +
+            "Duration: \n" + movie.getDuration() + " mins\n\n" +
+            "Director: \n" + movie.getDirector() + "\n\n" +
+            "Cast: \n" + movie.getCast() + "\n\n" +
+            "Subtitles: \n" + movie.getSubtitles() + "\n\n" +
+            "Description:\n" + movie.getDescription()
+        );
+
+        JScrollPane scroll = new JScrollPane(info);
+        scroll.setBorder(null);
+
+        dialog.add(scroll, BorderLayout.CENTER);
+
+        dialog.setLocationRelativeTo(frame);
+        dialog.setVisible(true);
+    }
+    
+    private String formatDate(Date date) {
+        if (date == null) return "N/A";
+        java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("dd/MM/yyyy");
+        return sdf.format(date);
     }
 
     public JButton dateButton(LocalDate date){
