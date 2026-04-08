@@ -167,7 +167,7 @@ public class MainMenuPage implements ActionListener {
     }
 
     private void loadMovie() {
-        try(BufferedReader readLine = new BufferedReader(new FileReader("MovieDetails.txt"))){
+        try(BufferedReader readLine = new BufferedReader(new FileReader("Cinema/MovieDetails.txt"))){
             String line;
             int i = 0;
             HashSet<String> titles = new HashSet<>();

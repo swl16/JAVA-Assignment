@@ -145,7 +145,7 @@ public class MovieDetailPage implements ActionListener {
             while((line = readLine.readLine()) != null){
                 if (line.trim().isEmpty()) continue;
 
-                String[] parts = line.split("\\|");
+                String[] parts = line.split(" , ");
 
             if(parts.length == 3 && parts[0].equals(movie.getTitle())){
 
