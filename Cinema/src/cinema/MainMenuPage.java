@@ -9,6 +9,7 @@ import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.Date;
 import java.util.HashSet;
 import javax.swing.border.EmptyBorder;
@@ -179,7 +180,14 @@ public class MainMenuPage implements ActionListener {
 
                     ImageIcon poster = new ImageIcon(parts[10]);
 
-                    Date date = new Date(); // safe
+                    java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("dd/MM/yyyy");
+                    Date date = null; // safe
+                    
+                    try {
+                        date = sdf.parse(parts[4]);
+                    } catch (ParseException e) {
+                        date = new Date(); // fallback
+                    }
 
                     movieDetail[i] = new Movie(
                         parts[0], parts[1], parts[2], parts[3],
