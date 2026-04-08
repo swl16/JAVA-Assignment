@@ -183,7 +183,7 @@ public class MainMenuPage implements ActionListener {
 
                     movieDetail[i] = new Movie(
                         parts[0], parts[1], parts[2], parts[3],
-                        date, parts[5], parts[6], parts[7],
+                        date, Integer.parseInt(parts[5]), parts[6], parts[7],
                         parts[8], parts[9], poster
                     );
 
