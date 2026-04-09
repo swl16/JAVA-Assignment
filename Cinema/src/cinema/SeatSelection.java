@@ -426,7 +426,7 @@ public class SeatSelection implements ActionListener {
 
                 String[] parts = line.split("\\|");
 
-                if (LocalDateTime.parse(parts[2]).isEqual(showTime.getStartTime()) && parts[3].equals(hall.getName())) {
+                if (LocalDateTime.parse(parts[2]).isEqual(showTime.getStartTime()) && parts[3].equals(hall.getName()) && parts[6].equals(showTime.getMovieName())) {
 
                     bookedSeat.add(new Seat(parts[4].charAt(0),Integer.parseInt(parts[5]),hall.getPrice()));
                 }
@@ -488,7 +488,7 @@ public class SeatSelection implements ActionListener {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter("BookingDetail.txt",true))){
 
             for (Seat s : selectedSeat){
-                writer.write(String.format("%04d",bookingID) + "|" + username + "|" + String.valueOf(showTime.getStartTime()) + "|" + hall.getName() + "|" + s.getRow() + "|" + s.getColumn());
+                writer.write(String.format("%04d",bookingID) + "|" + username + "|" + String.valueOf(showTime.getStartTime()) + "|" + hall.getName() + "|" + s.getRow() + "|" + s.getColumn() + "|" + movieDetail.getTitle());
                 writer.newLine();
             }
         } catch (IOException e) {
@@ -508,6 +508,9 @@ public class SeatSelection implements ActionListener {
                 }else{
                     return;
                 }
+            }else{
+                frame.dispose();
+                homeFrame.setVisible(true);
             }
 
         } else if (e.getSource() == expandPanelBtn) {

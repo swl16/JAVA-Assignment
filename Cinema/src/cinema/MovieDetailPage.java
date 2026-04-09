@@ -126,7 +126,7 @@ public class MovieDetailPage implements ActionListener {
             while((line = readLine.readLine()) != null){
                 if (line.trim().isEmpty()) continue;
 
-                String[] parts = line.split(" , ");
+                String[] parts = line.split("\\|");
                 hall[i] = new Hall(parts[0],parts[1], Integer.parseInt(parts[2]), Integer.parseInt(parts[3]),Double.parseDouble(parts[4]));
                 i++;
                 hallCount++;

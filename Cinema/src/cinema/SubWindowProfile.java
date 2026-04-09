@@ -5,6 +5,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.List;
 
@@ -17,7 +18,7 @@ public class SubWindowProfile extends JFrame implements ActionListener {
     JButton backButton1,backButton2,backButton3,backButton4;
     JButton delAccBtn;
 
-    String[][] orderHistory;
+    Map<String,List<String[]>> combineOrder;
 
 
     public SubWindowProfile(JFrame homeFrame, int choice, String username){
@@ -60,6 +61,8 @@ public class SubWindowProfile extends JFrame implements ActionListener {
         ticketPanel.setLayout(null);
         ticketPanel.setBackground(new Color(0x242424));
 
+        loadUserOrder();
+
         backButton1 = new JButton("< Back");
         backButton1.setBorderPainted(false);
         backButton1.setFocusPainted(false);
@@ -81,16 +84,31 @@ public class SubWindowProfile extends JFrame implements ActionListener {
 
 
 
+
+
         return ticketPanel;
+    }
+
+    private JPanel createOrderPanel(String movieName, LocalDateTime dateTime, String hallName, String seatId){
+        JPanel panel = new JPanel();
+        panel.setLayout(null);
+        panel.setBackground(new Color(0x3B3B3B));
+
+        JLabel movieLabel = new JLabel(movieName);
+        movieLabel.setForeground(new Color(0xF7F7F7));
+        movieLabel.setFont(new Font("Courier New",Font.BOLD,20));
+        movieLabel.setBounds(10,10,200,20);
+        panel.add(movieLabel);
+
+
+
+        return panel;
     }
 
     private JPanel createHistoryPanel(){
         JPanel historyPanel = new JPanel();
         historyPanel.setLayout(null);
         historyPanel.setBackground(new Color(0x242424));
-
-        orderHistory = new String[100][3];
-        loadUserOrder();
 
         backButton2 = new JButton("< Back");
         backButton2.setBorderPainted(false);
@@ -301,7 +319,7 @@ public class SubWindowProfile extends JFrame implements ActionListener {
     }
 
     public void loadUserOrder(){
-        Map<String,List<String[]>> combineOrder = new LinkedHashMap<>();
+        combineOrder = new LinkedHashMap<>();
 
         try(BufferedReader readLine = new BufferedReader(new FileReader("BookingDetail.txt"))){
             String line;
@@ -312,16 +330,19 @@ public class SubWindowProfile extends JFrame implements ActionListener {
                 String[] parts = line.split("\\|", -1);
 
                 if (username.equals(parts[1])){
-                    String id = parts[0];
-                    String dateTime = parts[2];
-                    String hall = parts[3];
-                    String seatId = parts[4] + parts[5];
+                    String[] order = {parts[2],parts[3], parts[6], parts[4] + parts[5]};
+                    String id = parts[0] ;
+//                    String dateTime = ;
+//                    String hall = ;
+//                    String seatId = ;
 
                     if (combineOrder.containsKey(id)){
-                        String existing = combineOrder.get(id);
-                        combineOrder.put(id, existing + ", " + seatId);
+                        List<String[]> existing = combineOrder.get(id);
+                        existing.add(order);
                     } else {
-                        combineOrder.put(id, dateTime + hall,)
+                        List<String[]> newList = new ArrayList<>();
+                        newList.add(order);
+                        combineOrder.put(id,newList);
                     }
                 }
 
