@@ -288,8 +288,12 @@ public class AdminPage{
             
         }
         
-        String copypath = copyposter(posterpath);
-        posterpath = copypath;
+        if (posterpath != null && !posterpath.isEmpty()) {
+            String copypath = copyposter(posterpath);
+        if (copypath != null) {
+            posterpath = copypath;
+    }
+}
     }
     
     private String copyposter(String oripath){
@@ -440,7 +444,14 @@ public class AdminPage{
         // Hall
         form.add(fieldLabel("Hall Number"));
         form.add(Box.createVerticalStrut(4));
-        schedulehallbox = new JComboBox<>(new String[]{"Hall 1", "Hall 2", "Hall 3", "Hall 4", "Hall 5"});
+//        schedulehallbox = new JComboBox<>(new String[]{"Hall 1", "Hall 2", "Hall 3", "Hall 4", "Hall 5"});
+        Map<String, String> hallMap = new TreeMap<>(loadHallType());
+        schedulehallbox = new JComboBox<>();
+
+        for (String hallName : hallMap.keySet()) {
+            schedulehallbox.addItem(hallName + " (" + hallMap.get(hallName) + ")");
+        }
+        
         styleCombo(schedulehallbox);
         form.add(schedulehallbox);
         form.add(Box.createVerticalStrut(14));
@@ -575,6 +586,8 @@ public class AdminPage{
             saveMovie.newLine();
             showMsg("Movie saved successfully!", true);
             clearAddForm();
+            refreshViewTable();
+            loadmovie();
             
         }catch(IOException e){
             showMsg("Error saving: " + e.getMessage(), false);
@@ -711,10 +724,16 @@ public class AdminPage{
 
         form.add(fieldLabel("Hall Number"));
         form.add(Box.createVerticalStrut(4));
-        JComboBox<String> hallBox = new JComboBox<>(new String[]{"Hall 1", "Hall 2", "Hall 3", "Hall 4", "Hall 5"});
-        styleCombo(hallBox);
-        hallBox.setSelectedItem(scheduleModel.getValueAt(row, 3).toString());
-        form.add(hallBox);
+//        JComboBox<String> hallBox = new JComboBox<>(new String[]{"Hall 1", "Hall 2", "Hall 3", "Hall 4", "Hall 5"});
+        Map<String, String> hallMap = new TreeMap<>(loadHallType());
+        schedulehallbox = new JComboBox<>();
+
+        for (String hallName : hallMap.keySet()) {
+            schedulehallbox.addItem(hallName + " (" + hallMap.get(hallName) + ")");
+        }
+        styleCombo(schedulehallbox);
+        schedulehallbox.setSelectedItem(scheduleModel.getValueAt(row, 3).toString());
+        form.add(schedulehallbox);
         form.add(Box.createVerticalStrut(18));
 
         JPanel btnRow = new JPanel(new FlowLayout(FlowLayout.CENTER, 12, 0));
@@ -733,7 +752,7 @@ public class AdminPage{
             String scheduleDate = ((JSpinner.DateEditor) editDateSpinner.getEditor())
                 .getFormat().format(editDateSpinner.getValue());
             String showTime = timeBox.getSelectedItem().toString();
-            String hall = hallBox.getSelectedItem().toString();
+            String hall = schedulehallbox.getSelectedItem().toString();
 
             Date selectedDate = (Date) editDateSpinner.getValue();
             Calendar today = Calendar.getInstance();
@@ -1092,7 +1111,7 @@ public class AdminPage{
                     if (details[0].equals(selectedTitle)) {
                         allMovies.add(new String[]{
                             title, genre, language, rating, releaseDate,
-                            duration, director, cast, subtitles, description, posterpath
+                            duration, director, cast, subtitles, description, editposterpath
                         });
                     } else {
                         allMovies.add(details);
@@ -1198,7 +1217,8 @@ public class AdminPage{
         String scheduleDate = ((JSpinner.DateEditor) scheduledate.getEditor())
                 .getFormat().format(scheduledate.getValue());
         String showTime = scheduletimebox.getSelectedItem().toString();
-        String hall = schedulehallbox.getSelectedItem().toString();
+        String hallFull = schedulehallbox.getSelectedItem().toString();
+        String hall = hallFull.split(" \\(")[0]; // remove (2D)
         
         Date selectedDate = (Date) scheduledate.getValue();
         Calendar today = Calendar.getInstance();
@@ -1299,6 +1319,28 @@ public class AdminPage{
         }catch(IOException e){
             showMsg("Error loading schedule: " + e.getMessage(), false);
         }
+    }
+    
+    private Map<String, String> loadHallType() {
+   
+        Map<String, String> hallMap = new HashMap<>();
+        
+        File file = new File("Hall.txt");
+        if (!file.exists()) return hallMap;
+
+        try (BufferedReader br = new BufferedReader(new FileReader("Hall.txt"))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] parts = line.split(" , ");
+                if (parts.length == 5) {
+                    hallMap.put(parts[0].trim(), parts[1].trim());
+                }
+            }
+        } catch (IOException e) {
+            showMsg("Error loading hall file", false);
+        }
+
+        return hallMap;
     }
     
     

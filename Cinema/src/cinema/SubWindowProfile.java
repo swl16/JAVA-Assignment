@@ -5,9 +5,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashSet;
+import java.util.*;
 import java.util.List;
 
 public class SubWindowProfile extends JFrame implements ActionListener {
@@ -112,8 +110,6 @@ public class SubWindowProfile extends JFrame implements ActionListener {
         historyLabel.setFont(new Font("Courier New",Font.BOLD,40));
         historyLabel.setBounds(40,60,500,50);
         historyPanel.add(historyLabel);
-
-
 
         return historyPanel;
     }
@@ -305,6 +301,8 @@ public class SubWindowProfile extends JFrame implements ActionListener {
     }
 
     public void loadUserOrder(){
+        Map<String,List<String[]>> combineOrder = new LinkedHashMap<>();
+
         try(BufferedReader readLine = new BufferedReader(new FileReader("BookingDetail.txt"))){
             String line;
             int i = 0;
@@ -313,10 +311,20 @@ public class SubWindowProfile extends JFrame implements ActionListener {
                 if (line.trim().isEmpty()) continue;
                 String[] parts = line.split("\\|", -1);
 
-                if (username.equals(parts[0])){
-                    orderHistory[i] = new String[] {parts[1], parts[2], parts[3]+parts[4]};
-                    i++;
+                if (username.equals(parts[1])){
+                    String id = parts[0];
+                    String dateTime = parts[2];
+                    String hall = parts[3];
+                    String seatId = parts[4] + parts[5];
+
+                    if (combineOrder.containsKey(id)){
+                        String existing = combineOrder.get(id);
+                        combineOrder.put(id, existing + ", " + seatId);
+                    } else {
+                        combineOrder.put(id, dateTime + hall,)
+                    }
                 }
+
             }
         }
         catch (IOException e){
