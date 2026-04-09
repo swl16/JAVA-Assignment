@@ -95,73 +95,97 @@ public class MovieDetailPage implements ActionListener {
         loadHall();
         loadShowTime();
 
-        LocalDate now = LocalDate.now();
+        LocalDate today = LocalDate.now();
         LinkedHashSet<LocalDate> seenDates = new LinkedHashSet<>();
-        boolean isEmpty = false;
+        boolean hasShowtime = false;
 
         for (int i = 0 ; i < showTimeCount ; i++){
-            if (!showTime[i].getStartTime().toLocalDate().isBefore(now) && showTime[i].getStartTime().toLocalDate().isBefore(now.plusWeeks(1))){
-                isEmpty = true;
-                if (seenDates.add(showTime[i].getStartTime().toLocalDate())) {
-                    panel.add(dateButton(showTime[i].getStartTime().toLocalDate()));
+            LocalDate d = showTime[i].getStartTime().toLocalDate();
+            if (!d.isBefore(today) && d.isBefore(today.plusWeeks(1))) {
+                hasShowtime = true;
+                if (seenDates.add(d)) {
+                    panel.add(dateButton(d));
                 }
             }
         }
-        datePanel(now);
-        if (!isEmpty) {
-            JLabel emptyLabel = new JLabel("There is no show time in the next 7 days.");
+//        datePanel(today);
+//        if (!isEmpty) {
+//            JLabel emptyLabel = new JLabel("There is no show time in the next 7 days.");
+//            emptyLabel.setForeground(new Color(0xF7F7F7));
+//            emptyLabel.setFont(new Font("Courier New", Font.BOLD, 15));
+//            emptyLabel.setBounds(0, 400, 500, 50);
+//            emptyLabel.setHorizontalAlignment(JLabel.CENTER);
+//            panel.add(emptyLabel);
+//        }
+//        
+         if (hasShowtime) {
+            LocalDate firstDate = seenDates.iterator().next();
+            datePanel(firstDate);
+        } else {
+            JLabel emptyLabel = new JLabel("No showtimes in the next 7 days.");
             emptyLabel.setForeground(new Color(0xF7F7F7));
-            emptyLabel.setFont(new Font("Courier New", Font.BOLD, 15));
-            emptyLabel.setBounds(0, 400, 500, 50);
+            emptyLabel.setFont(new Font("Courier New", Font.BOLD, 14));
             emptyLabel.setHorizontalAlignment(JLabel.CENTER);
-            panel.add(emptyLabel);
+            showTimeContainer.add(emptyLabel);
         }
+ 
+        frame.setVisible(true);
     }
 
 
     public void loadHall(){
         try(BufferedReader readLine = new BufferedReader(new FileReader("Hall.txt"))){
             String line;
-            int i = 0;
+//            int i = 0;
             while((line = readLine.readLine()) != null){
                 if (line.trim().isEmpty()) continue;
 
                 String[] parts = line.split(" , ");
-                hall[i] = new Hall(parts[0],parts[1], Integer.parseInt(parts[2]), Integer.parseInt(parts[3]),Double.parseDouble(parts[4]));
-                i++;
-                hallCount++;
+                if(parts.length < 5) continue;
+                hall[hallCount++] = new Hall(
+                        parts[0].trim(),
+                        parts[1].trim(), 
+                        Integer.parseInt(parts[2].trim()), 
+                        Integer.parseInt(parts[3].trim()),
+                        Double.parseDouble(parts[4].trim())
+                );
+//                i++;
+//                hallCount++;
             }
         }
         catch (IOException e){
-            System.out.println("Error reading hall file");
+            System.out.println("Error reading hall file" + e.getMessage());
         }
     }
 
     public void loadShowTime(){
         try(BufferedReader readLine = new BufferedReader(new FileReader("Showtime.txt"))){
             String line;
-            int i = 0;
+//            int i = 0;
             
             while((line = readLine.readLine()) != null){
                 if (line.trim().isEmpty()) continue;
 
-                String[] parts = line.split(" , ");
+                String[] parts = line.split("\\|");
+                if(parts.length < 3) continue;
+                
+                if(!parts[0].trim().equals(movie.getTitle())) continue;
 
-            if(parts.length == 3 && parts[0].equals(movie.getTitle())){
+//            if(parts.length == 3 && parts[0].equals(movie.getTitle())){
 
-                showTime[i] = new ShowTime(
-                    parts[0],
-                    parts[1],
+                showTime[showTimeCount++] = new ShowTime(
+                    parts[0].trim(),
+                    parts[1].trim(),
                     LocalDateTime.parse(parts[2])
                 );
-                    i++;
-                    showTimeCount++;
-                }
+//                    i++;
+//                    showTimeCount++;
+//                }
             }
             Arrays.sort(showTime,0,showTimeCount, Comparator.comparing(ShowTime::getStartTime));
         }
         catch (IOException e){
-            System.out.println("Error reading show time file");
+            System.out.println("Error reading show time file" + e.getMessage());
         }
     }
     
@@ -247,18 +271,34 @@ public class MovieDetailPage implements ActionListener {
     public void datePanel(LocalDate date){
         showTimeContainer.removeAll();
         String hallType="";
-
+        
         for (int i = 0; i < showTimeCount; i++) {
-            if (showTime[i].getStartTime().toLocalDate().isEqual(date)) {
-                for (int j = 0; j < hallCount; j++) {
-                    if (showTime[i].getHallName().equals(hall[j].getName())) {
-                        hallType = hall[j].getHallType();
-                        break;
-                    }
+            ShowTime st = showTime[i];
+            if (!st.getStartTime().toLocalDate().isEqual(date)) continue;
+ 
+            // Look up hall type from the hall array
+            for (int j = 0; j < hallCount; j++) {
+                if (hall[j].getName().equalsIgnoreCase(st.getHallName())) {
+                    hallType = hall[j].getHallType();
+                    break;
                 }
-                showTimeContainer.add(showTimeButton(showTime[i], showTime[i].getStartTime().toLocalTime(), hallType));
             }
+ 
+            LocalTime startTime = st.getStartTime().toLocalTime();
+            showTimeContainer.add(showTimeButton(st, startTime, hallType));
         }
+
+//        for (int i = 0; i < showTimeCount; i++) {
+//            if (showTime[i].getStartTime().toLocalDate().isEqual(date)) {
+//                for (int j = 0; j < hallCount; j++) {
+//                    if (showTime[i].getHallName().equals(hall[j].getName())) {
+//                        hallType = hall[j].getHallType();
+//                        break;
+//                    }
+//                }
+//                showTimeContainer.add(showTimeButton(showTime[i], showTime[i].getStartTime().toLocalTime(), hallType));
+//            }
+//        }
         showTimeContainer.revalidate(); // refresh layout
         showTimeContainer.repaint();
     }
