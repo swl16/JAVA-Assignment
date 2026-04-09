@@ -148,24 +148,85 @@ public class PaymentFrame extends JFrame {
 
         JPanel row = new JPanel(new GridLayout(1, 2, 20, 0));
         row.setOpaque(false);
-        row.add(createFieldGroup("EXPIRY (MM/YY)", "MM / YY"));
-        row.add(createFieldGroup("CVC", "•••"));
+
+        // Field Groups for Expiry and CVC
+        JPanel expiryGroup = createFieldGroup("EXPIRY (MM/YY)", "MM / YY");
+        JPanel cvcGroup = createFieldGroup("CVC", "•••");
+        row.add(expiryGroup);
+        row.add(cvcGroup);
+
         gbc.gridy++; panel.add(row, gbc);
 
         JButton payBtn = createActionBtn("AUTHORIZE PAYMENT");
         payBtn.addActionListener(e -> {
-            if (cardNum.getText().trim().isEmpty() || cardNum.getText().contains("•")) {
-                JOptionPane.showMessageDialog(this, "Please enter valid card details.", "Validation Error", JOptionPane.WARNING_MESSAGE);
-                return;
+            // Retrieve values from the styled components
+            String name = holder.getText().trim();
+            String number = cardNum.getText().replaceAll("\\s", ""); // Remove spaces for validation
+            String exp = ((JTextField)expiryGroup.getComponent(1)).getText().trim();
+            String cvcCode = ((JTextField)cvcGroup.getComponent(1)).getText().trim();
+
+            // Perform Strict Validation before proceeding
+            if (validateCardDetails(name, number, exp, cvcCode)) {
+                paymentMethod = "Credit/Debit Card";
+                updateReceipt();
+                layout.show(container, "receipt");
             }
-            paymentMethod = "Credit/Debit Card";
-            updateReceipt();
-            layout.show(container, "receipt");
         });
+
         gbc.gridy++; gbc.insets = new Insets(30, 0, 10, 0);
         panel.add(payBtn, gbc);
 
         return panel;
+    }
+
+    private boolean validateCardDetails(String name, String number, String exp, String cvc) {
+        // 1. Basic Check: Ensure no fields are empty or still showing placeholders
+        if (name.isEmpty() || name.equals("Full Name") ||
+                number.isEmpty() || number.contains("•") ||
+                exp.equals("MM / YY") || cvc.equals("•••")) {
+            showError("All card fields are required!");
+            return false;
+        }
+
+        // 2. Card Number Check: Must be exactly 16 numeric digits
+        if (!number.matches("\\d{16}")) {
+            showError("Invalid Card Number! Must be 16 digits.");
+            return false;
+        }
+
+        // 3. Expiry Format Check: Must match MM/YY (e.g., 05/28)
+        if (!exp.matches("(0[1-9]|1[0-2])/[0-9]{2}")) {
+            showError("Invalid Expiry Format! Use MM/YY (e.g., 12/26).");
+            return false;
+        }
+
+        // 4. Expiry Logic Check: Ensure the card is not expired
+        try {
+            String[] parts = exp.split("/");
+            int expMonth = Integer.parseInt(parts[0]);
+            int expYear = Integer.parseInt("20" + parts[1]);
+
+            LocalDateTime now = LocalDateTime.now();
+            if (expYear < now.getYear() || (expYear == now.getYear() && expMonth < now.getMonthValue())) {
+                showError("This card has expired!");
+                return false;
+            }
+        } catch (Exception e) {
+            showError("Invalid Expiry Date!");
+            return false;
+        }
+
+        // 5. CVC Check: Must be exactly 3 numeric digits
+        if (!cvc.matches("\\d{3}")) {
+            showError("Invalid CVC! Must be 3 numeric digits.");
+            return false;
+        }
+
+        return true;
+    }
+
+    private void showError(String message) {
+        JOptionPane.showMessageDialog(this, message, "Security Validation Error", JOptionPane.ERROR_MESSAGE);
     }
 
     private JPanel qrPanel() {
