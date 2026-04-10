@@ -474,7 +474,7 @@ public class SeatSelection implements ActionListener {
                 if (parts[0].equals(showTime.getMovieName())) {
                     ImageIcon poster = new ImageIcon(parts[10]);
                     Date date = new Date(parts[4]);
-                    movieDetail = new Movie(parts[0],parts[1],parts[2],parts[3],date,Integer.valueOf(parts[5]),parts[6],parts[7],parts[8],parts[9],poster);
+                    movieDetail = new Movie(parts[0],parts[1],parts[2],parts[3],date,Integer.parseInt(parts[5]),parts[6],parts[7],parts[8],parts[9],poster);
                 }
             }
         }
