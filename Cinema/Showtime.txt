@@ -1,3 +1,7 @@
 Hoppers|24/04/2026|2:00 PM|Hall 1
 Pegasus 3|24/04/2026|2:00 PM|Hall 2
 Pegasus 3|24/04/2026|5:00 PM|Hall 4
+Pegasus 3|14/04/2026|2:00 PM|Hall 1
+Hoppers|13/04/2026|2:00 PM|Hall 4
+Hoppers|13/04/2026|5:00 PM|Hall 1
+Hoppers|15/04/2026|8:00 PM|Hall 5
