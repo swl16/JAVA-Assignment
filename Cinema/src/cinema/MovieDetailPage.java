@@ -108,15 +108,6 @@ public class MovieDetailPage implements ActionListener {
                 }
             }
         }
-//        datePanel(today);
-//        if (!isEmpty) {
-//            JLabel emptyLabel = new JLabel("There is no show time in the next 7 days.");
-//            emptyLabel.setForeground(new Color(0xF7F7F7));
-//            emptyLabel.setFont(new Font("Courier New", Font.BOLD, 15));
-//            emptyLabel.setBounds(0, 400, 500, 50);
-//            emptyLabel.setHorizontalAlignment(JLabel.CENTER);
-//            panel.add(emptyLabel);
-//        }
 //        
          if (hasShowtime) {
             LocalDate firstDate = seenDates.iterator().next();
@@ -136,14 +127,12 @@ public class MovieDetailPage implements ActionListener {
     public void loadHall(){
         try(BufferedReader readLine = new BufferedReader(new FileReader("Hall.txt"))){
             String line;
-//            int i = 0;
             while((line = readLine.readLine()) != null){
                 if (line.trim().isEmpty()) continue;
 
                 String[] parts = line.split("\\|");
                 hall[hallCount++] = new Hall(parts[0],parts[1], Integer.parseInt(parts[2]), Integer.parseInt(parts[3]),Double.parseDouble(parts[4]));
-//                i++;
-//                hallCount++;
+
             }
         }
         catch (IOException e){
@@ -154,26 +143,25 @@ public class MovieDetailPage implements ActionListener {
     public void loadShowTime(){
         try(BufferedReader readLine = new BufferedReader(new FileReader("Showtime.txt"))){
             String line;
-//            int i = 0;
             
             while((line = readLine.readLine()) != null){
                 if (line.trim().isEmpty()) continue;
 
                 String[] parts = line.split("\\|");
-                if(parts.length < 3) continue;
+                if(parts.length < 4) continue;
                 
                 if(!parts[0].trim().equals(movie.getTitle())) continue;
+                
+                String dateTimeStr = parts[1].trim() + " " + parts[2].trim();
+                DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy h:mm a", Locale.ENGLISH);
+                LocalDateTime dt = LocalDateTime.parse(dateTimeStr, fmt);
 
-//            if(parts.length == 3 && parts[0].equals(movie.getTitle())){
 
                 showTime[showTimeCount++] = new ShowTime(
                     parts[0].trim(),
-                    parts[1].trim(),
-                    LocalDateTime.parse(parts[2])
+                    parts[3].trim(),
+                    dt
                 );
-//                    i++;
-//                    showTimeCount++;
-//                }
             }
             Arrays.sort(showTime,0,showTimeCount, Comparator.comparing(ShowTime::getStartTime));
         }
@@ -281,17 +269,6 @@ public class MovieDetailPage implements ActionListener {
             showTimeContainer.add(showTimeButton(st, startTime, hallType));
         }
 
-//        for (int i = 0; i < showTimeCount; i++) {
-//            if (showTime[i].getStartTime().toLocalDate().isEqual(date)) {
-//                for (int j = 0; j < hallCount; j++) {
-//                    if (showTime[i].getHallName().equals(hall[j].getName())) {
-//                        hallType = hall[j].getHallType();
-//                        break;
-//                    }
-//                }
-//                showTimeContainer.add(showTimeButton(showTime[i], showTime[i].getStartTime().toLocalTime(), hallType));
-//            }
-//        }
         showTimeContainer.revalidate(); // refresh layout
         showTimeContainer.repaint();
     }
