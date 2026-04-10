@@ -1,1 +1,3 @@
-Pegasus 3|24/04/2026|2:00 PM|Hall 1 (2D)
+Hoppers|24/04/2026|2:00 PM|Hall 1
+Pegasus 3|24/04/2026|2:00 PM|Hall 2
+Pegasus 3|24/04/2026|5:00 PM|Hall 4
