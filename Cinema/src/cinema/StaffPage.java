@@ -302,7 +302,7 @@ public class StaffPage {
                         break;
                     default : 
                         setBackground(bgcolor);
-                        setForeground(textcolor);
+                        setForeground(greencolor);
                         break;
                 }
                 
@@ -506,7 +506,7 @@ public class StaffPage {
                         break;
                     default : 
                         setBackground(bgcolor);
-                        setForeground(textcolor);
+                        setForeground(greencolor);
                         break;
                 }
                 
