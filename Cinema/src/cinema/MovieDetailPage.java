@@ -317,7 +317,7 @@ public class MovieDetailPage implements ActionListener {
     }
 }
 
- class Movie{
+class Movie{
     private String title;
     private String genre;
     private String language;
