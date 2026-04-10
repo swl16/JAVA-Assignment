@@ -426,7 +426,7 @@ public class AdminPage{
         
         form.add(fieldLabel("Schedule Date"));
         form.add(Box.createVerticalStrut(4));
-        SpinnerDateModel scheduleDateModel = new SpinnerDateModel(new Date(), new Date(), null, Calendar.DAY_OF_MONTH);
+        SpinnerDateModel scheduleDateModel = new SpinnerDateModel();
         scheduledate = new JSpinner(scheduleDateModel);
         JSpinner.DateEditor scheduleDateEditor = new JSpinner.DateEditor(scheduledate, "dd/MM/yyyy");
         scheduledate.setEditor(scheduleDateEditor);
@@ -1331,7 +1331,7 @@ public class AdminPage{
         try (BufferedReader br = new BufferedReader(new FileReader("Hall.txt"))) {
             String line;
             while ((line = br.readLine()) != null) {
-                String[] parts = line.split(" , ");
+                String[] parts = line.split("\\|");
                 if (parts.length == 5) {
                     hallMap.put(parts[0].trim(), parts[1].trim());
                 }
