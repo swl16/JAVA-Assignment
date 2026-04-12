@@ -326,7 +326,12 @@ public class StaffPage {
         
         JPanel btnrow = new JPanel(new FlowLayout(FlowLayout.CENTER,12,6));
         btnrow.setBackground(panelcolor);
-        JButton delete = styledButton("DELETE",true);
+        
+        JButton editbtn = styledButton("EDIT",true);
+        editbtn.addActionListener(e -> edititem());
+        
+        
+        JButton delete = styledButton("DELETE",false);
         delete.addActionListener(e -> {
             int row = checktable.getSelectedRow();
             if(row<0){
@@ -374,6 +379,7 @@ public class StaffPage {
             }
             
         });
+        btnrow.add(editbtn);
         btnrow.add(delete);
         
         south.add(label, BorderLayout.NORTH);
@@ -395,6 +401,170 @@ public class StaffPage {
         refreshchecktable();
         
         return page;
+    }
+    
+    void edititem(){
+        int row = checktable.getSelectedRow();
+        
+        if (row < 0) {
+            showMsg("Please select an item to edit.", false);
+            return;
+        }
+        
+        String selecteditem = checkmodel.getValueAt(row, 0).toString();
+        
+        String[] itemDetails = null;
+        
+        File file = new File(fnbfile);
+     
+        if(!file.exists()){
+         showMsg("FnB file not found!",false);
+         return;
+        }
+        
+        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] details = line.split("\\|", -1);
+                if (details.length == 7 && details[0].equals(selecteditem)) {
+                    itemDetails = details;
+                    break;
+                }
+            }
+        } catch (IOException e) {
+            showMsg("Error loading item details: " + e.getMessage(), false);
+            return;
+        }
+
+        if (itemDetails == null) {
+            showMsg("Item details not found.", false);
+            return;
+        }
+        
+        JDialog editDialog = new JDialog(frame, "Edit Item", true);
+        editDialog.setSize(500, 700);
+        editDialog.setLayout(new BorderLayout());
+        editDialog.setLocationRelativeTo(frame);
+        editDialog.getContentPane().setBackground(bgcolor);
+        editDialog.setResizable(false);
+        
+        JPanel form = new JPanel();
+        form.setLayout(new BoxLayout(form, BoxLayout.Y_AXIS));
+        form.setBackground(bgcolor);
+        form.setBorder(new EmptyBorder(15,30,15,30));
+        
+        form.add(fieldLabel("Item Name"));
+        form.add(Box.createVerticalStrut(4));
+        JTextField itemField = new JTextField(itemDetails[0]);
+        styleTextField(itemField);
+        form.add(itemField);
+        form.add(Box.createVerticalStrut(8));
+        
+        form.add(fieldLabel("Category"));
+        form.add(Box.createVerticalStrut(4));
+        JComboBox<String> ctg = new JComboBox<>(new String[]{"Snacks","Drinks","Combo Deals"});
+        styleCombo(ctg);
+        ctg.setSelectedItem(itemDetails[1]);
+        form.add(ctg);
+        form.add(Box.createVerticalStrut(8));
+        
+        form.add(fieldLabel("Price (RM)"));
+        form.add(Box.createVerticalStrut(4));
+        JTextField priceField = new JTextField(itemDetails[2]);
+        styleTextField(priceField);
+        form.add(priceField);
+        form.add(Box.createVerticalStrut(8));
+        
+        form.add(fieldLabel("Combo Items (use + to separate)"));
+        form.add(Box.createVerticalStrut(4));
+        JTextField comboField = new JTextField(itemDetails[6]);
+        styleTextField(comboField);
+        comboField.setVisible("Combo Deals".equals(itemDetails[1]));
+        form.add(comboField);
+        form.add(Box.createVerticalStrut(8));
+        
+        comboField.setVisible(false);
+
+        ctg.addActionListener(e -> {
+            String selected = ctg.getSelectedItem().toString();
+            comboField.setVisible(selected.equals("Combo Deals"));
+            form.revalidate();
+            form.repaint();
+        });
+        
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 12, 0));
+        buttonPanel.setBackground(bgcolor);
+
+        JButton cancelButton = styledButton("CANCEL", false);
+        JButton saveButton = styledButton("SAVE", true);
+        
+        JScrollPane scroll = new JScrollPane(form);
+        scroll.setBorder(null);
+        scroll.getViewport().setBackground(bgcolor);
+        editDialog.add(scroll, BorderLayout.CENTER);
+        
+        cancelButton.addActionListener(e -> editDialog.dispose());
+        
+        saveButton.addActionListener(e -> {
+            
+            String editname = itemField.getText().trim();
+            String editctg = ctg.getSelectedItem().toString();
+            String editprice = priceField.getText().trim();
+            String combo = "Combo Deals".equals(editctg) ? comboField.getText().trim() : "";
+            
+            if(editname.isEmpty()){
+                showMsg("Item name is required.",false);
+                return;
+            }
+            
+            if(!editprice.matches("\\d+(\\.\\d{1,2})?")){
+                showMsg("Price must be a valid number",false);
+                return;
+            }
+            
+            ArrayList<String[]> allitems = new ArrayList<>();
+
+            try (BufferedReader br = new BufferedReader(new FileReader(fnbfile))) {
+                String line;
+                while ((line = br.readLine()) != null) {
+                    String[] details = line.split("\\|", -1);
+                        if (details.length == 7) {
+                            if (details[0].equals(selecteditem)) {
+                            allitems.add(new String[]{
+                            editname, editctg, editprice, combo
+                            });
+                            } else {
+                                allitems.add(details);
+                            }
+                        }
+                }
+            } catch (IOException ex) {
+                showMsg("Error reading items: " + ex.getMessage(), false);
+                return;
+            }
+        
+            try (BufferedWriter bw = new BufferedWriter(new FileWriter(fnbfile))) {
+                for (String[] m : allitems) {
+                    bw.write(String.join("|", m));
+                    bw.newLine();
+                }
+            } catch (IOException ex) {
+                showMsg("Error saving items: " + ex.getMessage(), false);
+                return;
+            }
+        
+        
+            refreshchecktable();
+            loadreptable();
+            showMsg("Item updated successfully!", true);
+            editDialog.dispose();
+        });
+        
+        buttonPanel.add(cancelButton);
+        buttonPanel.add(saveButton);
+        form.add(buttonPanel);
+        
+        editDialog.setVisible(true);
     }
     
     private JTable reptable;
