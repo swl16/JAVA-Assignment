@@ -6,13 +6,13 @@ import java.awt.*;
 import java.util.*;
 import java.text.SimpleDateFormat;
 import java.io.*;
+import java.util.List;
 
 public class Concession {
 
     JFrame frame;
     JPanel mainPanel, menuView, checkoutView, selectionView;
     CardLayout layout;
-    JButton backButton;
 
     // UI Theme
     final Color BG = new Color(0x121212), CARD = new Color(0x1E1E1E), ACCENT = new Color(0xFFD700),panelcolor = new Color(0x2E2E2E);
@@ -20,7 +20,7 @@ public class Concession {
     ;
     final Dimension UI_ELEMENT_SIZE = new Dimension(350, 45);
 
-    JLabel totalLabel, footerQtyLabel, receiptLabel;
+    JLabel totalLabel, footerQtyLabel;
     Map<String, Integer> basket = new HashMap<>();
     Map<String, Double> prices = new HashMap<>();
     String selRegion, selCinema, selTime;
@@ -30,24 +30,15 @@ public class Concession {
     ArrayList<fnbitem> items = new ArrayList<>();
 
     public Concession() {
+        
+        loadstock();
+        
         frame = new JFrame("TGC Cinema - Concession F&B");
         frame.setSize(500, 700);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         layout = new CardLayout();
         mainPanel = new JPanel(layout);
-        
-        backButton = new JButton("< Back");
-        backButton.setBorderPainted(false);
-        backButton.setFocusPainted(false);
-        backButton.setContentAreaFilled(false);
-        backButton.setFocusable(false);
-        backButton.setBounds(8,10,400,40);
-        backButton.setFont(new Font("Courier New",Font.PLAIN,17));
-        backButton.setHorizontalAlignment(JButton.LEFT);
-        backButton.addActionListener(e -> backmenu());
-        backButton.setForeground(new Color(0xF7F7F7));
-        frame.add(backButton);
 
         createSelectionView();
         createMenuView();
@@ -180,6 +171,8 @@ public class Concession {
         footer.setBackground(redcolor);
         footer.setPreferredSize(new Dimension(0, 75));
         footer.setBorder(new EmptyBorder(0, 25, 0, 25));
+        footer.setLayout(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
         
         footerQtyLabel = new JLabel("0 Items Selected");
         footerQtyLabel.setForeground(TEXT);
@@ -188,18 +181,37 @@ public class Concession {
         totalLabel = new JLabel("RM 0.00");
         totalLabel.setForeground(TEXT);
         totalLabel.setFont(new Font("Courier New", Font.BOLD, 18));
-
-        footer.add(footerQtyLabel, BorderLayout.WEST);
-        footer.add(totalLabel, BorderLayout.EAST);
-        footer.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent e) {
-                if (!basket.isEmpty()) {
-                    updateReceiptText();
-                    layout.show(mainPanel, "CHECKOUT");
-                }
+        
+        JButton continuebtn = new JButton("CONTINUE");
+        styleButton(continuebtn, redcolor, TEXT);
+        continuebtn.setFont(new Font("Courier New", Font.BOLD, 18));
+        
+        continuebtn.addActionListener(e -> {
+            if (!basket.isEmpty()) {
+                updateReceiptText();
+                layout.show(mainPanel, "CHECKOUT");
             }
         });
+        
+        // LEFT: items
+        gbc.gridx = 0;
+        gbc.weightx = 1;
+        gbc.anchor = GridBagConstraints.WEST;
+        footer.add(footerQtyLabel, gbc);
 
+        // CENTER: total
+        gbc.gridx = 1;
+        gbc.weightx = 1;
+        gbc.anchor = GridBagConstraints.CENTER;
+        footer.add(totalLabel, gbc);
+
+        // RIGHT: continue
+        gbc.gridx = 2;
+        gbc.weightx = 1;
+        gbc.anchor = GridBagConstraints.EAST;
+        footer.add(continuebtn, gbc);
+
+        
         menuView.add(header, BorderLayout.NORTH);
         menuView.add(tabs, BorderLayout.CENTER);
         menuView.add(footer, BorderLayout.SOUTH);
@@ -229,10 +241,22 @@ public class Concession {
         JPanel historypanel = new JPanel(new BorderLayout());
         historypanel.setBackground(BG);
         
+        JPanel header = new JPanel(new BorderLayout());
+        header.setBackground(BG);
+        header.setBorder(new EmptyBorder(10, 10, 10, 10));
+        
+        JButton backbtn = new JButton("< Back");
+        styleButton(backbtn, BG, MUTED_TEXT);
+        backbtn.setFont(new Font("Courier New", Font.PLAIN, 15));
+        backbtn.addActionListener(e -> layout.show(mainPanel, "SELECT_DETAILS"));
+        
         JLabel title = new JLabel("Order History");
         title.setForeground(TEXT);
-        title.setFont(new Font("Courier New", Font.BOLD, 28));
-        title.setAlignmentX(Component.CENTER_ALIGNMENT);
+        title.setFont(new Font("Courier New", Font.BOLD, 25));
+        title.setHorizontalAlignment(SwingConstants.CENTER);
+        
+        header.add(backbtn, BorderLayout.WEST);
+        header.add(title, BorderLayout.CENTER);
         
         JPanel contentPanel = new JPanel();
         contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
@@ -247,14 +271,9 @@ public class Concession {
         scroll.setBorder(null);
         scroll.getVerticalScrollBar().setUnitIncrement(16);
         
-        JButton backbtn = new JButton("< Back");
-        styleButton(backbtn, BG, MUTED_TEXT);
-        backbtn.setFont(new Font("Courier New", Font.PLAIN, 15));
-        backbtn.addActionListener(e -> layout.show(mainPanel, "MENU"));
         
-        historypanel.add(title, BorderLayout.CENTER);
+        historypanel.add(header, BorderLayout.NORTH);
         historypanel.add(scroll, BorderLayout.CENTER);
-        historypanel.add(backbtn, BorderLayout.SOUTH);
         
         mainPanel.add(historypanel, "HISTORY");
         layout.show(mainPanel, "HISTORY");
@@ -280,41 +299,40 @@ public class Concession {
                     }else if(current != null && !line.trim().isEmpty()){
                         current.add(line.trim());
                     }
-                    Collections.reverse(blocks);
                     
-                    for(List<String> block : blocks){
+                }
+                
+                Collections.reverse(blocks);
+                    
+                for(List<String> block : blocks){
                         
-                        String orderuser = "";
-                        String cinema = "";
-                        String pickup = "";
-                        String Item = "";
-                        String total = "";
-                        String datetime = "";
+                    String orderuser = "";
+                    String cinema = "";
+                    String pickup = "";
+                    String total = "";
+                    String datetime = "";
+                    List<String> itemLines = new ArrayList<>();
                         
                         for(String l : block){
-                            if(l.startsWith("User: ")){
-                                orderuser = l.substring(6).trim();
-                            }else if(l.startsWith("Cinema: ")){
+                            if(l.startsWith("Cinema: ")){
                                 cinema = l.substring(8).trim();
                             }else if(l.startsWith("Pick Up: ")){
                                 pickup = l.substring(9).trim();
-                            }else if(l.startsWith("Item(s): ")){
-                                Item = l.substring(9).trim();
                             }else if(l.startsWith("Total: ")){
                                 total = l.substring(7).trim();
                             }else if(l.startsWith("Date: ")){
                                 datetime = l.substring(6).trim();
+                            }else {
+                                itemLines.add(l);
                             }
                         }
                         
                         if (!orderuser.equals(username)) continue;
  
                         found = true;
-                        panel.add(buildHistoryCard(datetime, cinema, pickup, Item, total));
+                        panel.add(buildHistoryCard(datetime, cinema, pickup, itemLines, total));
                         panel.add(Box.createRigidArea(new Dimension(0, 12)));
                     }
-                    
-                }
                 
                 
                 
@@ -335,7 +353,7 @@ public class Concession {
     }
     
     private JPanel buildHistoryCard(String date, String cinema, String pickup,
-                                    String item, String grandTotal) {
+                                    List<String> itemname, String grandTotal) {
         JPanel card = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
@@ -383,7 +401,7 @@ public class Concession {
         itemsPanel.setOpaque(false);
         itemsPanel.setBorder(new EmptyBorder(6, 0, 0, 0));
  
-        for (String itemLine : item.split(",")) {
+        for (String itemLine : itemname) {
             JLabel il = new JLabel("  • " + itemLine);
             il.setForeground(MUTED_TEXT);
             il.setFont(new Font("Courier New", Font.PLAIN, 12));
@@ -409,15 +427,46 @@ public class Concession {
         card.setPreferredSize(new Dimension(195, 180));
         card.setBorder(new LineBorder(new Color(0x333333), 1));
 
-        JPanel info = new JPanel(new GridLayout(2, 1));
+        JPanel info = new JPanel(new GridLayout(3,1));
         info.setOpaque(false);
         info.setBorder(new EmptyBorder(15, 10, 10, 10));
+        
+        fnbitem currentitem = null;
+        
+        for(fnbitem i : items){
+            if(i.itemname.equals(name)){
+                currentitem = i;
+                break;
+            }
+        }
+        
+        String formattedDesc = currentitem.desc.replace(" + ", "\n");
+        
+        
         JLabel nl = new JLabel(name, SwingConstants.CENTER);
         nl.setForeground(TEXT);
         nl.setFont(new Font("Courier New", Font.BOLD, 14));
+        
+        JTextArea descArea = new JTextArea();
+        descArea.setText(formattedDesc);
+        descArea.setForeground(MUTED_TEXT);
+        descArea.setFont(new Font("Courier New", Font.PLAIN, 11));
+        descArea.setBackground(CARD);
+        descArea.setLineWrap(true);
+        descArea.setWrapStyleWord(true);
+        descArea.setEditable(false);
+        descArea.setFocusable(false);
+        descArea.setOpaque(false);
+        
+        if (currentitem != null && currentitem.category.equalsIgnoreCase("Combo Deals")) {
+        descArea.setText(currentitem.desc);
+}
+        
         JLabel pl = new JLabel("RM " + String.format("%.2f", price), SwingConstants.CENTER);
-        pl.setForeground(ACCENT);
+        pl.setForeground(TEXT);
+        
         info.add(nl);
+        info.add(descArea);
         info.add(pl);
 
         JPanel actionArea = new JPanel(new CardLayout());
@@ -478,64 +527,147 @@ public class Concession {
         card.add(actionArea, BorderLayout.SOUTH);
         parent.add(card);
     }
+    
+    JPanel receiptPanel;
 
     private void createCheckoutView() {
         checkoutView = new JPanel(new BorderLayout());
         checkoutView.setBackground(BG);
-        checkoutView.setBorder(new EmptyBorder(30, 30, 30, 30));
-
-        receiptLabel = new JLabel();
-        receiptLabel.setVerticalAlignment(SwingConstants.TOP);
-        JScrollPane scroll = new JScrollPane(receiptLabel);
-        scroll.setOpaque(false);
-        scroll.getViewport().setOpaque(false);
-        scroll.setBorder(null);
-
-        JButton payBtn = new JButton("PAY NOW");
-        styleButton(payBtn, ACCENT, Color.BLACK);
-        payBtn.setFont(new Font("Courier New", Font.BOLD, 16));
-        payBtn.setPreferredSize(new Dimension(0, 55));
-        payBtn.addActionListener(e -> {
-            JOptionPane.showMessageDialog(frame, "Order Successful!");
-            System.exit(0);
-        });
+        checkoutView.setBorder(new EmptyBorder(20, 20, 20, 20));
+        
+        JPanel header = new JPanel(new BorderLayout());
+        header.setBackground(BG);
+        header.setBorder(new EmptyBorder(10, 10, 0, 10));
 
         JButton backBtn = new JButton("< Back");
         styleButton(backBtn, BG, MUTED_TEXT);
-        backBtn.setPreferredSize(new Dimension(0, 40));
+        backBtn.setFont(new Font("Courier New", Font.PLAIN, 14));
+
         backBtn.addActionListener(e -> layout.show(mainPanel, "MENU"));
+        
+        JLabel title = new JLabel("ORDER SUMMARY");
+        title.setForeground(redcolor);
+        title.setFont(new Font("Courier New", Font.BOLD, 18));
+        title.setHorizontalAlignment(SwingConstants.CENTER);
+
+        header.add(backBtn, BorderLayout.WEST);
+        header.add(title, BorderLayout.CENTER);
+        header.add(Box.createHorizontalStrut(60), BorderLayout.EAST);
+        
+//        JPanel details = new JPanel();
+//        details.setLayout(new BoxLayout(details, BoxLayout.Y_AXIS));
+//        details.setBackground(CARD);
+//        details.setBorder(new EmptyBorder(10, 10, 10, 10));
+        
+        receiptPanel = new JPanel();
+        receiptPanel.setLayout(new BoxLayout(receiptPanel, BoxLayout.Y_AXIS));
+        receiptPanel.setBackground(BG);
+
+        JScrollPane scroll = new JScrollPane(receiptPanel);
+        scroll.setBorder(null);
+        scroll.getViewport().setBackground(BG);
+
+        JButton payBtn = new JButton("CHECKOUT");
+        styleButton(payBtn, redcolor, TEXT);
+        payBtn.setFont(new Font("Courier New", Font.BOLD, 16));
+        payBtn.setPreferredSize(new Dimension(0, 55));
+        payBtn.addActionListener(e -> new FoodPayment(basket, prices, selCinema, selTime, username));
+
 
         JPanel btnPanel = new JPanel(new BorderLayout(0, 10));
         btnPanel.setOpaque(false);
         btnPanel.add(payBtn, BorderLayout.CENTER);
-        btnPanel.add(backBtn, BorderLayout.SOUTH);
-
+        
+        checkoutView.add(header, BorderLayout.NORTH);
         checkoutView.add(scroll, BorderLayout.CENTER);
         checkoutView.add(btnPanel, BorderLayout.SOUTH);
     }
 
     private void updateReceiptText() {
-        StringBuilder sb = new StringBuilder("<html><body style='width: 310px; color:white; font-family:sans-serif;'>");
-        sb.append("<h2 style='color:#FFD700;'>ORDER SUMMARY</h2>");
-        sb.append("<div style='background-color:#1E1E1E; border: 1px solid #333; padding:12px; margin:15px 0;'>");
-        sb.append("<small style='color:#AAAAAA;'>CINEMA</small><br><b>").append(selCinema).append("</b><br>");
-        sb.append("<small style='color:#AAAAAA;'>TIME</small><br><b>").append(selTime).append("</b></div>");
+        
+        receiptPanel.removeAll();
+        
+        JPanel infoBoxWrapper = new JPanel();
+        infoBoxWrapper.setBackground(BG);
+        infoBoxWrapper.setLayout(new FlowLayout(FlowLayout.CENTER, 0, 0));
+        
+        JPanel infoBox = new JPanel();
+        infoBox.setLayout(new BoxLayout(infoBox, BoxLayout.Y_AXIS));
+        infoBox.setBackground(CARD);
+        infoBox.setPreferredSize(new Dimension(260, 70));
+        infoBox.setBorder(new EmptyBorder(12, 15, 12, 15));
+        
+        JLabel cinemaLbl = new JLabel("Cinema: " + selCinema);
+        cinemaLbl.setForeground(TEXT);
+        cinemaLbl.setFont(new Font("Courier New", Font.BOLD, 13));
 
-        sb.append("<table style='width:100%;'>");
-        double grandTotal = 0;
+        JLabel timeLbl = new JLabel("Time: " + selTime);
+        timeLbl.setForeground(TEXT);
+        timeLbl.setFont(new Font("Courier New", Font.PLAIN, 12));
+        
+        infoBox.add(cinemaLbl);
+        infoBox.add(Box.createRigidArea(new Dimension(0, 6)));
+        infoBox.add(timeLbl);
+        infoBoxWrapper.add(infoBox);
+
+        receiptPanel.add(infoBoxWrapper);
+        receiptPanel.add(Box.createRigidArea(new Dimension(0, 15)));
+        
+        double grandTotal = 0.0;
         for (String name : basket.keySet()) {
             int qty = basket.get(name);
             double price = prices.get(name);
             double subtotal = qty * price;
             grandTotal += subtotal;
-            sb.append("<tr><td style='padding:8px 0;'><b>").append(name).append("</b><br>")
-                    .append("<small style='color:#AAAAAA;'>").append(qty).append(" x RM ").append(String.format("%.2f", price)).append("</small></td>")
-                    .append("<td style='text-align:right; color:#FFD700;'>RM ").append(String.format("%.2f", subtotal)).append("</td></tr>");
+            
+            JPanel row = new JPanel(new GridLayout(1, 3, 20, 0));
+            row.setOpaque(false);
+
+            // name
+            JLabel nameLbl = new JLabel(name);
+            nameLbl.setForeground(TEXT);
+
+            // qty (center)
+            JLabel qtyLbl = new JLabel("" + qty, SwingConstants.CENTER);
+            qtyLbl.setForeground(TEXT);
+
+            // price (right)
+            JLabel priceLbl = new JLabel("RM " + String.format("%.2f", subtotal), SwingConstants.RIGHT);
+            priceLbl.setForeground(TEXT);
+
+            row.add(nameLbl);
+            row.add(qtyLbl);
+            row.add(priceLbl);
+            
+            row.setBorder(new EmptyBorder(5, 0, 5, 0));
+            receiptPanel.add(row);
+            receiptPanel.add(Box.createRigidArea(new Dimension(0, 12)));
         }
-        sb.append("</table><hr style='border:0; border-top:1px solid #444; margin:15px 0;'>");
-        sb.append("<div style='text-align:right;'>GRAND TOTAL<br><b style='color:#FFD700; font-size:24px;'>RM ")
-                .append(String.format("%.2f", grandTotal)).append("</b></div></body></html>");
-        receiptLabel.setText(sb.toString());
+        
+//        JSeparator line = new JSeparator();
+//        line.setForeground(new Color(0x444444));
+//        receiptPanel.add(line);
+
+        // ===== TOTAL =====
+        JPanel totalRow = new JPanel(new BorderLayout());
+        totalRow.setOpaque(false);
+
+        JLabel totalText = new JLabel("TOTAL");
+        totalText.setForeground(TEXT);
+
+        JLabel totalValue = new JLabel("RM " + String.format("%.2f", grandTotal));
+        totalValue.setForeground(TEXT);
+        totalValue.setFont(new Font("Courier New", Font.BOLD, 18));
+
+        totalRow.add(totalText, BorderLayout.WEST);
+        totalRow.add(totalValue, BorderLayout.EAST);
+
+        receiptPanel.add(Box.createRigidArea(new Dimension(0, 30)));
+        receiptPanel.add(totalRow);
+
+        receiptPanel.revalidate();
+        receiptPanel.repaint();
+        
     }
 
     private JScrollPane createGrid(String type) {
@@ -586,16 +718,6 @@ public class Concession {
         return dates;
     }
     
-    
-    private void backmenu(){
-        frame.dispose();
-        new MainMenuPage(username);
-    }
-
-//    public static void main(String[] args) {
-//        try { UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName()); } catch(Exception e){}
-//        new Concession();
-//    }
 }
 
 class fnbitem {
