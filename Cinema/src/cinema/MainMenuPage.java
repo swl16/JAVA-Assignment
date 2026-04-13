@@ -167,7 +167,7 @@ public class MainMenuPage implements ActionListener {
     }
 
     private void loadMovie() {
-        try(BufferedReader readLine = new BufferedReader(new FileReader("Cinema/MovieDetails.txt"))){
+        try(BufferedReader readLine = new BufferedReader(new FileReader("MovieDetails.txt"))){
             String line;
             int i = 0;
             HashSet<String> titles = new HashSet<>();
@@ -321,7 +321,7 @@ public class MainMenuPage implements ActionListener {
             } else if (e.getSource() == FnBButton) {
                 // You must pass 'false' because the user is entering from the Main Menu,
                 // not directly from a ticket purchase.
-                new Concession(false);
+                new Concession();
                 frame.dispose();
 
             } else if (e.getSource() == profileButton) {
