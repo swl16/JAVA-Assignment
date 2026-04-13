@@ -84,8 +84,6 @@ public class SubWindowProfile extends JFrame implements ActionListener {
 
 
 
-
-
         return ticketPanel;
     }
 
@@ -155,6 +153,8 @@ public class SubWindowProfile extends JFrame implements ActionListener {
         contactLabel.setFont(new Font("Courier New",Font.BOLD,40));
         contactLabel.setBounds(40,60,500,50);
         contactUsPanel.add(contactLabel);
+
+
 
         return contactUsPanel;
     }

@@ -731,4 +731,12 @@ class fnbitem {
         this.price = price;
         this.desc = desc;
     }
+
+    public String getItemname() {
+        return itemname;
+    }
+
+    public double getPrice() {
+        return price;
+    }
 }

@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 public class SeatSelection implements ActionListener {
@@ -44,7 +45,7 @@ public class SeatSelection implements ActionListener {
 
         loadHall();
         loadMovie();
-        loadBookDetail();
+//        loadBookDetail();
 
         baseSeat = new Seat('A',0,hall.getPrice());
 
@@ -297,6 +298,10 @@ public class SeatSelection implements ActionListener {
             pullOutPanel.add(quantityLabel[i]);
             pullOutPanel.add(addButton);
         }
+        JSeparator separator = new JSeparator(JSeparator.HORIZONTAL);
+        separator.setBounds(10,230,460,5);
+        separator.setForeground(new Color(0xF7F7F7));
+        pullOutPanel.add(separator);
 
 
     }
@@ -319,12 +324,36 @@ public class SeatSelection implements ActionListener {
     }
 
     private boolean isSeatBooked(char row, int num) {
-        for (Seat s : bookedSeat) {
-            // Check if the loaded seat matches the one we are currently drawing
-            if (s.getRow() == row && s.getColumn() == num) {
-                return true;
+        File file = new File("BookingDetail.txt");
+        if (!file.exists()) {return false;}
+
+        try(BufferedReader readLine = new BufferedReader(new FileReader(file))){
+            String line;
+
+            while((line = readLine.readLine()) != null){
+                if (line.trim().isEmpty()) continue;
+
+                String[] parts = line.split("\\|");
+
+                String startTime = parts[1];
+                String bookedSeat = parts[2];
+
+                if (startTime.equals(showTime.getStartTime().toString())) {
+                    String[] seatArray = bookedSeat.split(",");
+
+                    for (String s : seatArray) {
+                        if (s.trim().equals(row + String.valueOf(num))) {
+                            return true;
+                        }
+                    }
+                }
+//                bookingID = Integer.valueOf(parts[0]);
             }
         }
+        catch (IOException e){
+            System.out.println("Error reading booking file");
+        }
+
         return false;
     }
 
@@ -414,37 +443,37 @@ public class SeatSelection implements ActionListener {
         return label;
     }
 
-    public void loadBookDetail(){
-        File file = new File("BookingDetail.txt");
-        if (!file.exists()) {return;}
-
-        try(BufferedReader readLine = new BufferedReader(new FileReader(file))){
-            String line;
-
-            while((line = readLine.readLine()) != null){
-                if (line.trim().isEmpty()) continue;
-
-                String[] parts = line.split("\\|");
-
-                if (LocalDateTime.parse(parts[2]).isEqual(showTime.getStartTime()) && parts[3].equals(hall.getName()) && parts[6].equals(showTime.getMovieName())) {
-
-                    bookedSeat.add(new Seat(parts[4].charAt(0),Integer.parseInt(parts[5]),hall.getPrice()));
-                }
-                bookingID = Integer.valueOf(parts[0]);
-            }
-            for (Seat s : bookedSeat){
-                s.book();
-            }
-        }
-        catch (IOException e){
-            System.out.println("Error reading booking file");
-        }
-
-    }
+//    public void loadBookDetail(){
+//        File file = new File("BookingDetail.txt");
+//        if (!file.exists()) {return;}
+//
+//        try(BufferedReader readLine = new BufferedReader(new FileReader(file))){
+//            String line;
+//
+//            while((line = readLine.readLine()) != null){
+//                if (line.trim().isEmpty()) continue;
+//
+//                String[] parts = line.split("\\|");
+//
+//                if (new ShowTime(parts[2]).equals(showTime)) {
+//
+//                    bookedSeat.add(new Seat(parts[4].charAt(0),Integer.parseInt(parts[5]),hall.getPrice()));
+//                }
+//                bookingID = Integer.valueOf(parts[0]);
+//            }
+//            for (Seat s : bookedSeat){
+//                s.book();
+//            }
+//        }
+//        catch (IOException e){
+//            System.out.println("Error reading booking file");
+//        }
+//
+//    }
 
 
     public void loadHall(){
-        try(BufferedReader readLine = new BufferedReader(new FileReader("Hall.txt"))){
+        try(BufferedReader readLine = new BufferedReader(new FileReader("Cinema/Hall.txt"))){
             String line;
 
             while((line = readLine.readLine()) != null){
@@ -483,18 +512,18 @@ public class SeatSelection implements ActionListener {
         }
     }
 
-    public void saveBooking(){
-        bookingID++;
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter("BookingDetail.txt",true))){
-
-            for (Seat s : selectedSeat){
-                writer.write(String.format("%04d",bookingID) + "|" + username + "|" + String.valueOf(showTime.getStartTime()) + "|" + hall.getName() + "|" + s.getRow() + "|" + s.getColumn() + "|" + movieDetail.getTitle());
-                writer.newLine();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+//    public void saveBooking(){
+//        bookingID++;
+//        try (BufferedWriter writer = new BufferedWriter(new FileWriter("BookingDetail.txt",true))){
+//
+//            for (Seat s : selectedSeat){
+//                writer.write(String.format("%04d",bookingID) + "|" + username + "|" + String.valueOf(showTime.getStartTime()) + "|" + hall.getName() + "|" + s.getRow() + "|" + s.getColumn() + "|" + movieDetail.getTitle());
+//                writer.newLine();
+//            }
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//    }
 
     @Override
     public void actionPerformed(ActionEvent e) {
@@ -543,25 +572,28 @@ public class SeatSelection implements ActionListener {
                         "No Seats Selected", JOptionPane.WARNING_MESSAGE);
             }else {
                 double totalPrice = 0;
-                StringBuilder msg = new StringBuilder("Please confirm your booking.\n\n");
-                for (Seat s : selectedSeat){
-                    msg.append(s.getSeatId()).append(" ");
-                }
+//                StringBuilder msg = new StringBuilder("Please confirm your booking.\n\n");
+//                for (Seat s : selectedSeat){
+//                    msg.append(s.getSeatId()).append(" ");
+//                }
                 for (int i = 0; i < countType.length; i++){
                     totalPrice +=countType[i] * baseSeat.getPrice(allTypes[i]);
                 }
-                msg.append("\nTotal : RM ").append(String.format("%.2f",totalPrice));
+//                msg.append("\nTotal : RM ").append(String.format("%.2f",totalPrice));
 
-                int choice = JOptionPane.showConfirmDialog(null, msg.toString(), "Confirm Booking", JOptionPane.YES_NO_OPTION);
-                if (choice == JOptionPane.YES_OPTION){
-                    saveBooking();
-                    for (Seat s : selectedSeat) {
-                        s.book();
-                    }
-                    selectedSeat.clear();
-                    JOptionPane.showMessageDialog(null, "Booking Successful!");
-                    frame.setVisible(false);
-                }
+//                int choice = JOptionPane.showConfirmDialog(null, msg.toString(), "Confirm Booking", JOptionPane.YES_NO_OPTION);
+//                if (choice == JOptionPane.YES_OPTION){
+                    //saveBooking();
+//                for (Seat s : selectedSeat) {
+//                    s.book();
+//                }
+                UserOrder order = new UserOrder(username,showTime,selectedSeat,countType,new HashMap<>(),totalPrice,0.0);
+//                    selectedSeat.clear();
+//                    JOptionPane.showMessageDialog(null, "Booking Successful!");
+                frame.setVisible(false);
+                new FnBwTicket(frame,order);
+
+//                }
             }
         }
     }
