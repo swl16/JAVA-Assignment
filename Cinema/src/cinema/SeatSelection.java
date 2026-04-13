@@ -463,7 +463,7 @@ public class SeatSelection implements ActionListener {
     }
 
     private void loadMovie() {
-        try(BufferedReader readLine = new BufferedReader(new FileReader("Cinema/MovieDetails.txt"))){
+        try(BufferedReader readLine = new BufferedReader(new FileReader("MovieDetails.txt"))){
             String line;
 
             while((line = readLine.readLine()) != null){
