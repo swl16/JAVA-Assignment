@@ -531,7 +531,10 @@ public class StaffPage {
                         if (details.length == 7) {
                             if (details[0].equals(selecteditem)) {
                             allitems.add(new String[]{
-                            editname, editctg, editprice, combo
+                            editname, editctg, editprice, details[3],
+                            details[4],
+                            new SimpleDateFormat("dd/MM/yyyy HH:mm").format(new Date()),
+                            combo
                             });
                             } else {
                                 allitems.add(details);
@@ -718,10 +721,27 @@ public class StaffPage {
         
         addbtn.addActionListener(e -> replenishitem(itemfield,addfield,repMinField));
         
+        JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.CENTER,15,10));
+        bottomPanel.setBackground(panelcolor);
+        
+        JButton clearBtn = styledButton("CLEAR", false);
+        
+        clearBtn.addActionListener(e -> {
+        itemfield.setText("select a row");
+        itemfield.setForeground(textmutedcolor);
+        addfield.setText("0");
+        repMinField.setText("");
+        reptable.clearSelection();
+        });
+        
         south.add(label, BorderLayout.NORTH);
         
         page.add(center,BorderLayout.CENTER);
         page.add(south,BorderLayout.SOUTH);
+        
+        bottomPanel.add(clearBtn);
+        south.add(Box.createVerticalStrut(10));
+        south.add(bottomPanel);
 
         loadreptable();
         
