@@ -6,6 +6,7 @@ import java.awt.*;
 import java.util.*;
 import java.text.SimpleDateFormat;
 import java.io.*;
+import java.util.List;
 
 public class Concession {
 
@@ -592,10 +593,10 @@ public class Concession {
         new MainMenuPage(username);
     }
 
-//    public static void main(String[] args) {
-//        try { UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName()); } catch(Exception e){}
-//        new Concession();
-//    }
+    public static void main(String[] args) {
+        try { UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName()); } catch(Exception e){}
+        new Concession();
+    }
 }
 
 class fnbitem {
@@ -608,5 +609,13 @@ class fnbitem {
         this.category = category;
         this.price = price;
         this.desc = desc;
+    }
+
+    public String getItemname() {
+        return itemname;
+    }
+
+    public double getPrice() {
+        return price;
     }
 }
