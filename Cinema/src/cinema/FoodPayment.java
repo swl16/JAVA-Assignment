@@ -439,6 +439,7 @@ public class FoodPayment{
         );
         
         saveOrder();
+        deductStock();
     }
 
     // --- CUSTOM UI HELPERS ---
@@ -556,6 +557,60 @@ public class FoodPayment{
             wr.newLine();
             
         }catch(IOException e){
+            e.printStackTrace();
+        }
+    }
+    
+    private void deductStock(){
+        
+        String file = "FnBStock.txt";
+        ArrayList<String[]> items = new ArrayList<>();
+        
+        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+
+            String line;
+
+            while ((line = br.readLine()) != null) {
+                String[] data = line.split("\\|", -1);
+
+                if (data.length != 7) continue;
+
+                String stockName = data[0];
+
+                // check if this item was purchased
+                for (Item i : basketItems) {
+
+                    if (stockName.equalsIgnoreCase(i.name)) {
+
+                        int currentQty = Integer.parseInt(data[3]);
+                        int newQty = currentQty - i.quantity;
+
+                        // prevent negative stock
+                        if (newQty < 0) newQty = 0;
+
+                        data[3] = String.valueOf(newQty);
+
+                        // update last updated time
+                        data[5] = new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm")
+                            .format(new java.util.Date());
+                    }
+                }
+
+                items.add(data);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            return;
+        }
+
+        // 🔥 WRITE BACK TO FILE
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(file))) {
+
+            for (String[] item : items) {
+                bw.write(String.join("|", item));
+                bw.newLine();
+            }
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
