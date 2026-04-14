@@ -321,7 +321,7 @@ public class MainMenuPage implements ActionListener {
             } else if (e.getSource() == FnBButton) {
                 // You must pass 'false' because the user is entering from the Main Menu,
                 // not directly from a ticket purchase.
-                new Concession();
+                new Concession(username);
                 frame.dispose();
 
             } else if (e.getSource() == profileButton) {
