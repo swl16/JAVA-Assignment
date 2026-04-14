@@ -424,7 +424,7 @@ public class FnBwTicket {
         styleButton(payBtn, ACCENT, TEXT);
         payBtn.setFont(new Font("SansSerif", Font.BOLD, 16));
         payBtn.setPreferredSize(new Dimension(0, 55));
-        payBtn.addActionListener(e -> { JOptionPane.showMessageDialog(frame, "Order Successful!"); System.exit(0); });
+        payBtn.addActionListener(e -> { frame.dispose(); new TicketPayment(order); });
 
 //        JButton backBtn = new JButton("← Back to Menu");
 //        styleButton(backBtn, BG, MUTED_TEXT);
