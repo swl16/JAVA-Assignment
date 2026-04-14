@@ -337,13 +337,13 @@ public class FnBwTicket {
                     sbType.append(seatType[i]).append(" x ").append(countType[i]);
                     isFirst = false;
                 }else {
-                    sbType.append(" , ").append(seatType[i]).append(" x ").append(countType[i]); }
+                    sbType.append(", ").append(seatType[i]).append(" x ").append(countType[i]); }
             }
         }
 
         JLabel ticketTypeLabel = new JLabel(sbType.toString());
         ticketTypeLabel.setForeground(TEXT);
-        ticketTypeLabel.setFont(new Font("Courier New", Font.BOLD, 15));
+        ticketTypeLabel.setFont(new Font("Courier New", Font.PLAIN, 15));
         ticketTypeLabel.setBounds(10,292,350,20);
         centerPanel.add(ticketTypeLabel);
 

@@ -31,7 +31,7 @@ public class Order {
         double ticketTotal = 0;
         if (selectedSeats != null) {
             for (Seat s : selectedSeats) {
-                ticketTotal += s.getPrice(s.getType());
+                ticketTotal += s.calculatePrice();
             }
         }
         return ticketTotal + foodTotal;
