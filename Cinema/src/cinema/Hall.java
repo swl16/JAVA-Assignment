@@ -20,8 +20,10 @@ public class Hall {
         char[] rowLetter = {'A' , 'B' , 'C' , 'D' , 'E' , 'F' , 'G' , 'H' , 'I' , 'J'};
 
         for (int i = 0; i < rows; i++) {
+            char currentRowChar = (char) ('A' + 1);
+
             for (int j = 0; j < column; j++) {
-                seats[i][j] = new Seat(rowLetter[i], j + 1, price);
+                seats[i][j] = new AdultSeat(rowLetter[i], j + 1, price);
             }
         }
     }

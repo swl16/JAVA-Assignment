@@ -25,8 +25,8 @@ public class Main {
         );
 
         List<Seat> selectedSeats = new ArrayList<>();
-        selectedSeats.add(new Seat('A', 7, 20.0));
-        selectedSeats.add(new Seat('A', 8, 20.0));
+        selectedSeats.add(new AdultSeat('A', 7, 20.0));
+        selectedSeats.add(new AdultSeat('A', 8, 20.0));
 
         Order order = new Order(dummyMovie, "11:30 PM", "KL - Melawati", "Hall 2", selectedSeats);
 

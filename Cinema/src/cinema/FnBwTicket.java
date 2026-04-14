@@ -337,13 +337,13 @@ public class FnBwTicket {
                     sbType.append(seatType[i]).append(" x ").append(countType[i]);
                     isFirst = false;
                 }else {
-                    sbType.append(" , ").append(seatType[i]).append(" x ").append(countType[i]); }
+                    sbType.append(", ").append(seatType[i]).append(" x ").append(countType[i]); }
             }
         }
 
         JLabel ticketTypeLabel = new JLabel(sbType.toString());
         ticketTypeLabel.setForeground(TEXT);
-        ticketTypeLabel.setFont(new Font("Courier New", Font.BOLD, 15));
+        ticketTypeLabel.setFont(new Font("Courier New", Font.PLAIN, 15));
         ticketTypeLabel.setBounds(10,292,350,20);
         centerPanel.add(ticketTypeLabel);
 
@@ -424,7 +424,7 @@ public class FnBwTicket {
         styleButton(payBtn, ACCENT, TEXT);
         payBtn.setFont(new Font("SansSerif", Font.BOLD, 16));
         payBtn.setPreferredSize(new Dimension(0, 55));
-        payBtn.addActionListener(e -> { JOptionPane.showMessageDialog(frame, "Order Successful!"); System.exit(0); });
+        payBtn.addActionListener(e -> { frame.dispose(); new TicketPayment(order); });
 
 //        JButton backBtn = new JButton("← Back to Menu");
 //        styleButton(backBtn, BG, MUTED_TEXT);

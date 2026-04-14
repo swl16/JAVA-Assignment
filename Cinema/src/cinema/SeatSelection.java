@@ -31,9 +31,8 @@ public class SeatSelection implements ActionListener {
     int bookingID = 0;
 
     JButton[][] seatButtons;
-    int[] countType = new int[4];
-    Seat baseSeat;
-    Seat.SeatType[] allTypes = Seat.SeatType.values();
+    int[] countType = new int[4];  //0=Adult, 1=Student, 2=Senior, 3=OKU
+    Seat[] typedSeat;
 
     private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("EEE dd MMM , HH:mm");
     String[] seatType = {"Adult","Student","Senior","OKU"};
@@ -47,7 +46,9 @@ public class SeatSelection implements ActionListener {
         loadMovie();
 //        loadBookDetail();
 
-        baseSeat = new Seat('A',0,hall.getPrice());
+        double price = hall.getPrice();
+        // build a prototype of each type of seat 
+        typedSeat = new Seat[]{new AdultSeat('-',0,price), new StudentSeat('_', 0, price), new SeniorSeat('_', 0, price), new OkuSeat('_', 0, price)};
 
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setResizable(false);
@@ -166,7 +167,7 @@ public class SeatSelection implements ActionListener {
         expandPanelBtn.setBorderPainted(false);
         expandPanelBtn.setFocusPainted(false);
         expandPanelBtn.setFont(new Font("Courier New",Font.PLAIN,12));
-        expandPanelBtn.setBounds(280,10,180,30);
+        expandPanelBtn.setBounds(280,10,180,25);
         expandPanelBtn.setForeground(new Color(0xF7F7F7));
         expandPanelBtn.setBackground(new Color(0xD44444));
         expandPanelBtn.setMargin(new Insets(0,0,0,0));
@@ -179,40 +180,40 @@ public class SeatSelection implements ActionListener {
         seatLabel.setBounds(10,15,200,20);
         lowerPanel.add(seatLabel);
 
-        double totalPrice = 0;
-        StringBuilder sbSeatNo = new StringBuilder();
-        for (Seat s : selectedSeat){
-            sbSeatNo.append(s.getSeatId()).append(" ");
-        }
-        for (int i = 0; i < countType.length; i++){
-            totalPrice +=countType[i] * baseSeat.getPrice(allTypes[i]);
-        }
+//        double totalPrice = 0;
+//        StringBuilder sbSeatNo = new StringBuilder();
+//        for (Seat s : selectedSeat){
+//            sbSeatNo.append(s.getSeatId()).append(" ");
+//        }
+//        for (int i = 0; i < countType.length; i++){
+//            totalPrice +=countType[i] * baseSeat.getPrice(allTypes[i]);
+//        }
+//
+//        StringBuilder sbType = new StringBuilder();
+//        boolean isFirst = true;
+//        for (int i = 0 ; i < 4; i++){
+//            if (countType[i] != 0){
+//                if (isFirst){
+//                sbType.append(seatType[i]).append(" x ").append(countType[i]);
+//                isFirst = false;
+//                }else {
+//                sbType.append(" , ").append(seatType[i]).append(" x ").append(countType[i]); }
+//            }
+//        }
 
-        StringBuilder sbType = new StringBuilder();
-        boolean isFirst = true;
-        for (int i = 0 ; i < 4; i++){
-            if (countType[i] != 0){
-                if (isFirst){
-                sbType.append(seatType[i]).append(" x ").append(countType[i]);
-                isFirst = false;
-                }else {
-                sbType.append(" , ").append(seatType[i]).append(" x ").append(countType[i]); }
-            }
-        }
-
-        infoLabel = new JLabel(sbType.toString());
+        infoLabel = new JLabel("");
         infoLabel.setForeground(new Color(0xF7F7F7));
-        infoLabel.setFont(new Font("Courier New",Font.BOLD,15));
-        infoLabel.setBounds(10,40,350,20);
+        infoLabel.setFont(new Font("Courier New",Font.PLAIN,15));
+        infoLabel.setBounds(10,40,450,20);
         lowerPanel.add(infoLabel);
 
-        seatNoLabel = new JLabel(sbSeatNo.toString());
+        seatNoLabel = new JLabel("-");
         seatNoLabel.setForeground(new Color(0xF7F7F7));
         seatNoLabel.setFont(new Font("Courier New",Font.BOLD,15));
         seatNoLabel.setBounds(10,60,350,20);
         lowerPanel.add(seatNoLabel);
 
-        priceLabel = new JLabel("RM " + String.format("%.2f",totalPrice));
+        priceLabel = new JLabel("RM 0.00");
         priceLabel.setForeground(new Color(0xF7F7F7));
         priceLabel.setFont(new Font("Courier New",Font.BOLD,15));
         priceLabel.setBounds(380,60,100,20);
@@ -243,7 +244,8 @@ public class SeatSelection implements ActionListener {
         for (int i = 0;i < seatType.length ; i++){
             int index = i;
             pullOutPanel.add(SeatTypeLabel(seatType[i],i*40));
-            pullOutPanel.add(seatPriceLabel(baseSeat.getPrice(allTypes[i]),i * 40));
+            
+            pullOutPanel.add(seatPriceLabel(typedSeat[i].calculatePrice(),i * 40));
 
             JButton minusButton = new JButton("-");
             minusButton.setBorderPainted(false);
@@ -267,7 +269,6 @@ public class SeatSelection implements ActionListener {
             addButton.setFocusable(false);
             addButton.setBounds(415,55 + i * 40,20,20);
             addButton.setFont(new Font("Courier New",Font.BOLD,15));
-            addButton.addActionListener(e -> {});
             addButton.setForeground(new Color(0xF7F7F7));
             addButton.setMargin(new Insets(0,0,0,0));
 
@@ -289,7 +290,7 @@ public class SeatSelection implements ActionListener {
                 }else {
                     JOptionPane.showMessageDialog(null,
                             "You have already assigned a ticket type to every selected seat!",
-                            "Limit Reached",
+                            "Limit Reac hed",
                             JOptionPane.WARNING_MESSAGE);
                 }
             });
@@ -368,21 +369,31 @@ public class SeatSelection implements ActionListener {
         if (selectedSeat.contains(seat)){
             selectedSeat.remove(seat);
             seat.cancel();
-            countType[0]--;
-            quantityLabel[0].setText(String.valueOf(countType[0]));
-            btn.setToolTipText(seat.getSeatId() + "  " + seat.getStatus());
-            updateBtnColor(btn,seat);
-
+            
+            if(countType[0] > 0){
+                countType[0]--;
+                quantityLabel[0].setText(String.valueOf(countType[0]));
+            } else if (countType[1] > 0) {
+                countType[1]--;
+                quantityLabel[1].setText(String.valueOf(countType[1]));
+            } else if (countType[2] > 0) {
+                countType[2]--;
+                quantityLabel[2].setText(String.valueOf(countType[2]));
+            } else if (countType[3] > 0) {
+                countType[3]--;
+                quantityLabel[3].setText(String.valueOf(countType[3]));
+            }
 
         }else {
             selectedSeat.add(seat);
             seat.select();
             countType[0]++;
-            btn.setToolTipText(seat.getSeatId() + "  " + seat.getStatus());
             quantityLabel[0].setText(String.valueOf(countType[0]));
             btn.setBackground(new Color(0x6e7075));
             btn.setForeground(new Color(0xF7F7F7));
         }
+        btn.setToolTipText(seat.getSeatId() + "  " + seat.getStatus());
+        updateBtnColor(btn,seat);
         updateSeatSummary();
     }
 
@@ -392,8 +403,10 @@ public class SeatSelection implements ActionListener {
             btn.setForeground(new Color(0xF7F7F7));
             btn.setEnabled(false);
 
-            return;
-        }else {
+        } else if (seat.getStatus() == Seat.SeatStatus.SELECTING) {
+            btn.setBackground(new Color(0x6e7075));
+            btn.setForeground(new Color(0xF7F7F7));
+        } else {
             btn.setBackground(new Color(0xcccccc));
             btn.setForeground(new Color(0x242424));
         }
@@ -401,24 +414,27 @@ public class SeatSelection implements ActionListener {
 
     void updateSeatSummary(){
         double totalPrice = 0;
-        StringBuilder sbSeatNo = new StringBuilder();
-        for (Seat s : selectedSeat){
-            sbSeatNo.append(s.getSeatId()).append(" ");
-        }
         for (int i = 0; i < countType.length; i++){
-            totalPrice +=countType[i] *baseSeat.getPrice(allTypes[i]);
+            totalPrice +=countType[i] * typedSeat[i].calculatePrice();
         }
-
+        StringBuilder sbSeatNo = new StringBuilder();
         StringBuilder sbType = new StringBuilder();
-        boolean isFirst = true;
-        for (int i = 0 ; i < 4; i++){
-            if (countType[i] != 0){
-                if (isFirst){
-                    sbType.append(seatType[i]).append(" x ").append(countType[i]);
-                    isFirst = false;
-                }else {
-                    sbType.append(" , ").append(seatType[i]).append(" x ").append(countType[i]); }
+        if (!selectedSeat.isEmpty()){
+            for (Seat s : selectedSeat){
+                sbSeatNo.append(s.getSeatId()).append(" ");
             }
+            boolean isFirst = true;
+            for (int i = 0 ; i < 4; i++){
+                if (countType[i] != 0){
+                    if (isFirst){
+                        sbType.append(seatType[i]).append(" x ").append(countType[i]);
+                        isFirst = false;
+                    }else {
+                        sbType.append(", ").append(seatType[i]).append(" x ").append(countType[i]); }
+                }
+            }
+        }else {
+            sbSeatNo.append("-");
         }
 
         infoLabel.setText(sbType.toString());
@@ -561,15 +577,11 @@ public class SeatSelection implements ActionListener {
             for (int count : countType) {
                 totalTicketsSelected += count;
             }
-            if (totalTicketsSelected != selectedSeat.size()){
-                JOptionPane.showMessageDialog(null,
-                        "You have selected "+ selectedSeat.size() + " seats, but only " + totalTicketsSelected + " tickets was selected. Please select a valid ticket quantity.",
-                        "Invalid quantity of ticket",
-                        JOptionPane.WARNING_MESSAGE);
-            } else if (selectedSeat.isEmpty()) {
-                JOptionPane.showMessageDialog(null,
-                        "Please select at least one seat first.",
-                        "No Seats Selected", JOptionPane.WARNING_MESSAGE);
+            if (selectedSeat.isEmpty()) {
+                JOptionPane.showMessageDialog(null, "Please select at least one seat first.", "No Seats Selected", JOptionPane.WARNING_MESSAGE);
+            } else if (totalTicketsSelected != selectedSeat.size()) {
+                JOptionPane.showMessageDialog(null, "You have selected "+ selectedSeat.size() + " seats, but only " + totalTicketsSelected + " tickets was selected. Please select a valid ticket quantity.", "Invalid quantity of ticket", JOptionPane.WARNING_MESSAGE);
+
             }else {
                 double totalPrice = 0;
 //                StringBuilder msg = new StringBuilder("Please confirm your booking.\n\n");
@@ -577,7 +589,7 @@ public class SeatSelection implements ActionListener {
 //                    msg.append(s.getSeatId()).append(" ");
 //                }
                 for (int i = 0; i < countType.length; i++){
-                    totalPrice +=countType[i] * baseSeat.getPrice(allTypes[i]);
+                    totalPrice +=countType[i] * typedSeat[i].calculatePrice();
                 }
 //                msg.append("\nTotal : RM ").append(String.format("%.2f",totalPrice));
 
