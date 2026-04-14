@@ -9,6 +9,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Random;
+import java.io.*;
 
 public class FoodPayment{
     JFrame frame = new JFrame();
@@ -27,7 +28,6 @@ public class FoodPayment{
     private final Color tgcRed = new Color(0xD44444);   // Your brand red
     private final Color softGray = new Color(0xAAAAAA);
     private final Color text = new Color(0xF7F7F7);
- 
     
     private final String username, cinema, time;
     private final String orderId;
@@ -49,7 +49,7 @@ public class FoodPayment{
             double price = prices.get(name);
 
             basketItems.add(new Item(name, qty, price));
-            totalAmount += qty * price;
+            total += qty * price;
         }
         this.totalAmount = total;
 
@@ -73,6 +73,13 @@ public class FoodPayment{
         frame.add(mainContainer);
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
+        
+        frame.addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosed(java.awt.event.WindowEvent e) {
+                new MainMenuPage(username);
+            }
+        });
     }
 
     // --- VIEW 1: Selection Menu ---
@@ -246,7 +253,6 @@ public class FoodPayment{
         JLabel qrTitle = new JLabel("SCAN TO PAY", SwingConstants.CENTER);
         qrTitle.setForeground(text);
         qrTitle.setFont(new Font("Courier New", Font.BOLD, 24));
-        panel.add(qrTitle, BorderLayout.NORTH);
         
         JLabel amtLbl = new JLabel(
                 "RM " + String.format("%.2f", totalAmount), SwingConstants.CENTER);
@@ -268,7 +274,7 @@ public class FoodPayment{
         qrBox.add(qrLabel, BorderLayout.CENTER);
 
         try {
-            ImageIcon rawIcon = new ImageIcon("Cinema/src/cinema/qr_code.png");
+            ImageIcon rawIcon = new ImageIcon("src/cinema/qr_code.png");
             Image scaledImg = rawIcon.getImage().getScaledInstance(220, 220, Image.SCALE_SMOOTH);
             qrBox.add(new JLabel(new ImageIcon(scaledImg)), BorderLayout.CENTER);
         } catch (Exception e) {
@@ -348,38 +354,46 @@ public class FoodPayment{
         panel.setBorder(new EmptyBorder(20, 30, 20, 30));
 
         JPanel ticket = new JPanel(new BorderLayout());
-        ticket.setBackground(text);
+        ticket.setBackground(bg);
         ticket.setBorder(new LineBorder(new Color(0xDDDDDD), 1));
 
         receiptArea = new JTextArea();
         receiptArea.setEditable(false);
-        receiptArea.setFont(new Font("Courier New", Font.PLAIN, 12));
-        receiptArea.setBackground(text);
+        receiptArea.setFont(new Font("Courier New", Font.PLAIN, 15));
+        receiptArea.setBackground(bg);
+        receiptArea.setForeground(text); 
         receiptArea.setBorder(new EmptyBorder(20, 20, 20, 20));
 
-        JPanel footer = new JPanel(new GridBagLayout());
-        footer.setBackground(Color.WHITE);
+        JPanel footer = new JPanel(new BorderLayout());
+        footer.setBackground(bg);
         footer.setPreferredSize(new Dimension(0, 180));
         footer.setBorder(new MatteBorder(2, 0, 0, 0, new Color(0xEEEEEE)));
+//
+//        JPanel qr = new JPanel(new BorderLayout());
+//        qr.setPreferredSize(new Dimension(100, 100));
+//        qr.setBorder(new LineBorder(Color.BLACK, 2));
+//        try {
+//            ImageIcon raw = new ImageIcon("Cinema/src/cinema/entry_qr.png");
+//            qr.add(new JLabel(new ImageIcon(raw.getImage().getScaledInstance(90, 90, 1))), 0);
+//        } catch(Exception e) { qr.add(new JLabel("QR")); }
 
-        JPanel qr = new JPanel(new BorderLayout());
-        qr.setPreferredSize(new Dimension(100, 100));
-        qr.setBorder(new LineBorder(Color.BLACK, 2));
-        try {
-            ImageIcon raw = new ImageIcon("Cinema/src/cinema/entry_qr.png");
-            qr.add(new JLabel(new ImageIcon(raw.getImage().getScaledInstance(90, 90, 1))), 0);
-        } catch(Exception e) { qr.add(new JLabel("QR")); }
+//        GridBagConstraints gbc = new GridBagConstraints();
+//        gbc.gridx = 0;
+//        gbc.gridy = 0;
 
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.gridy = 0; footer.add(qr, gbc);
-        gbc.gridy = 1; gbc.insets = new Insets(10,0,0,0);
-        footer.add(new JLabel("<html><center><b>REDEMPTION QR</b><br>Show at counter</center></html>"), gbc);
-
+        JLabel footerLbl = new JLabel("KEEP THIS RECEIPT FOR FOOD COLLECTION", SwingConstants.CENTER);
+        footerLbl.setForeground(new Color(0x888888));
+        footerLbl.setFont(new Font("Courier New", Font.PLAIN, 11));
+        footer.add(footerLbl,BorderLayout.CENTER);
+        
         ticket.add(receiptArea, BorderLayout.CENTER);
         ticket.add(footer, BorderLayout.SOUTH);
 
         JButton done = createActionBtn("FINISH & RETURN");
-        done.addActionListener(e -> frame.dispose());
+        done.addActionListener(e -> {
+            frame.dispose();
+            new MainMenuPage(username);
+                });
 
         panel.add(ticket, BorderLayout.CENTER);
         panel.add(done, BorderLayout.SOUTH);
@@ -397,33 +411,60 @@ public class FoodPayment{
     private void updateReceipt() {
         String dt = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
         StringBuilder items = new StringBuilder();
-        for (Item i : basketItems) items.append(String.format(" %-20s x%d\n", i.name, i.quantity));
-
+        for (Item i : basketItems) {
+            String nameQty = String.format(" %-20s %d", i.name, i.quantity);
+            String price   = String.format("RM %6.2f", i.quantity * i.price);
+            int pad = 44 - nameQty.length() - price.length();
+            items.append(nameQty)
+                 .append(" ".repeat(Math.max(1, pad)))
+                 .append(price)
+                 .append("\n");
+        }
+        
         receiptArea.setText(
                 "\n         TGC CINEMA CONCESSION\n" +
                         "------------------------------------------\n" +
-                        " DATE: " + dt + "\n" +
-                        " ID:   " + System.currentTimeMillis() + "\n" +
+                        " ORDER ID   : " + orderId + "\n" +
+                        " DATE       : " + dt + "\n" +
+                        " USER       : " + username + "\n" +
+                        " CINEMA     : " + cinema + "\n" +
+                        " PICKUP TIME: " + time + "\n" +
                         "------------------------------------------\n" +
-                        " ITEMS:\n" + items.toString() +
+                          items.toString() +
                         "------------------------------------------\n" +
-                        " TOTAL PAID: RM " + String.format("%.2f", totalAmount) + "\n" +
-                        " METHOD: " + paymentMethod + "\n" +
-                        "------------------------------------------\n" +
-                        "   KEEP THIS QR FOR FOOD COLLECTION"
+                        " TOTAL PAID    : RM " + String.format("%.2f", totalAmount) + "\n" +
+                        " PAYMENT METHOD: " + paymentMethod + "\n" +
+                        "------------------------------------------\n"
+//                        "   KEEP THIS QR FOR FOOD COLLECTION"
         );
+        
+        saveOrder();
     }
 
     // --- CUSTOM UI HELPERS ---
-    private JButton createMenuButton(String main, String sub) {
-        JButton b = new JButton("<html><center><b>" + main + "</b><br><font size='3' color='#888888'>" + sub + "</font></center></html>");
-        b.setBackground(panel);
-        b.setForeground(text);
-        b.setFocusPainted(false);
-        b.setBorder(new LineBorder(new Color(0x333333), 1));
-        b.setPreferredSize(new Dimension(320, 70));
-        b.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        return b;
+    private JButton createMenuButton(String title, String subtitle) {
+        JButton btn = new JButton();
+        btn.setLayout(new BoxLayout(btn, BoxLayout.Y_AXIS));
+        btn.setBackground(panel);
+        btn.setBorder(new LineBorder(new Color(0x333333), 1));
+        btn.setPreferredSize(new Dimension(320, 70));
+
+        JLabel t = new JLabel(title);
+        t.setForeground(text);
+        t.setFont(new Font("Courier New", Font.BOLD, 14));
+        t.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        JLabel sub = new JLabel(subtitle);
+        sub.setForeground(softGray);
+        sub.setFont(new Font("Courier New", Font.PLAIN, 11));
+        sub.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        btn.add(Box.createVerticalGlue());
+        btn.add(t);
+        btn.add(sub);
+        btn.add(Box.createVerticalGlue());
+
+        return btn;
     }
 
     private JButton createActionBtn(String text) {
@@ -479,6 +520,44 @@ public class FoodPayment{
         b.setBorder(new LineBorder(new Color(0x333333), 1));
         b.setCursor(new Cursor(Cursor.HAND_CURSOR));
         return b;
+    }
+    
+    private void saveOrder(){
+        String dt = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+        
+        try(BufferedWriter wr = new BufferedWriter(new FileWriter("OrderHistory.txt", true))){
+            
+            wr.write("----ORDER----");
+            wr.newLine();
+            wr.write("User: " + username);
+            wr.newLine();
+            wr.write("OrderID: " + orderId);
+            wr.newLine();
+            wr.write("Cinema: " + cinema);
+            wr.newLine();
+            wr.write("Pick Up: " + time);
+            wr.newLine();
+            
+            for (Item i : basketItems) {
+                double subtotal = i.quantity * i.price;
+
+                wr.write(i.name + " x" + i.quantity +
+                    " (RM " + String.format("%.2f", subtotal) + ")");
+                wr.newLine();
+            }
+
+            wr.write("Total: RM " + String.format("%.2f", totalAmount));
+            wr.newLine();
+            
+            wr.write("Date: " + dt);
+            wr.newLine();
+            
+            wr.write("--------------");
+            wr.newLine();
+            
+        }catch(IOException e){
+            e.printStackTrace();
+        }
     }
 }
 
