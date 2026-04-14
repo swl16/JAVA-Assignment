@@ -29,8 +29,8 @@ public class Concession {
 
     ArrayList<fnbitem> items = new ArrayList<>();
 
-    public Concession() {
-        
+    public Concession(String username) {
+        this.username = username;
         loadstock();
         
         frame = new JFrame("TGC Cinema - Concession F&B");
@@ -59,6 +59,26 @@ public class Concession {
         selectionView.setLayout(new BoxLayout(selectionView, BoxLayout.Y_AXIS));
         selectionView.setBackground(BG);
         selectionView.setBorder(new EmptyBorder(60, 45, 40, 45));
+        
+        JPanel header = new JPanel(new BorderLayout());
+        header.setBackground(BG);
+        header.setBorder(new EmptyBorder(10, 10, 10, 10));
+        
+        JButton backBtn = new JButton("< Back");
+        backBtn.setBorderPainted(false);
+        backBtn.setContentAreaFilled(false);
+        backBtn.setFocusPainted(false);
+        backBtn.setOpaque(false);
+        backBtn.setFont(new Font("Courier New", Font.PLAIN, 13));
+        backBtn.setForeground(MUTED_TEXT);
+        backBtn.setMargin(new Insets(2, 4, 2, 4));
+        backBtn.setHorizontalAlignment(SwingConstants.LEFT);
+        backBtn.addActionListener(e -> {
+            frame.dispose();
+            new MainMenuPage(username);
+                });
+        header.add(backBtn, BorderLayout.WEST);
+        header.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
 
         JLabel title = new JLabel("CONCESSION");
         title.setForeground(redcolor);
@@ -110,6 +130,7 @@ public class Concession {
         
         historybtn.addActionListener(e -> historyview());
         
+        selectionView.add(header);
         selectionView.add(title);
         selectionView.add(Box.createRigidArea(new Dimension(0, 4)));
         selectionView.add(sub);
@@ -307,6 +328,7 @@ public class Concession {
                 for(List<String> block : blocks){
                         
                     String orderuser = "";
+                    String orderId = "";
                     String cinema = "";
                     String pickup = "";
                     String total = "";
@@ -314,14 +336,24 @@ public class Concession {
                     List<String> itemLines = new ArrayList<>();
                         
                         for(String l : block){
-                            if(l.startsWith("Cinema: ")){
+                            if (l.startsWith("User: ")) {
+                                orderuser = l.substring(6).trim();
+
+                            } else if (l.startsWith("OrderID: ")) {
+                                orderId = l.substring(9).trim();
+                                
+                            } else if (l.startsWith("Cinema: ")) {
                                 cinema = l.substring(8).trim();
-                            }else if(l.startsWith("Pick Up: ")){
+
+                            } else if (l.startsWith("Pick Up: ")) {
                                 pickup = l.substring(9).trim();
-                            }else if(l.startsWith("Total: ")){
+
+                            } else if (l.startsWith("Total: ")) {
                                 total = l.substring(7).trim();
-                            }else if(l.startsWith("Date: ")){
+
+                            } else if (l.startsWith("Date: ")) {
                                 datetime = l.substring(6).trim();
+
                             }else {
                                 itemLines.add(l);
                             }
@@ -330,7 +362,7 @@ public class Concession {
                         if (!orderuser.equals(username)) continue;
  
                         found = true;
-                        panel.add(buildHistoryCard(datetime, cinema, pickup, itemLines, total));
+                        panel.add(buildHistoryCard(orderId, datetime, cinema, pickup, itemLines, total));
                         panel.add(Box.createRigidArea(new Dimension(0, 12)));
                     }
                 
@@ -352,7 +384,7 @@ public class Concession {
         
     }
     
-    private JPanel buildHistoryCard(String date, String cinema, String pickup,
+    private JPanel buildHistoryCard(String orderId, String date, String cinema, String pickup,
                                     List<String> itemname, String grandTotal) {
         JPanel card = new JPanel() {
             @Override
@@ -369,22 +401,31 @@ public class Concession {
         };
         card.setLayout(new BorderLayout());
         card.setOpaque(false);
-        card.setMaximumSize(new Dimension(440, Integer.MAX_VALUE));
-        card.setBorder(new EmptyBorder(14, 16, 14, 16));
- 
-        // ── Top row: date + total ──
+        card.setMaximumSize(new Dimension(440, 150));
+        card.setBorder(new EmptyBorder(10, 12, 10, 12));
+        
         JPanel topRow = new JPanel(new BorderLayout());
         topRow.setOpaque(false);
+
+        JPanel topLeft = new JPanel();
+        topLeft.setLayout(new BoxLayout(topLeft, BoxLayout.Y_AXIS));
+        topLeft.setOpaque(false);
+        
+        JLabel orderLbl = new JLabel("Order: " + orderId);
+        orderLbl.setForeground(MUTED_TEXT);
+        orderLbl.setFont(new Font("Courier New", Font.PLAIN, 11));
  
         JLabel dateLabel = new JLabel(date);
         dateLabel.setForeground(MUTED_TEXT);
         dateLabel.setFont(new Font("Courier New", Font.PLAIN, 12));
  
         JLabel totalLbl = new JLabel(grandTotal);
-        totalLbl.setForeground(ACCENT);
+        totalLbl.setForeground(TEXT);
         totalLbl.setFont(new Font("Courier New", Font.BOLD, 15));
- 
-        topRow.add(dateLabel, BorderLayout.WEST);
+        
+        topLeft.add(orderLbl);
+        topLeft.add(dateLabel);
+        topRow.add(topLeft, BorderLayout.WEST);
         topRow.add(totalLbl, BorderLayout.EAST);
  
         // ── Middle: cinema + pickup ──
@@ -399,7 +440,7 @@ public class Concession {
         JPanel itemsPanel = new JPanel();
         itemsPanel.setLayout(new BoxLayout(itemsPanel, BoxLayout.Y_AXIS));
         itemsPanel.setOpaque(false);
-        itemsPanel.setBorder(new EmptyBorder(6, 0, 0, 0));
+        itemsPanel.setBorder(new EmptyBorder(4, 0, 0, 0));
  
         for (String itemLine : itemname) {
             JLabel il = new JLabel("  • " + itemLine);
@@ -412,6 +453,7 @@ public class Concession {
         body.setLayout(new BoxLayout(body, BoxLayout.Y_AXIS));
         body.setOpaque(false);
         body.add(midRow);
+        body.add(Box.createRigidArea(new Dimension(0, 6)));
         body.add(itemsPanel);
  
         card.add(topRow, BorderLayout.NORTH);
@@ -571,7 +613,10 @@ public class Concession {
         styleButton(payBtn, redcolor, TEXT);
         payBtn.setFont(new Font("Courier New", Font.BOLD, 16));
         payBtn.setPreferredSize(new Dimension(0, 55));
-        payBtn.addActionListener(e -> new FoodPayment(basket, prices, selCinema, selTime, username));
+        payBtn.addActionListener(e -> {
+            frame.dispose();
+            new FoodPayment(basket, prices, selCinema, selTime, username);
+                });
 
 
         JPanel btnPanel = new JPanel(new BorderLayout(0, 10));
