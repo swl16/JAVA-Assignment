@@ -67,14 +67,13 @@ public class AdminPage{
     
     public JPanel menu(){
         JPanel panel = new JPanel(new BorderLayout());
-        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         panel.setBackground(bgcolor);
         
         JLabel title = new JLabel("TGC Cinema Admin", SwingConstants.CENTER);
         title.setForeground(textcolor);
         title.setFont(new Font("Courier New", Font.BOLD, 30));
-        title.setBorder(BorderFactory.createEmptyBorder(35,100,15,0));
-        panel.add(title);
+        title.setBorder(BorderFactory.createEmptyBorder(35,40,15,0));
+        panel.add(title,BorderLayout.NORTH);
         
         JPanel inner = new JPanel();
         inner.setLayout(new BoxLayout(inner, BoxLayout.Y_AXIS));
@@ -100,7 +99,30 @@ public class AdminPage{
             inner.add(Box.createVerticalStrut(14));
         }
         
-        panel.add(inner);
+        JPanel bottomPanel = new JPanel();
+        bottomPanel.setBackground(bgcolor);
+        bottomPanel.setBorder(new EmptyBorder(20, 40, 30, 40));
+        bottomPanel.setLayout(new BoxLayout(bottomPanel, BoxLayout.Y_AXIS));
+
+        JButton logoutBtn = new JButton("LOGOUT");
+        logoutBtn.setMaximumSize(new Dimension(100, 40));
+        logoutBtn.setPreferredSize(new Dimension(100, 40));
+        logoutBtn.setFont(new Font("Courier New", Font.BOLD, 14));
+        logoutBtn.setBackground(redcolor);
+        logoutBtn.setForeground(textcolor);
+        logoutBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
+        
+        
+        logoutBtn.addActionListener(e -> {
+            frame.dispose(); // close admin page
+            new LoginPage(); // go back to login
+        });
+
+        logoutBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
+        bottomPanel.add(logoutBtn);
+
+        panel.add(inner, BorderLayout.CENTER);
+        panel.add(bottomPanel, BorderLayout.SOUTH);
         return panel;
         
     }
