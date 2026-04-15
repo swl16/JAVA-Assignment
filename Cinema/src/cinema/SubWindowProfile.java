@@ -1,12 +1,10 @@
 package cinema;
 
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -194,29 +192,64 @@ public class SubWindowProfile extends JFrame implements ActionListener {
             boundsY = 250;
         }
 
-        String[] label = {"Order ID: " + order[0], "Transaction Date: " + order[12], "Movie", "Location", "Show Time", "Hall", "Seat(s)", "Ticket(s)", "Processing Fee","Food and Drinks"};
-        for (int i = 0; i < seatType.length;i++){
-
-        }
-        String[] value = {order[1], "Mit Valley Megamall", formattedShow, order[4], order[5], }
+//        String[] label = {"Order ID: " + order[0], "Transaction Date: " + order[12], "Movie", "Location", "Show Time", "Hall", "Seat(s)", "Ticket(s)", "Processing Fee","Food and Drinks"};
+//        for (int i = 0; i < seatType.length;i++){
+//
+//        }
+//        String[] value = {order[1], "Mit Valley Megamall", formattedShow, order[4], order[5], }
 
         JPanel detailList = new JPanel();
         detailList.setLayout(null);
         detailList.setBackground(new Color(0x242424));
 
-        JLabel  movieLabel = makeDetailsLabel("Movie: " + order[1] , boundsY);
-        panel.add(movieLabel);
+        JLabel  orderIdLabel = makeDetailsLabel("Order ID: " + order[0], boundsY);
+        panel.add(orderIdLabel);
         boundsY += 23;
 
-        JLabel locationLabel = makeDetailsLabel("Location: Mit Valley Megamall",boundsY);
+        JLabel locationLabel = makeDetailsLabel("Transaction Date: " + order[12], boundsY);
         panel.add(locationLabel);
         boundsY += 23;
 
-        JLabel showTimeLabel = makeDetailsLabel("Showtime: " + formattedShow + "  |  " + order[4], boundsY);
-        panel.add(showTimeLabel);
-        boundsY += 23;
+        JSeparator sep1 = new JSeparator();
+        sep1.setBounds(40, boundsY, 400, 1);
+        sep1.setForeground(new Color(0xF7F7F7));
+        panel.add(sep1);
+        boundsY += 8;
 
-        JLabel seatLabel =
+        JPanel moviePanel = createLabelGroup("Movie", order[1]);
+        moviePanel.setBounds(10, boundsY , 500, 30);
+        panel.add(moviePanel);
+        boundsY += 38;
+
+        JPanel locationPanel = createLabelGroup("Location", "Mit Valley Megamall");
+        locationPanel.setBounds(10, boundsY , 500, 30);
+        panel.add(locationPanel);
+        boundsY += 38;
+
+        JPanel showTimePanel = createLabelGroup("Time", formattedShow);
+        showTimePanel.setBounds(10, boundsY , 500, 30);
+        panel.add(showTimePanel);
+        boundsY += 38;
+
+        JPanel hallPanel = createLabelGroup("Cinema", order[4]);
+        hallPanel.setBounds(10, boundsY , 500, 30);
+        panel.add(hallPanel);
+        boundsY += 38;
+
+        JPanel seatPanel = createLabelGroup("Seat(s)", order[5]);
+        seatPanel.setBounds(10, boundsY , 500, 30);
+        panel.add(seatPanel);
+        boundsY += 38;
+
+        JSeparator sep2 = new JSeparator();
+        sep2.setBounds(40, boundsY, 400, 1);
+        sep2.setForeground(new Color(0xF7F7F7));
+        panel.add(sep2);
+        boundsY += 8;
+
+        JPanel ticketPanel = createPriceRow("Ticket(s)", "RM " + String.format("%.2f",Double.parseDouble(order[8])));
+
+
 
 
 
@@ -580,6 +613,36 @@ public class SubWindowProfile extends JFrame implements ActionListener {
         return label;
     }
 
+    private JPanel createLabelGroup(String title, String value){
+        JPanel p = new JPanel(new GridLayout(2, 1));
+        p.setOpaque(false);
+
+        JLabel t = new JLabel(title);
+        t.setForeground(new Color(0xAAAAAA));
+        t.setFont(new Font("Courier New", Font.BOLD, 14));
+        p.add(t);
+        JLabel v = new JLabel(value);
+        v.setForeground(new Color(0xF7F7F7));
+        v.setFont(new Font("Courier New", Font.BOLD, 16));
+        p.add(v);
+
+        return p;
+    }
+
+    private JPanel createPriceRow(String label, String price) {
+        JPanel p = new JPanel(new BorderLayout());
+        p.setOpaque(false);
+        JLabel l = new JLabel(label);
+        l.setForeground(new Color(0xAAAAAA));
+        l.setFont(new Font("Courier New", Font.BOLD, 14));
+        JLabel r = new JLabel(price);
+        r.setForeground(new Color(0xF7F7F7));
+        r.setFont(new Font("Courier New", Font.BOLD, 16));
+        p.add(l, BorderLayout.WEST);
+        p.add(r, BorderLayout.EAST);
+
+        return p;
+    }
     //testing use only
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> new SubWindowProfile(new JFrame(),1,"tang"));
