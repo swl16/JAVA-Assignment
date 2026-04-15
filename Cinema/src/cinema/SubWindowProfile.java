@@ -1,6 +1,7 @@
 package cinema;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -20,15 +21,16 @@ public class SubWindowProfile extends JFrame implements ActionListener {
     JButton backButton1,backButton2,backButton3,backButton4;
     JButton delAccBtn;
 
-    Map<String,List<String[]>> combineOrder;
     List<String[]> order = new ArrayList<>();
     List<String[]> orderPast = new ArrayList<>();
+    String[] seatType = {"Adult","Student","Senior","OKU"};
     private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("EEE dd MMM , HH:mm");
 
 
     public SubWindowProfile(JFrame homeFrame, int choice, String username){
         this.homeFrame = homeFrame;
         this.username = username;
+
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setResizable(false);
         frame.setSize(500,700);
@@ -39,17 +41,11 @@ public class SubWindowProfile extends JFrame implements ActionListener {
         cardLayout = new CardLayout();
         cardPanel = new JPanel(cardLayout);
 
-        JPanel ticketPanel = createTicketPanel();
-        JPanel historyPanel = createHistoryPanel();
-        JPanel contactUsPanel = createContactUsPanel();
-        JPanel settingPanel = createSettingPanel();
-        JPanel changePassPanel = createChangePassPanel();
-
-        cardPanel.add(ticketPanel,"ticket");
-        cardPanel.add(historyPanel,"history");
-        cardPanel.add(contactUsPanel,"contactUs");
-        cardPanel.add(settingPanel,"setting");
-        cardPanel.add(changePassPanel, "changePass");
+        cardPanel.add(createTicketPanel(),"ticket");
+        cardPanel.add(createHistoryPanel(),"history");
+        cardPanel.add(createContactUsPanel(),"contactUs");
+        cardPanel.add(createSettingPanel(),"setting");
+        cardPanel.add(createChangePassPanel(), "changePass");
 
         frame.add(cardPanel);
 
@@ -67,19 +63,8 @@ public class SubWindowProfile extends JFrame implements ActionListener {
         ticketPanel.setLayout(null);
         ticketPanel.setBackground(new Color(0x242424));
 
-        loadUserOrder();
-
-        backButton1 = new JButton("< Back");
-        backButton1.setBorderPainted(false);
-        backButton1.setFocusPainted(false);
-        backButton1.setContentAreaFilled(false);
-        backButton1.setFocusable(false);
-        backButton1.setBounds(8,10,400,40);
-        backButton1.setFont(new Font("Courier New",Font.PLAIN,17));
-        backButton1.setHorizontalAlignment(JButton.LEFT);
+        backButton1 = makeBackButton();
         backButton1.addActionListener(this);
-        backButton1.setForeground(new Color(0xF7F7F7));
-        backButton1.setBackground(new Color(0x3B3B3B));
         ticketPanel.add(backButton1);
 
         JLabel ticketLabel = new JLabel("My Ticket");
@@ -88,12 +73,14 @@ public class SubWindowProfile extends JFrame implements ActionListener {
         ticketLabel.setBounds(40,60,500,50);
         ticketPanel.add(ticketLabel);
 
-
+        JPanel listPanel = new JPanel();
+        listPanel.setLayout(new BoxLayout(listPanel, BoxLayout.Y_AXIS));
+        listPanel.setBackground(new Color(0x242424));
 
         return ticketPanel;
     }
 
-    private JPanel createOrderPanel(String[] order){
+    private JPanel createOrderCard(String[] order, Boolean upcoming){
         String formattedDateTime = LocalDateTime.parse(order[3]).format(FMT);
         JPanel panel = new JPanel();
         panel.setLayout(null);
@@ -102,16 +89,137 @@ public class SubWindowProfile extends JFrame implements ActionListener {
         JLabel movieLabel = new JLabel(order[1]);
         movieLabel.setForeground(new Color(0xF7F7F7));
         movieLabel.setFont(new Font("Courier New",Font.BOLD,20));
-        movieLabel.setBounds(10,10,400,20);
+        movieLabel.setBounds(10,10,250,20);
         panel.add(movieLabel);
+
+        JLabel badge = new JLabel(upcoming ? "  UPCOMING  " : "  COMPLETED  ");
+        badge.setForeground(new Color(0xF7F7F7));
+        badge.setFont(new Font("Courier New", Font.BOLD, 10));
+        badge.setBackground(upcoming ? new Color(0xD44444) : new Color(0x60f04d));
+        badge.setOpaque(true);
+        badge.setBounds(255, 12, 110, 18);
+        panel.add(badge);
+
+        JLabel locationLabel = new JLabel("Location: Mit Valley Megamall");
+        locationLabel.setForeground(new Color(0xF7F7F7));
+        locationLabel.setFont(new Font("Courier New",Font.BOLD,15));
+        locationLabel.setBounds(10,40,400,20);
+        panel.add(locationLabel);
 
         JLabel showtimeLabel = new JLabel("Show time: " + formattedDateTime + " at " + order[4]);
         showtimeLabel.setForeground(new Color(0xF7F7F7));
         showtimeLabel.setFont(new Font("Courier New",Font.BOLD,15));
-        showtimeLabel.setBounds(10,40,400,20);
+        showtimeLabel.setBounds(10,65,400,20);
         panel.add(showtimeLabel);
 
-        
+        JLabel seatLabel = new JLabel("Seat(s): " + order[5]);
+        seatLabel.setForeground(new Color(0xF7F7F7));
+        seatLabel.setFont(new Font("Courier New",Font.BOLD,15));
+        seatLabel.setBounds(10,90,400,20);
+        panel.add(seatLabel);
+
+        JSeparator sep = new JSeparator();
+        sep.setBounds(15, 120, 415, 1);
+        sep.setForeground(new Color(0x555555));
+        panel.add(sep);
+
+        JLabel priceLabel = new JLabel("Total Amount Paid: RM" + String.format("%.2f",Double.parseDouble(order[11])));
+        priceLabel.setForeground(new Color(0xF7F7F7));
+        priceLabel.setFont(new Font("Courier New",Font.BOLD,18));
+        priceLabel.setBounds(10,130,400,20);
+        panel.add(priceLabel);
+
+        JButton viewButton = new JButton ( upcoming ? "View QR & Details" : "View Details");
+        viewButton.setBorderPainted(false);
+        viewButton.setFocusPainted(false);
+        viewButton.setFont(new Font("Courier New",Font.PLAIN,12));
+        viewButton.setBounds(250,130,170,25);
+        viewButton.setForeground(new Color(0xF7F7F7));
+        viewButton.setBackground(new Color(0xD44444));
+        viewButton.setMargin(new Insets(0,0,0,0));
+        viewButton.addActionListener(e -> {
+            String key = order[0];
+            JPanel detailPanel = createOrderDetailPanel(order, upcoming);
+            cardPanel.add(detailPanel, key);
+            cardLayout.show(cardPanel, key);
+        });
+        panel.add(viewButton);
+
+
+        return panel;
+    }
+
+    private JPanel createOrderDetailPanel(String[] order, boolean upcoming){
+        JPanel panel = new JPanel();
+        panel.setLayout(null);
+        panel.setBackground(new Color(0x242424));
+
+        JButton backButton = makeBackButton();
+        backButton.addActionListener(e -> cardLayout.show(cardPanel,"ticket"));
+        panel.add(backButton);
+
+        JLabel titleLabel = new JLabel("Order Details");
+        titleLabel.setForeground(new Color(0xF7F7F7));
+        titleLabel.setFont(new Font("Courier New", Font.BOLD, 20));
+        titleLabel.setBounds(20, 60, 400, 30);
+        panel.add(titleLabel);
+
+        String formattedShow = LocalDateTime.parse(order[3]).format(FMT);
+
+        int boundsY = 100;
+
+        if (upcoming) {
+            ImageIcon qrcode = new ImageIcon("src/cinema/qr_code.png");
+            Image scaledQR = qrcode.getImage().getScaledInstance(90, 90, Image.SCALE_SMOOTH);
+
+            JPanel qrPanel = new JPanel(new BorderLayout());
+            qrPanel.setPreferredSize(new Dimension(100, 100));
+            qrPanel.setBounds(200, 100, 100, 100);
+            qrPanel.setBackground(new Color(0x3B3B3B));
+            qrPanel.add(new JLabel(new ImageIcon(scaledQR)), BorderLayout.CENTER);
+            panel.add(qrPanel);
+
+            JLabel qrHintLabel = new JLabel("Show this QR at the counter");
+            qrHintLabel.setForeground(new Color(0xF7F7F7));
+            qrHintLabel.setFont(new Font("Courier New", Font.PLAIN, 12));
+            qrHintLabel.setHorizontalAlignment(SwingConstants.CENTER);
+            qrHintLabel.setBounds(100, 210, 280, 18);
+            panel.add(qrHintLabel);
+
+            JSeparator sep = new JSeparator();
+            sep.setBounds(40, 240, 400, 1);
+            sep.setForeground(new Color(0xF7F7F7));
+            panel.add(sep);
+
+            boundsY = 250;
+        }
+
+        String[] label = {"Order ID: " + order[0], "Transaction Date: " + order[12], "Movie", "Location", "Show Time", "Hall", "Seat(s)", "Ticket(s)", "Processing Fee","Food and Drinks"};
+        for (int i = 0; i < seatType.length;i++){
+
+        }
+        String[] value = {order[1], "Mit Valley Megamall", formattedShow, order[4], order[5], }
+
+        JPanel detailList = new JPanel();
+        detailList.setLayout(null);
+        detailList.setBackground(new Color(0x242424));
+
+        JLabel  movieLabel = makeDetailsLabel("Movie: " + order[1] , boundsY);
+        panel.add(movieLabel);
+        boundsY += 23;
+
+        JLabel locationLabel = makeDetailsLabel("Location: Mit Valley Megamall",boundsY);
+        panel.add(locationLabel);
+        boundsY += 23;
+
+        JLabel showTimeLabel = makeDetailsLabel("Showtime: " + formattedShow + "  |  " + order[4], boundsY);
+        panel.add(showTimeLabel);
+        boundsY += 23;
+
+        JLabel seatLabel =
+
+
+
 
         return panel;
     }
@@ -338,13 +446,13 @@ public class SubWindowProfile extends JFrame implements ActionListener {
             while((line = readLine.readLine()) != null){
                 if (line.trim().isEmpty()) continue;
                 String[] parts = line.split("\\|", -1);
+                if (parts.length < 13) continue;
 
                 if (username.equals(parts[1])) {
-                    if (LocalDateTime.parse(parts[2]).plusMinutes(Integer.parseInt(parts[3])).isBefore(LocalDateTime.now())) {
-                        String[] ord = {parts[0], parts[2], parts[3], parts[4], parts[5], parts[6].replace(":", " x"), parts[7], parts[8], parts[9], parts[10], parts[11]};
+                    String[] ord = {parts[0], parts[2], parts[3], parts[4], parts[5], parts[6], parts[7], parts[8].replace(":", " x"), parts[9], parts[10], parts[11], parts[12], parts[13]};
+                    if (LocalDateTime.parse(parts[4]).plusMinutes(Integer.parseInt(parts[3])).isAfter(LocalDateTime.now())) {
                         order.add(ord);
                     }else {
-                        String[] ord = {parts[0], parts[2], parts[3], parts[4], parts[5], parts[6], parts[7], parts[8].replace(":", " x"), parts[9], parts[10], parts[11],parts[12],parts[13]};
                         orderPast.add(ord);
                     }
                 }
@@ -411,13 +519,11 @@ public class SubWindowProfile extends JFrame implements ActionListener {
 
     public void deleteAccount(){
         List <String> lines = new ArrayList<>();
-        try(BufferedReader readUser = new BufferedReader(new FileReader("Cinema/Users.txt"))){
+        try(BufferedReader readUser = new BufferedReader(new FileReader("Users.txt"))){
             String line;
             while((line = readUser.readLine()) != null){
                 String[] parts = line.split(",");
-                if(parts[0].equals(username) ){
-                    continue;
-                }else {
+                if(!parts[0].equals(username) ){
                     lines.add(line);
                 }
             }
@@ -425,7 +531,7 @@ public class SubWindowProfile extends JFrame implements ActionListener {
             System.out.println("Error reading users file");
         }
 
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter("Cinema/Users.txt"))){
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("Users.txt"))){
             for (String l : lines){
                 writer.write(l);
                 writer.newLine();
@@ -450,6 +556,28 @@ public class SubWindowProfile extends JFrame implements ActionListener {
             }
         }
 
+    }
+
+    private JButton makeBackButton(){
+        JButton backButton = new JButton("< Back");
+        backButton.setBorderPainted(false);
+        backButton.setFocusPainted(false);
+        backButton.setContentAreaFilled(false);
+        backButton.setFocusable(false);
+        backButton.setBounds(8,10,150,35);
+        backButton.setFont(new Font("Courier New",Font.PLAIN,17));
+        backButton.setHorizontalAlignment(JButton.LEFT);
+        backButton.setForeground(new Color(0xF7F7F7));
+        return backButton;
+    }
+
+    private JLabel makeDetailsLabel(String text, int y){
+        JLabel label = new JLabel(text);
+        label.setForeground(new Color(0xF7F7F7));
+        label.setFont(new Font("Courier New", Font.BOLD, 15));
+        label.setBounds(10,y,200,10);
+
+        return label;
     }
 
     //testing use only
