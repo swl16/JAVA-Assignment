@@ -5,7 +5,9 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.List;
 
@@ -19,6 +21,9 @@ public class SubWindowProfile extends JFrame implements ActionListener {
     JButton delAccBtn;
 
     Map<String,List<String[]>> combineOrder;
+    List<String[]> order = new ArrayList<>();
+    List<String[]> orderPast = new ArrayList<>();
+    private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("EEE dd MMM , HH:mm");
 
 
     public SubWindowProfile(JFrame homeFrame, int choice, String username){
@@ -29,6 +34,7 @@ public class SubWindowProfile extends JFrame implements ActionListener {
         frame.setSize(500,700);
         frame.getContentPane().setBackground(new Color(0x242424));
         frame.setVisible(true);
+        loadUserOrder();
 
         cardLayout = new CardLayout();
         cardPanel = new JPanel(cardLayout);
@@ -87,18 +93,25 @@ public class SubWindowProfile extends JFrame implements ActionListener {
         return ticketPanel;
     }
 
-    private JPanel createOrderPanel(String movieName, LocalDateTime dateTime, String hallName, String seatId){
+    private JPanel createOrderPanel(String[] order){
+        String formattedDateTime = LocalDateTime.parse(order[3]).format(FMT);
         JPanel panel = new JPanel();
         panel.setLayout(null);
         panel.setBackground(new Color(0x3B3B3B));
 
-        JLabel movieLabel = new JLabel(movieName);
+        JLabel movieLabel = new JLabel(order[1]);
         movieLabel.setForeground(new Color(0xF7F7F7));
         movieLabel.setFont(new Font("Courier New",Font.BOLD,20));
-        movieLabel.setBounds(10,10,200,20);
+        movieLabel.setBounds(10,10,400,20);
         panel.add(movieLabel);
 
+        JLabel showtimeLabel = new JLabel("Show time: " + formattedDateTime + " at " + order[4]);
+        showtimeLabel.setForeground(new Color(0xF7F7F7));
+        showtimeLabel.setFont(new Font("Courier New",Font.BOLD,15));
+        showtimeLabel.setBounds(10,40,400,20);
+        panel.add(showtimeLabel);
 
+        
 
         return panel;
     }
@@ -319,30 +332,20 @@ public class SubWindowProfile extends JFrame implements ActionListener {
     }
 
     public void loadUserOrder(){
-        combineOrder = new LinkedHashMap<>();
-
         try(BufferedReader readLine = new BufferedReader(new FileReader("BookingDetail.txt"))){
             String line;
-            int i = 0;
 
             while((line = readLine.readLine()) != null){
                 if (line.trim().isEmpty()) continue;
                 String[] parts = line.split("\\|", -1);
 
-                if (username.equals(parts[1])){
-                    String[] order = {parts[2],parts[3], parts[6], parts[4] + parts[5]};
-                    String id = parts[0] ;
-//                    String dateTime = ;
-//                    String hall = ;
-//                    String seatId = ;
-
-                    if (combineOrder.containsKey(id)){
-                        List<String[]> existing = combineOrder.get(id);
-                        existing.add(order);
-                    } else {
-                        List<String[]> newList = new ArrayList<>();
-                        newList.add(order);
-                        combineOrder.put(id,newList);
+                if (username.equals(parts[1])) {
+                    if (LocalDateTime.parse(parts[2]).plusMinutes(Integer.parseInt(parts[3])).isBefore(LocalDateTime.now())) {
+                        String[] ord = {parts[0], parts[2], parts[3], parts[4], parts[5], parts[6].replace(":", " x"), parts[7], parts[8], parts[9], parts[10], parts[11]};
+                        order.add(ord);
+                    }else {
+                        String[] ord = {parts[0], parts[2], parts[3], parts[4], parts[5], parts[6], parts[7], parts[8].replace(":", " x"), parts[9], parts[10], parts[11],parts[12],parts[13]};
+                        orderPast.add(ord);
                     }
                 }
 

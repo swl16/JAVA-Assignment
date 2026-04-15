@@ -125,7 +125,7 @@ public class MovieDetailPage implements ActionListener {
 
 
     public void loadHall(){
-        try(BufferedReader readLine = new BufferedReader(new FileReader("Cinema/Hall.txt"))){
+        try(BufferedReader readLine = new BufferedReader(new FileReader("Hall.txt"))){
             String line;
             while((line = readLine.readLine()) != null){
                 if (line.trim().isEmpty()) continue;
@@ -141,7 +141,7 @@ public class MovieDetailPage implements ActionListener {
     }
 
     public void loadShowTime(){
-        try(BufferedReader readLine = new BufferedReader(new FileReader("Cinema/Showtime.txt"))){
+        try(BufferedReader readLine = new BufferedReader(new FileReader("Showtime.txt"))){
             String line;
             
             while((line = readLine.readLine()) != null){

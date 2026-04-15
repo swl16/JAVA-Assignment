@@ -258,7 +258,7 @@ public class FnBwTicket {
         movieLabel.setBounds(10,10,200,10);
         centerPanel.add(movieLabel);
 
-        JLabel movieNameLabel = new JLabel(order.getShowTime().getMovieName());
+        JLabel movieNameLabel = new JLabel(order.getMovie().getTitle());
         movieNameLabel.setForeground(TEXT);
         movieNameLabel.setFont(new Font("Courier New", Font.BOLD, 16));
         movieNameLabel.setBounds(10,22,200,20);
@@ -468,7 +468,7 @@ public class FnBwTicket {
     }
 
     private void loadstock() {
-        try (BufferedReader read = new BufferedReader(new FileReader("Cinema/FnBStock.txt"))) {
+        try (BufferedReader read = new BufferedReader(new FileReader("FnBStock.txt"))) {
             String line;
 
             while ((line = read.readLine()) != null) {
