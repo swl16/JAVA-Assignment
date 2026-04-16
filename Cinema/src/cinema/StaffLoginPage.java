@@ -8,7 +8,7 @@ import java.awt.event.ActionListener;
 public class StaffLoginPage implements ActionListener{
 
     JTextField usernameEnter;
-    JTextField passwordEnter;
+    JPasswordField passwordEnter;
     JButton loginButton;
     JButton backUserLogin;
     JFrame frame = new JFrame("TGC Cinema");
@@ -49,7 +49,7 @@ public class StaffLoginPage implements ActionListener{
         passwordLabel.setBounds(40,135,350,50);
         frame.add(passwordLabel);
 
-        passwordEnter = new JTextField();
+        passwordEnter = new JPasswordField();
         passwordEnter.setBounds(160,150,160,20);
         passwordEnter.setFont(new Font("Courier New",Font.PLAIN,15));
         passwordEnter.setForeground(new Color(0xF7F7F7));
@@ -85,7 +85,7 @@ public class StaffLoginPage implements ActionListener{
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == loginButton) {
             String username = usernameEnter.getText();
-            String password = passwordEnter.getText();
+            String password = new String(passwordEnter.getPassword());
             
             if(username.isEmpty() || password.isEmpty()){
                 JOptionPane.showMessageDialog(frame, "Username and password cannot be empty! Please try again.", "Login Failed", JOptionPane.ERROR_MESSAGE);

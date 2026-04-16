@@ -557,7 +557,7 @@ public class SubWindowProfile extends JFrame implements ActionListener {
         currentPassLabel.setBounds(40,150,500,30);
         panel.add(currentPassLabel);
 
-        JTextField currentPassType = new JTextField();
+        JPasswordField currentPassType = new JPasswordField();
         currentPassType.setBounds(40,180,400,20);
         currentPassType.setFont(new Font("Courier New",Font.PLAIN,15));
         currentPassType.setForeground(new Color(0xF7F7F7));
@@ -572,7 +572,7 @@ public class SubWindowProfile extends JFrame implements ActionListener {
         newPassLabel.setBounds(40,220,500,30);
         panel.add(newPassLabel);
 
-        JTextField newPassType = new JTextField();
+        JPasswordField newPassType = new JPasswordField();
         newPassType.setBounds(40,250,400,20);
         newPassType.setFont(new Font("Courier New",Font.PLAIN,15));
         newPassType.setForeground(new Color(0xF7F7F7));
@@ -587,7 +587,7 @@ public class SubWindowProfile extends JFrame implements ActionListener {
         repeatPassLabel.setBounds(40,290,500,30);
         panel.add(repeatPassLabel);
 
-        JTextField repeatPassType = new JTextField();
+        JPasswordField repeatPassType = new JPasswordField();
         repeatPassType.setBounds(40,320,400,20);
         repeatPassType.setFont(new Font("Courier New",Font.PLAIN,15));
         repeatPassType.setForeground(new Color(0xF7F7F7));
@@ -605,9 +605,9 @@ public class SubWindowProfile extends JFrame implements ActionListener {
         confirmButton.setBackground(new Color(0xD44444));
         confirmButton.addActionListener(e -> {
 
-            String oldPassword = currentPassType.getText();
-            String newPassword = newPassType.getText();
-            String reTypePassword = repeatPassType.getText();
+            String oldPassword = new String(currentPassType.getPassword());
+            String newPassword = new String(newPassType.getPassword());
+            String reTypePassword = new String(repeatPassType.getPassword());
 
             changePassword(oldPassword, newPassword, reTypePassword);
         });
@@ -645,7 +645,7 @@ public class SubWindowProfile extends JFrame implements ActionListener {
         List <String> lines = new ArrayList<>();
         boolean success = false;
         String password = "";
-        try(BufferedReader readUser = new BufferedReader(new FileReader("Cinema/Users.txt"))){
+        try(BufferedReader readUser = new BufferedReader(new FileReader("Users.txt"))){
             String line;
             while((line = readUser.readLine()) != null){
                 String[] parts = line.split(",");
@@ -680,7 +680,7 @@ public class SubWindowProfile extends JFrame implements ActionListener {
             System.out.println("Error reading users file");
         }
 
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter("Cinema/Users.txt"))){
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("Users.txt"))){
             for (String l : lines){
                 writer.write(l);
                 writer.newLine();
@@ -690,7 +690,8 @@ public class SubWindowProfile extends JFrame implements ActionListener {
         }
         if (success) {
             JOptionPane.showMessageDialog(null, "Password updated successfully!");
-            cardLayout.show(cardPanel,"setting");
+            frame.dispose();
+            homeFrame.setVisible(true);
         }
     }
 

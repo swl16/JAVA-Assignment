@@ -88,8 +88,10 @@ public class TicketPayment extends JFrame{
         JButton backButton = new JButton("X Cancel Payment");
         backButton.setForeground(offWhite);
         backButton.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        backButton.setContentAreaFilled(false);
         backButton.setBorderPainted(false);
+        backButton.setFocusPainted(false);
+        backButton.setContentAreaFilled(false);
+        backButton.setFocusable(false);
         backButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
         backButton.addActionListener(e -> {
@@ -264,7 +266,7 @@ public class TicketPayment extends JFrame{
         qrBox.setBorder(new LineBorder(tgcRed, 5));
 
         try {
-            ImageIcon rawIcon = new ImageIcon("Cinema/src/cinema/qr_code.png");
+            ImageIcon rawIcon = new ImageIcon("src/cinema/qr_code.png");
             Image scaledImg = rawIcon.getImage().getScaledInstance(200, 200, Image.SCALE_SMOOTH);
             qrBox.add(new JLabel(new ImageIcon(scaledImg)), BorderLayout.CENTER);
         } catch (Exception e) {
@@ -324,7 +326,7 @@ public class TicketPayment extends JFrame{
         qrBox.setBorder(new LineBorder(Color.BLACK, 2));
 
         try {
-            ImageIcon rawEntry = new ImageIcon("Cinema/src/cinema/entry_qr.png");
+            ImageIcon rawEntry = new ImageIcon("src/cinema/entry_qr.png");
             Image scaledEntry = rawEntry.getImage().getScaledInstance(90, 90, Image.SCALE_SMOOTH);
             qrBox.add(new JLabel(new ImageIcon(scaledEntry)), BorderLayout.CENTER);
         } catch (Exception e) {
