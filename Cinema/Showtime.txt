@@ -5,3 +5,4 @@ Pegasus 3|14/04/2026|2:00 PM|Hall 1
 Hoppers|13/04/2026|2:00 PM|Hall 4
 Hoppers|13/04/2026|5:00 PM|Hall 1
 Hoppers|15/04/2026|8:00 PM|Hall 5
+Hoppers|20/04/2026|5:00 PM|Hall 4

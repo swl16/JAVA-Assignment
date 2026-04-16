@@ -40,7 +40,7 @@ public class SubWindowProfile extends JFrame implements ActionListener {
         cardPanel = new JPanel(cardLayout);
 
         cardPanel.add(createTicketPanel(),"ticket");
-        cardPanel.add(createHistoryPanel(),"history");
+//        cardPanel.add(createHistoryPanel(),"history");
         cardPanel.add(createContactUsPanel(),"contactUs");
         cardPanel.add(createSettingPanel(),"setting");
         cardPanel.add(createChangePassPanel(), "changePass");
@@ -49,10 +49,10 @@ public class SubWindowProfile extends JFrame implements ActionListener {
 
         switch (choice) {
             case 1 : cardLayout.show(cardPanel, "ticket"); break;
-            case 2 : cardLayout.show(cardPanel, "history"); break;
-            case 3 : cardLayout.show(cardPanel, "contactUs"); break;
-            case 4 : cardLayout.show(cardPanel,"setting"); break;
+            case 2 : cardLayout.show(cardPanel, "contactUs"); break;
+            case 3 : cardLayout.show(cardPanel, "setting"); break;
         }
+
 
     }
 
@@ -75,6 +75,70 @@ public class SubWindowProfile extends JFrame implements ActionListener {
         listPanel.setLayout(new BoxLayout(listPanel, BoxLayout.Y_AXIS));
         listPanel.setBackground(new Color(0x242424));
 
+        JLabel currentLabel = new JLabel("Upcoming Tickets", SwingConstants.LEFT);
+        currentLabel.setForeground(new Color(0xF7F7F7));
+        currentLabel.setFont(new Font("Courier New", Font.BOLD, 20));
+        currentLabel.setMaximumSize(new Dimension(440, 20));
+        currentLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        listPanel.add(currentLabel);
+        listPanel.add(Box.createVerticalStrut(20));
+
+        if (order.isEmpty()) {
+            JLabel emptyLabel = new JLabel("No Upcoming Ticket Records.", SwingConstants.CENTER);
+            emptyLabel.setForeground(new Color(0xF7F7F7));
+            emptyLabel.setFont(new Font("Courier New", Font.ITALIC, 15));
+            emptyLabel.setMaximumSize(new Dimension(440, 60));
+            emptyLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+            listPanel.add(emptyLabel);
+        } else {
+            for (String[] ord : order) {
+                JPanel card = createOrderCard(ord, true);
+                card.setMaximumSize(new Dimension(430, 175));
+                card.setMinimumSize(new Dimension(430, 175));
+                card.setPreferredSize(new Dimension(430, 175));
+                card.setAlignmentX(Component.LEFT_ALIGNMENT);
+                listPanel.add(card);
+                listPanel.add(Box.createVerticalStrut(15));
+            }
+        }
+
+        listPanel.add(Box.createVerticalStrut(20));
+        JLabel pastLabel = new JLabel("Past Order", SwingConstants.LEFT);
+        pastLabel.setForeground(new Color(0xF7F7F7));
+        pastLabel.setFont(new Font("Courier New", Font.BOLD, 20));
+        pastLabel.setMaximumSize(new Dimension(430, 20));
+        pastLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        listPanel.add(pastLabel);
+        listPanel.add(Box.createVerticalStrut(20));
+
+        if (orderPast.isEmpty()) {
+            JLabel emptyLabel1 = new JLabel("No Past Order Records.", SwingConstants.CENTER);
+            emptyLabel1.setForeground(new Color(0xF7F7F7));
+            emptyLabel1.setFont(new Font("Courier New", Font.ITALIC, 15));
+            emptyLabel1.setMaximumSize(new Dimension(430, 60));
+            emptyLabel1.setAlignmentX(Component.LEFT_ALIGNMENT);
+            listPanel.add(emptyLabel1);
+        } else {
+            for (String[] ord : orderPast) {
+                JPanel card = createOrderCard(ord, false);
+                card.setMaximumSize(new Dimension(430, 175));
+                card.setMinimumSize(new Dimension(430, 175));
+                card.setPreferredSize(new Dimension(430, 175));
+                card.setAlignmentX(Component.LEFT_ALIGNMENT);
+                listPanel.add(card);
+                listPanel.add(Box.createVerticalStrut(15));
+            }
+        }
+
+        JScrollPane scrollPane = new JScrollPane(listPanel);
+        scrollPane.setBounds(25, 120, 480, 530);
+        scrollPane.setBorder(null);
+        scrollPane.setBackground(new Color(0x242424));
+        scrollPane.getViewport().setBackground(new Color(0x242424));
+        scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        scrollPane.getVerticalScrollBar().setUnitIncrement(12);
+        ticketPanel.add(scrollPane);
+
         return ticketPanel;
     }
 
@@ -90,12 +154,12 @@ public class SubWindowProfile extends JFrame implements ActionListener {
         movieLabel.setBounds(10,10,250,20);
         panel.add(movieLabel);
 
-        JLabel badge = new JLabel(upcoming ? "  UPCOMING  " : "  COMPLETED  ");
+        JLabel badge = new JLabel(upcoming ? "  UPCOMING  " : "  COMPLETED  ",SwingConstants.CENTER);
         badge.setForeground(new Color(0xF7F7F7));
         badge.setFont(new Font("Courier New", Font.BOLD, 10));
-        badge.setBackground(upcoming ? new Color(0xD44444) : new Color(0x60f04d));
+        badge.setBackground(upcoming ? new Color(0xD44444) : new Color(0x66cf46));
         badge.setOpaque(true);
-        badge.setBounds(255, 12, 110, 18);
+        badge.setBounds(300, 12, 100, 18);
         panel.add(badge);
 
         JLabel locationLabel = new JLabel("Location: Mit Valley Megamall");
@@ -123,15 +187,15 @@ public class SubWindowProfile extends JFrame implements ActionListener {
 
         JLabel priceLabel = new JLabel("Total Amount Paid: RM" + String.format("%.2f",Double.parseDouble(order[11])));
         priceLabel.setForeground(new Color(0xF7F7F7));
-        priceLabel.setFont(new Font("Courier New",Font.BOLD,18));
-        priceLabel.setBounds(10,130,400,20);
+        priceLabel.setFont(new Font("Courier New",Font.BOLD,15));
+        priceLabel.setBounds(10,130,260,20);
         panel.add(priceLabel);
 
         JButton viewButton = new JButton ( upcoming ? "View QR & Details" : "View Details");
         viewButton.setBorderPainted(false);
         viewButton.setFocusPainted(false);
         viewButton.setFont(new Font("Courier New",Font.PLAIN,12));
-        viewButton.setBounds(250,130,170,25);
+        viewButton.setBounds(270,130,150,25);
         viewButton.setForeground(new Color(0xF7F7F7));
         viewButton.setBackground(new Color(0xD44444));
         viewButton.setMargin(new Insets(0,0,0,0));
@@ -159,12 +223,13 @@ public class SubWindowProfile extends JFrame implements ActionListener {
         JLabel titleLabel = new JLabel("Order Details");
         titleLabel.setForeground(new Color(0xF7F7F7));
         titleLabel.setFont(new Font("Courier New", Font.BOLD, 20));
-        titleLabel.setBounds(20, 60, 400, 30);
+        titleLabel.setBounds(40, 60, 400, 30);
         panel.add(titleLabel);
 
         String formattedShow = LocalDateTime.parse(order[3]).format(FMT);
 
-        int boundsY = 100;
+        int currentY = 10;
+        int scrollStartY = 100;
 
         if (upcoming) {
             ImageIcon qrcode = new ImageIcon("src/cinema/qr_code.png");
@@ -172,7 +237,7 @@ public class SubWindowProfile extends JFrame implements ActionListener {
 
             JPanel qrPanel = new JPanel(new BorderLayout());
             qrPanel.setPreferredSize(new Dimension(100, 100));
-            qrPanel.setBounds(200, 100, 100, 100);
+            qrPanel.setBounds(200, 90, 100, 100);
             qrPanel.setBackground(new Color(0x3B3B3B));
             qrPanel.add(new JLabel(new ImageIcon(scaledQR)), BorderLayout.CENTER);
             panel.add(qrPanel);
@@ -186,103 +251,156 @@ public class SubWindowProfile extends JFrame implements ActionListener {
 
             JSeparator sep = new JSeparator();
             sep.setBounds(40, 240, 400, 1);
-            sep.setForeground(new Color(0xF7F7F7));
+            sep.setForeground(new Color(0x555555));
             panel.add(sep);
 
-            boundsY = 250;
+            scrollStartY = 250;
         }
 
-//        String[] label = {"Order ID: " + order[0], "Transaction Date: " + order[12], "Movie", "Location", "Show Time", "Hall", "Seat(s)", "Ticket(s)", "Processing Fee","Food and Drinks"};
-//        for (int i = 0; i < seatType.length;i++){
-//
-//        }
-//        String[] value = {order[1], "Mit Valley Megamall", formattedShow, order[4], order[5], }
+        JPanel row = new JPanel(null);
+        row.setBackground(new Color(0x242424));
 
-        JPanel detailList = new JPanel();
-        detailList.setLayout(null);
-        detailList.setBackground(new Color(0x242424));
+        JLabel  orderIdLabel = makeDetailsLabel("Order ID: " + order[0], currentY);
+        row.add(orderIdLabel);
+        currentY += 25;
 
-        JLabel  orderIdLabel = makeDetailsLabel("Order ID: " + order[0], boundsY);
-        panel.add(orderIdLabel);
-        boundsY += 23;
-
-        JLabel locationLabel = makeDetailsLabel("Transaction Date: " + order[12], boundsY);
-        panel.add(locationLabel);
-        boundsY += 23;
+        JLabel transDateLabel = makeDetailsLabel("Transaction Date: " + order[12], currentY);
+        row.add(transDateLabel);
+        currentY += 25;
 
         JSeparator sep1 = new JSeparator();
-        sep1.setBounds(40, boundsY, 400, 1);
-        sep1.setForeground(new Color(0xF7F7F7));
-        panel.add(sep1);
-        boundsY += 8;
+        sep1.setBounds(15, currentY, 400, 1);
+        sep1.setForeground(new Color(0x555555));
+        row.add(sep1);
+        currentY += 15;
 
         JPanel moviePanel = createLabelGroup("Movie", order[1]);
-        moviePanel.setBounds(10, boundsY , 500, 30);
-        panel.add(moviePanel);
-        boundsY += 38;
+        moviePanel.setBounds(20, currentY, 400, 40);
+        row.add(moviePanel);
+        currentY += 45;
 
         JPanel locationPanel = createLabelGroup("Location", "Mit Valley Megamall");
-        locationPanel.setBounds(10, boundsY , 500, 30);
-        panel.add(locationPanel);
-        boundsY += 38;
+        locationPanel.setBounds(20, currentY, 400, 40);
+        row.add(locationPanel);
+        currentY += 45;
 
         JPanel showTimePanel = createLabelGroup("Time", formattedShow);
-        showTimePanel.setBounds(10, boundsY , 500, 30);
-        panel.add(showTimePanel);
-        boundsY += 38;
+        showTimePanel.setBounds(20, currentY, 400, 40);
+        row.add(showTimePanel);
+        currentY += 45;
 
         JPanel hallPanel = createLabelGroup("Cinema", order[4]);
-        hallPanel.setBounds(10, boundsY , 500, 30);
-        panel.add(hallPanel);
-        boundsY += 38;
+        hallPanel.setBounds(20, currentY, 400, 40);
+        row.add(hallPanel);
+        currentY += 45;
 
         JPanel seatPanel = createLabelGroup("Seat(s)", order[5]);
-        seatPanel.setBounds(10, boundsY , 500, 30);
-        panel.add(seatPanel);
-        boundsY += 38;
+        seatPanel.setBounds(20, currentY, 400, 40);
+        row.add(seatPanel);
+        currentY += 55;
 
         JSeparator sep2 = new JSeparator();
-        sep2.setBounds(40, boundsY, 400, 1);
-        sep2.setForeground(new Color(0xF7F7F7));
-        panel.add(sep2);
-        boundsY += 8;
+        sep2.setBounds(15, currentY, 400, 1);
+        sep2.setForeground(new Color(0x555555));
+        row.add(sep2);
+        currentY += 15;
 
         JPanel ticketPanel = createPriceRow("Ticket(s)", "RM " + String.format("%.2f",Double.parseDouble(order[8])));
+        ticketPanel.setBounds(20, currentY,400,15);
+        row.add(ticketPanel);
+        currentY += 20;
 
+        String[] typeCounts = order[6].split(",");
+        for (int i = 0; i < typeCounts.length; i++){
+            int count = Integer.parseInt(typeCounts[i].trim());
+            if (count > 0) {
+                JLabel typeLabel = createSubLabel(seatType[i] + " x " + count);
+                typeLabel.setBounds(25, currentY,400,15);
+                row.add(typeLabel);
+                currentY += 20;
+            }
+        }
 
+        currentY += 5;
 
+        JPanel processFeePanel = createPriceRow("Processing Fee", "RM " + String.format("%.2f",Double.parseDouble(order[10])));
+        processFeePanel.setBounds(20, currentY,400,15);
+        row.add(processFeePanel);
+        currentY += 30;
 
+        JSeparator sep3 = new JSeparator();
+        sep3.setBounds(15, currentY, 400, 1);
+        sep3.setForeground(new Color(0x555555));
+        row.add(sep3);
+        currentY += 15;
 
+        JPanel fnbPanel = createPriceRow("Food and Drinks", "RM " + String.format("%.2f",Double.parseDouble(order[9])));
+        fnbPanel.setBounds(20, currentY,400,15);
+        row.add(fnbPanel);
+        currentY += 20;
+
+        String[] foodDisplay = order[7].split(",");
+        for (String food : foodDisplay){
+            JLabel foodLabel = createSubLabel(food);
+            foodLabel.setBounds(25, currentY,400,15);
+            row.add(foodLabel);
+            currentY += 20;
+        }
+
+        currentY += 10;
+        JSeparator sep4 = new JSeparator();
+        sep4.setBounds(15, currentY, 400, 1);
+        sep4.setForeground(new Color(0x555555));
+        row.add(sep4);
+        currentY += 15;
+
+        JPanel totalPanel = createPriceRow("Total Amount Paid", "RM " + String.format("%.2f",Double.parseDouble(order[11])));
+        totalPanel.setBounds(20, currentY,400,15);
+        row.add(totalPanel);
+        currentY += 50;
+
+        row.setPreferredSize(new Dimension(450, currentY));
+
+        int windowHeight = 600 - scrollStartY;
+        JScrollPane scrollPane = new JScrollPane(row);
+        scrollPane.setBounds(20, scrollStartY, 483, windowHeight);
+        scrollPane.setBorder(null);
+        scrollPane.setBackground(new Color(0x242424));
+        scrollPane.getViewport().setBackground(new Color(0x242424));
+        scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        scrollPane.getVerticalScrollBar().setUnitIncrement(10);
+
+        panel.add(scrollPane);
 
         return panel;
     }
 
-    private JPanel createHistoryPanel(){
-        JPanel historyPanel = new JPanel();
-        historyPanel.setLayout(null);
-        historyPanel.setBackground(new Color(0x242424));
-
-        backButton2 = new JButton("< Back");
-        backButton2.setBorderPainted(false);
-        backButton2.setFocusPainted(false);
-        backButton2.setContentAreaFilled(false);
-        backButton2.setFocusable(false);
-        backButton2.setBounds(8,10,400,40);
-        backButton2.setFont(new Font("Courier New",Font.PLAIN,17));
-        backButton2.setHorizontalAlignment(JButton.LEFT);
-        backButton2.addActionListener(this);
-        backButton2.setForeground(new Color(0xF7F7F7));
-        backButton2.setBackground(new Color(0x3B3B3B));
-        historyPanel.add(backButton2);
-
-        JLabel historyLabel = new JLabel("Order History");
-        historyLabel.setForeground(new Color(0xF7F7F7));
-        historyLabel.setFont(new Font("Courier New",Font.BOLD,40));
-        historyLabel.setBounds(40,60,500,50);
-        historyPanel.add(historyLabel);
-
-        return historyPanel;
-    }
+//    private JPanel createHistoryPanel(){
+//        JPanel historyPanel = new JPanel();
+//        historyPanel.setLayout(null);
+//        historyPanel.setBackground(new Color(0x242424));
+//
+//        backButton2 = new JButton("< Back");
+//        backButton2.setBorderPainted(false);
+//        backButton2.setFocusPainted(false);
+//        backButton2.setContentAreaFilled(false);
+//        backButton2.setFocusable(false);
+//        backButton2.setBounds(8,10,400,40);
+//        backButton2.setFont(new Font("Courier New",Font.PLAIN,17));
+//        backButton2.setHorizontalAlignment(JButton.LEFT);
+//        backButton2.addActionListener(this);
+//        backButton2.setForeground(new Color(0xF7F7F7));
+//        backButton2.setBackground(new Color(0x3B3B3B));
+//        historyPanel.add(backButton2);
+//
+//        JLabel historyLabel = new JLabel("Order History");
+//        historyLabel.setForeground(new Color(0xF7F7F7));
+//        historyLabel.setFont(new Font("Courier New",Font.BOLD,40));
+//        historyLabel.setBounds(40,60,500,50);
+//        historyPanel.add(historyLabel);
+//
+//        return historyPanel;
+//    }
 
     private JPanel createContactUsPanel(){
         JPanel contactUsPanel = new JPanel();
@@ -482,7 +600,7 @@ public class SubWindowProfile extends JFrame implements ActionListener {
                 if (parts.length < 13) continue;
 
                 if (username.equals(parts[1])) {
-                    String[] ord = {parts[0], parts[2], parts[3], parts[4], parts[5], parts[6], parts[7], parts[8].replace(":", " x"), parts[9], parts[10], parts[11], parts[12], parts[13]};
+                    String[] ord = {parts[0], parts[2], parts[3], parts[4], parts[5], parts[6], parts[7], parts[8].replace(":", " x "), parts[9], parts[10], parts[11], parts[12], parts[13]};
                     if (LocalDateTime.parse(parts[4]).plusMinutes(Integer.parseInt(parts[3])).isAfter(LocalDateTime.now())) {
                         order.add(ord);
                     }else {
@@ -608,7 +726,7 @@ public class SubWindowProfile extends JFrame implements ActionListener {
         JLabel label = new JLabel(text);
         label.setForeground(new Color(0xF7F7F7));
         label.setFont(new Font("Courier New", Font.BOLD, 15));
-        label.setBounds(10,y,200,10);
+        label.setBounds(20,y,400,10);
 
         return label;
     }
@@ -642,6 +760,14 @@ public class SubWindowProfile extends JFrame implements ActionListener {
         p.add(r, BorderLayout.EAST);
 
         return p;
+    }
+
+    private JLabel createSubLabel(String text){
+        JLabel label = new JLabel(text);
+        label.setForeground(new Color(0xF7F7F7));
+        label.setFont(new Font("Courier New", Font.BOLD, 16));
+
+        return label;
     }
     //testing use only
     public static void main(String[] args) {
