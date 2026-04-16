@@ -407,28 +407,71 @@ public class SubWindowProfile extends JFrame implements ActionListener {
         contactUsPanel.setLayout(null);
         contactUsPanel.setBackground(new Color(0x242424));
 
-        backButton3 = new JButton("< Back");
-        backButton3.setBorderPainted(false);
-        backButton3.setFocusPainted(false);
-        backButton3.setContentAreaFilled(false);
-        backButton3.setFocusable(false);
-        backButton3.setBounds(8,10,400,40);
-        backButton3.setFont(new Font("Courier New",Font.PLAIN,17));
-        backButton3.setHorizontalAlignment(JButton.LEFT);
-        backButton3.addActionListener(this);
-        backButton3.setForeground(new Color(0xF7F7F7));
-        backButton3.setBackground(new Color(0x3B3B3B));
+        backButton3 = makeBackButton();
+        backButton3.addActionListener(this);;
         contactUsPanel.add(backButton3);
 
         JLabel contactLabel = new JLabel("Contact Us");
         contactLabel.setForeground(new Color(0xF7F7F7));
         contactLabel.setFont(new Font("Courier New",Font.BOLD,40));
-        contactLabel.setBounds(40,60,500,50);
+        contactLabel.setBounds(40,50,500,50);
         contactUsPanel.add(contactLabel);
 
+        JLabel infoLabel = new JLabel("Get in touch with us");
+        infoLabel.setForeground(new Color(0xF7F7F7));
+        infoLabel.setFont(new Font("Courier New", Font.BOLD, 20));
+        infoLabel.setBounds(40, 120, 400, 20);
+        contactUsPanel.add(infoLabel);
 
+        addContactRow(contactUsPanel, "Address", "L3-01, Mit Valley Megamall, Kuala Lumpur",150);
+        addContactRow(contactUsPanel, "Customer Relations Hotline", "+603-1234 6677", 220);
+        addContactRow(contactUsPanel, "Email Support", "support@tgccinema.com.my", 290);
+        addContactRow(contactUsPanel, "Service Hours", "Mon to Fri 10:00 AM – 6:00 PM", 360);
+
+        JLabel socialLabel = new JLabel("Follow Us");
+        socialLabel.setForeground(new Color(0xAAAAAA));
+        socialLabel.setFont(new Font("Courier New", Font.BOLD, 14));
+        socialLabel.setBounds(40, 450, 400, 20);
+        contactUsPanel.add(socialLabel);
+
+        JLabel fbLabel = new JLabel("Facebook : @TGCCinema");
+        fbLabel.setForeground(new Color(0xF7F7F7));
+        fbLabel.setFont(new Font("Courier New", Font.PLAIN, 14));
+        fbLabel.setBounds(40, 480, 400, 20);
+        contactUsPanel.add(fbLabel);
+
+        JLabel insLabel = new JLabel("Instagram : @tgc_cinema.my");
+        insLabel.setForeground(new Color(0xF7F7F7));
+        insLabel.setFont(new Font("Courier New", Font.PLAIN, 14));
+        insLabel.setBounds(40, 510, 400, 20);
+        contactUsPanel.add(insLabel);
+
+        JLabel xLabel = new JLabel("X : @TGCCinema");
+        xLabel.setForeground(new Color(0xF7F7F7));
+        xLabel.setFont(new Font("Courier New", Font.PLAIN, 14));
+        xLabel.setBounds(40, 540, 400, 20);
+        contactUsPanel.add(xLabel);
 
         return contactUsPanel;
+    }
+
+    private void addContactRow(JPanel panel, String label, String value, int y) {
+        JLabel lbl = new JLabel(label);
+        lbl.setForeground(new Color(0xAAAAAA));
+        lbl.setFont(new Font("Courier New", Font.BOLD, 13));
+        lbl.setBounds(40, y, 380, 20);
+        panel.add(lbl);
+
+        JLabel val = new JLabel(value);
+        val.setForeground(new Color(0xF7F7F7));
+        val.setFont(new Font("Courier New", Font.PLAIN, 14));
+        val.setBounds(40, y + 22, 380, 20);
+        panel.add(val);
+
+        JSeparator sep = new JSeparator();
+        sep.setBounds(40, y + 52, 400, 1);
+        sep.setForeground(new Color(0xAAAAAA));
+        panel.add(sep);
     }
 
     private JPanel createSettingPanel(){
@@ -436,16 +479,8 @@ public class SubWindowProfile extends JFrame implements ActionListener {
         panel.setLayout(null);
         panel.setBackground(new Color(0x242424));
 
-        backButton4 = new JButton("< Back");
-        backButton4.setBorderPainted(false);
-        backButton4.setFocusPainted(false);
-        backButton4.setContentAreaFilled(false);
-        backButton4.setFocusable(false);
-        backButton4.setBounds(8,10,400,40);
-        backButton4.setFont(new Font("Courier New",Font.PLAIN,17));
-        backButton4.setHorizontalAlignment(JButton.LEFT);
+        backButton4 = makeBackButton();
         backButton4.addActionListener(this);
-        backButton4.setForeground(new Color(0xF7F7F7));
         panel.add(backButton4);
 
         JLabel settingLabel = new JLabel("Setting");
@@ -500,17 +535,8 @@ public class SubWindowProfile extends JFrame implements ActionListener {
         panel.setLayout(null);
         panel.setBackground(new Color(0x242424));
 
-        JButton backButton = new JButton("< Back");
-        backButton.setBorderPainted(false);
-        backButton.setFocusPainted(false);
-        backButton.setContentAreaFilled(false);
-        backButton.setFocusable(false);
-        backButton.setBounds(8,10,400,40);
-        backButton.setFont(new Font("Courier New",Font.PLAIN,17));
-        backButton.setHorizontalAlignment(JButton.LEFT);
+        JButton backButton = makeBackButton();
         backButton.addActionListener(e -> cardLayout.show(cardPanel,"setting") );
-        backButton.setForeground(new Color(0xF7F7F7));
-        backButton.setBackground(new Color(0x3B3B3B));
         panel.add(backButton);
 
         JLabel changePassLabel = new JLabel("Change Password");
@@ -694,7 +720,7 @@ public class SubWindowProfile extends JFrame implements ActionListener {
 
 
     public void actionPerformed(ActionEvent e) {
-        if (e.getSource() == backButton1 || e.getSource() == backButton2 || e.getSource() == backButton3 || e.getSource() == backButton4){
+        if (e.getSource() == backButton1 || e.getSource() == backButton3 || e.getSource() == backButton4){
             frame.dispose();
             homeFrame.setVisible(true);
         } else if (e.getSource() == delAccBtn) {
