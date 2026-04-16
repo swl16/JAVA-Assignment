@@ -1,4 +1,3 @@
-
 package cinema;
 
 import javax.swing.*;
@@ -92,7 +91,7 @@ public class AdminPage{
             b.addActionListener(e -> {cardlayout.show(adminpanel, card);
             if(card.equals("View_Movie")) refreshViewTable();
             if(card.equals("Showtime_Schedule")) refreshScheduleTable();
-            if(card.equals("Salesreport")) generatereport();
+            if(card.equals("Salesreport")) salesreport();
             });
             
             inner.add(b);
@@ -549,18 +548,148 @@ public class AdminPage{
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBackground(bgcolor);
         panel.add(sectionHeader("SALES REPORT", "MENU"), BorderLayout.NORTH);
-
-        JLabel label = new JLabel("Sales Report Page (Coming Soon)", SwingConstants.CENTER);
-        label.setForeground(textcolor);
-        label.setFont(new Font("Courier New", Font.BOLD, 18));
-
-        panel.add(label, BorderLayout.CENTER);
+        
+        int fnbOrders = 0;
+        double fnbRevenue = 0.0;
+        int totalItems = 0;
+        
+        Map<String, Integer> itemCount = new HashMap<>();
+        
+        // read OrderHistory.txt file
+        try(BufferedReader read = new BufferedReader(new FileReader("OrderHistory.txt"))){
+            
+            String line;
+            while((line = read.readLine())!= null){
+                if(line.startsWith("----ORDER----")){
+                    fnbOrders++;
+                }else if(line.startsWith("Total: RM ")){
+                    double value = Double.parseDouble(line.replace("Total: RM ", "").trim());
+                    fnbRevenue += value;
+                }else if(line.contains(" x")){
+                    try{
+                        String[] parts = line.split(" x");
+                        String name = parts[0].trim();
+                        int qty = Integer.parseInt(parts[1].split(" ")[0]);
+                        
+                        totalItems += qty;
+                        
+                        itemCount.put(name, itemCount.getOrDefault(name,0) + qty);
+                    }catch(NumberFormatException e){
+                        
+                    }
+                }
+            }
+        }catch(IOException e){
+            showMsg("Error reading file:" + e.getMessage(),false);
+        }
+        
+        int totalTickets = 0;
+        int ticketOrders = 0;
+        double ticketRevenue = 0.0;
+        
+        try(BufferedReader read = new BufferedReader(new FileReader("BookingDetail.txt"))){
+            String line;
+            
+            while((line = read.readLine()) != null){
+                String data[] = line.split("\\|");
+                
+                if(!line.trim().isEmpty()){
+                    ticketOrders++;
+                }
+                
+                if(data.length >= 14){
+                    String[] ticketParts = data[7].split(",");
+                    
+                    int tickets = 0;
+                    
+                    for(String t : ticketParts){
+                        tickets += Integer.parseInt(t);
+                    }
+                    
+                    totalTickets += tickets;
+                    
+                    ticketRevenue += Double.parseDouble(data[9]);
+                    
+                    fnbRevenue += Double.parseDouble(data[10]);
+                    
+                    if (data[8].equals("null")) continue;
+                    
+                    if(!data[8].equals(null) && !data[8].isEmpty()){
+                        
+                        fnbOrders++;
+                        
+                        String[] items = data[8].split(",");
+                        
+                        for(String item : items){
+                            String[] parts = item.split(":");
+                            
+                            String name = parts[0].trim();
+                            int qty = Integer.parseInt(parts[1]);
+                            
+                            totalItems += qty;
+                            
+                            itemCount.put(name, itemCount.getOrDefault(name, 0) + qty);
+                        }
+                    }
+                }
+            }
+        }catch(IOException e){
+            showMsg("Error reading file:" + e.getMessage(),false);
+        }
+        
+        double totalRevenue = fnbRevenue + ticketRevenue;
+        int totalOrders = fnbOrders + ticketOrders;
+        
+        ArrayList<Map.Entry<String, Integer>> sorted = new ArrayList<>(itemCount.entrySet());
+        sorted.sort((a,b) -> b.getValue() - a.getValue());
+        
+        StringBuilder report = new StringBuilder();
+        
+        report.append(String.format("F&B Orders     : %d\n", fnbOrders));
+        report.append(String.format("Ticket Orders  : %d\n", ticketOrders));
+        report.append(String.format("Total Orders   : %d\n\n", totalOrders));
+        
+        report.append(String.format("F&B Revenue    : RM %.2f\n", fnbRevenue));
+        report.append(String.format("Ticket Revenue : RM %.2f\n", ticketRevenue));
+        report.append(String.format("Total Revenue  : RM %.2f\n\n", totalRevenue));
+        
+        report.append(String.format("F&B Sold       : %d\n", totalItems));
+        report.append(String.format("Tickets Sold   : %d\n\n", totalTickets));
+        
+        report.append("TOP SELLING ITEMS\n");
+        
+        int limit = Math.min(3, sorted.size());
+        
+        for(int i=0; i<limit; i++){
+            Map.Entry<String, Integer> e = sorted.get(i);
+            
+            report.append(String.format("%d. %-20s (%d)\n", 
+                    i+1,
+                    e.getKey(),
+                    e.getValue()
+                    ));
+        }
+        
+        if(limit == 0){
+            report.append("No sales data available");
+        }
+        
+        JTextArea area = new JTextArea(report.toString());
+        area.setEditable(false);
+        area.setFont(new Font("Courier New", Font.PLAIN, 20));
+        area.setBackground(bgcolor);
+        area.setForeground(textcolor);
+        area.setBorder(new EmptyBorder(20,20,20,20));
+        
+        JScrollPane scroll = new JScrollPane(area);
+        scroll.setBorder(null);
+        scroll.getViewport().setBackground(bgcolor);
+        
+        panel.add(scroll, BorderLayout.CENTER);
+        
         return panel;
     }
     
-    private void generatereport(){
-        
-    }
     
     private void savemovie(){
         String title = titleEnter.getText().trim();
