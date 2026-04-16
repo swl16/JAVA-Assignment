@@ -1,1 +1,2 @@
 ORD1776350980718|tgc|Hoppers|105|2026-04-20T17:00|Hall 4|I6,I7|2,0,0,0|Salted Popcorn:1,Caramel Popcorn:1|40.0|24.0|1.0|65.0|16/04/2026 22:49
+ORD1776357147414|tang|Hoppers|105|2026-04-20T17:00|Hall 4|J6,J7|2,0,0,0|Caramel Popcorn:1,Salted Popcorn:1,Combo 2:1,Combo 1:1|40.0|62.0|1.0|103.0|17/04/2026 00:32
