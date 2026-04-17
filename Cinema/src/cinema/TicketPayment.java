@@ -6,11 +6,14 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.border.MatteBorder;
 import java.awt.*;
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -485,7 +488,9 @@ public class TicketPayment extends JFrame{
             typeData.append(order.getSeatTypeCount()[i]);
             if (i < order.getSeatTypeCount().length - 1) typeData.append(",");
         }
-
+        
+        deductStock();
+        
         try (BufferedWriter writer = new BufferedWriter(new FileWriter("BookingDetail.txt",true))){
             writer.write(orderID + "|" + order.getUsername() + "|" + order.getMovie().getTitle() + "|" + order.getMovie().getDuration() + "|" + order.getShowTime().getStartTime() + "|" + order.getShowTime().getHallName() + "|" + seatData.toString() + "|" + typeData.toString() + "|" + foodData.toString() + "|" + order.getTicketTotalPrice() + "|" + order.getFoodTotalPrice() + "|" + order.calculateProcessingFee() + "|" + order.calculateTotalPrice() + "|" + orderTime);
             writer.newLine();
@@ -494,6 +499,62 @@ public class TicketPayment extends JFrame{
             e.printStackTrace();
         }
     }
+    
+        private void deductStock(){
+        
+        String file = "FnBStock.txt";
+        ArrayList<String[]> items = new ArrayList<>();
+        
+        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+
+            String line;
+
+            while ((line = br.readLine()) != null) {
+                String[] data = line.split("\\|", -1);
+
+                if (data.length != 7) continue;
+
+                String stockName = data[0];
+
+                // check if this item was purchased
+                for (fnbitem item : order.getSelectedFood().keySet()) {
+                    int qty = order.getSelectedFood().get(item);
+
+                    if (stockName.equalsIgnoreCase(item.getItemname())) {
+
+                        int currentQty = Integer.parseInt(data[3]);
+                        int newQty = currentQty - qty;
+
+                        // prevent negative stock
+                        if (newQty < 0) newQty = 0;
+
+                        data[3] = String.valueOf(newQty);
+
+                        // update last updated time
+                        data[5] = new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm")
+                            .format(new java.util.Date());
+                    }
+                }
+
+                items.add(data);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            return;
+        }
+
+        // 🔥 WRITE BACK TO FILE
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(file))) {
+
+            for (String[] item : items) {
+                bw.write(String.join("|", item));
+                bw.newLine();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    
 
 }
 
