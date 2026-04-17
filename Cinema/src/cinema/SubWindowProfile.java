@@ -16,7 +16,7 @@ public class SubWindowProfile extends JFrame implements ActionListener {
     JFrame homeFrame;
     JPanel cardPanel;
     CardLayout cardLayout;
-    JButton backButton1,backButton2,backButton3,backButton4;
+    JButton backButton1,backButton3,backButton4;
     JButton delAccBtn;
 
     List<String[]> order = new ArrayList<>();
@@ -320,7 +320,6 @@ public class SubWindowProfile extends JFrame implements ActionListener {
                 currentY += 20;
             }
         }
-
         currentY += 5;
 
         JPanel processFeePanel = createPriceRow("Processing Fee", "RM " + String.format("%.2f",Double.parseDouble(order[10])));
