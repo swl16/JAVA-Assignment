@@ -614,17 +614,28 @@ public class AdminPage{
                     
                     if (data[8].equals("null")) continue;
                     
-                    if(!data[8].equals(null) && !data[8].isEmpty()){
+                    if(data[8] != null  && !data[8].equals("null") && !data[8].isEmpty()){
                         
                         fnbOrders++;
                         
                         String[] items = data[8].split(",");
                         
                         for(String item : items){
+                            
+                            if(item == null || item.trim().isEmpty()) continue;
+                            
                             String[] parts = item.split(":");
                             
+                            if(parts.length < 2) continue;
+                            
                             String name = parts[0].trim();
-                            int qty = Integer.parseInt(parts[1]);
+                            
+                            int qty = 0;
+                            try{
+                                qty = Integer.parseInt(parts[1].trim());
+                            }catch(NumberFormatException e){
+                                continue;
+                            }
                             
                             totalItems += qty;
                             
@@ -992,7 +1003,7 @@ public class AdminPage{
      String selectedTitle = tableModel.getValueAt(row, 0).toString();
 
      
-     ArrayList<String[]> movies = new ArrayList<>();
+    //  ArrayList<String[]> movies = new ArrayList<>();
      String[] movieDetails = null;
 
      File file = new File(moviefile);
