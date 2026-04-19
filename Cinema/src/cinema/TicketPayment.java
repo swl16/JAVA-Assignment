@@ -22,23 +22,22 @@ public class TicketPayment extends JFrame{
     private JPanel container;
     private UserOrder order;
 
-    private double finalAmount = 0;
-    private String paymentMethod = "";
-
     private JLabel qrAmountLabel;
     private JLabel timerLabel;
     private JTextArea receiptArea;
     private Timer countdownTimer;
     private int secondsRemaining = 300;
 
+    private double finalAmount = 0;
+    private String paymentMethod = "";
+
     // --- Premium Cinema Color Palette ---
     private final Color obsidian = new Color(0x242424);
-    private final Color surface = new Color(0x242424);
     private final Color tgcRed = new Color(0xD44444);
     private final Color softGray = new Color(0xAAAAAA);
     private final Color offWhite = new Color(0xF7F7F7);
 
-    TicketPayment(UserOrder order){
+    public TicketPayment(UserOrder order){
         this.order = order;
         this.finalAmount = order.calculateTotalPrice();
 
@@ -55,7 +54,7 @@ public class TicketPayment extends JFrame{
 
         setTitle("TGC Cinema - Premium Payment");
         setSize(500, 700);
-        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+        setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         setLocationRelativeTo(null);
         getContentPane().setBackground(obsidian);
         setVisible(true);
@@ -242,7 +241,6 @@ public class TicketPayment extends JFrame{
     private JPanel qrPanel() {
         JPanel panel = new JPanel(new BorderLayout(0, 10));
         panel.setBackground(obsidian);
-//        panel.setBorder(BorderFactory.createEmptyBorder(50, 50, 50, 50));
 
         JPanel topContainer = new JPanel(new GridLayout(2,1));
         topContainer.setOpaque(false);
@@ -389,7 +387,7 @@ public class TicketPayment extends JFrame{
 
     private JButton createMenuButton(String main, String sub) {
         JButton b = new JButton("<html><center><b>" + main + "</b><br><font size='3' color='#888888'>" + sub + "</font></center></html>");
-        b.setBackground(surface);
+        b.setBackground(obsidian);
         b.setForeground(offWhite);
         b.setFocusPainted(false);
         b.setBorder(new LineBorder(new Color(0x333333), 1));
@@ -412,7 +410,7 @@ public class TicketPayment extends JFrame{
 
     private JTextField createStyledTextField(String placeholder) {
         JTextField f = new JTextField(placeholder);
-        f.setBackground(surface);
+        f.setBackground(obsidian);
         f.setForeground(softGray);
         f.setCaretColor(Color.WHITE);
         f.setPreferredSize(new Dimension(0, 45));
@@ -500,8 +498,7 @@ public class TicketPayment extends JFrame{
         }
     }
     
-        private void deductStock(){
-        
+    private void deductStock(){
         String file = "FnBStock.txt";
         ArrayList<String[]> items = new ArrayList<>();
         
@@ -543,7 +540,7 @@ public class TicketPayment extends JFrame{
             return;
         }
 
-        // 🔥 WRITE BACK TO FILE
+        // WRITE BACK TO FILE
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(file))) {
 
             for (String[] item : items) {

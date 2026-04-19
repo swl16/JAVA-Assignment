@@ -11,72 +11,83 @@ import java.util.*;
 import java.util.List;
 
 public class SubWindowProfile extends JFrame implements ActionListener {
-    JFrame frame = new JFrame("TGC Cinema");
-    String username;
-    JFrame homeFrame;
-    JPanel cardPanel;
-    CardLayout cardLayout;
-    JButton backButton1,backButton3,backButton4;
-    JButton delAccBtn;
+    private JFrame frame = new JFrame("TGC Cinema");
+    private JFrame homeFrame;
+    private JPanel cardPanel;
+    private CardLayout cardLayout;
+    private JButton backButton1, backButton2, backButton3, delAccBtn;
 
-    List<String[]> order = new ArrayList<>();
-    List<String[]> orderPast = new ArrayList<>();
-    String[] seatType = {"Adult","Student","Senior","OKU"};
+    private String username;
+    private List<String[]> order = new ArrayList<>();
+    private List<String[]> orderPast = new ArrayList<>();
+    private String[] seatType = {"Adult", "Student", "Senior", "OKU"};
+
+    private final Color background = new Color(0x242424);
+    private final Color buttonRed = new Color(0xD44444);
+    private final Color textWhite = new Color(0xF7F7F7);
+    private final Color grey = new Color(0x3B3B3B);
+    private final Color middleGrey = new Color(0x555555);
+    private final Color lightGrey = new Color(0xAAAAAA);
+
     private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("EEE dd MMM , HH:mm");
 
-
-    public SubWindowProfile(JFrame homeFrame, int choice, String username){
+    public SubWindowProfile(JFrame homeFrame, int choice, String username) {
         this.homeFrame = homeFrame;
         this.username = username;
 
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         frame.setResizable(false);
-        frame.setSize(500,700);
-        frame.getContentPane().setBackground(new Color(0x242424));
+        frame.setSize(500, 700);
+        frame.getContentPane().setBackground(background);
         frame.setVisible(true);
         loadUserOrder();
 
         cardLayout = new CardLayout();
         cardPanel = new JPanel(cardLayout);
 
-        cardPanel.add(createTicketPanel(),"ticket");
-//        cardPanel.add(createHistoryPanel(),"history");
-        cardPanel.add(createContactUsPanel(),"contactUs");
-        cardPanel.add(createSettingPanel(),"setting");
+        cardPanel.add(createTicketPanel(), "ticket");
+        cardPanel.add(createContactUsPanel(), "contactUs");
+        cardPanel.add(createSettingPanel(), "setting");
         cardPanel.add(createChangePassPanel(), "changePass");
 
         frame.add(cardPanel);
 
         switch (choice) {
-            case 1 : cardLayout.show(cardPanel, "ticket"); break;
-            case 2 : cardLayout.show(cardPanel, "contactUs"); break;
-            case 3 : cardLayout.show(cardPanel, "setting"); break;
+            case 1:
+                cardLayout.show(cardPanel, "ticket");
+                break;
+            case 2:
+                cardLayout.show(cardPanel, "contactUs");
+                break;
+            case 3:
+                cardLayout.show(cardPanel, "setting");
+                break;
         }
 
 
     }
 
-    private JPanel createTicketPanel(){
+    private JPanel createTicketPanel() {
         JPanel ticketPanel = new JPanel();
         ticketPanel.setLayout(null);
-        ticketPanel.setBackground(new Color(0x242424));
+        ticketPanel.setBackground(background);
 
         backButton1 = makeBackButton();
         backButton1.addActionListener(this);
         ticketPanel.add(backButton1);
 
         JLabel ticketLabel = new JLabel("My Ticket");
-        ticketLabel.setForeground(new Color(0xF7F7F7));
-        ticketLabel.setFont(new Font("Courier New",Font.BOLD,40));
-        ticketLabel.setBounds(40,60,500,50);
+        ticketLabel.setForeground(textWhite);
+        ticketLabel.setFont(new Font("Courier New", Font.BOLD, 40));
+        ticketLabel.setBounds(40, 60, 500, 50);
         ticketPanel.add(ticketLabel);
 
         JPanel listPanel = new JPanel();
         listPanel.setLayout(new BoxLayout(listPanel, BoxLayout.Y_AXIS));
-        listPanel.setBackground(new Color(0x242424));
+        listPanel.setBackground(background);
 
         JLabel currentLabel = new JLabel("Upcoming Tickets", SwingConstants.LEFT);
-        currentLabel.setForeground(new Color(0xF7F7F7));
+        currentLabel.setForeground(textWhite);
         currentLabel.setFont(new Font("Courier New", Font.BOLD, 20));
         currentLabel.setMaximumSize(new Dimension(440, 20));
         currentLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -85,7 +96,7 @@ public class SubWindowProfile extends JFrame implements ActionListener {
 
         if (order.isEmpty()) {
             JLabel emptyLabel = new JLabel("No Upcoming Ticket Records.", SwingConstants.CENTER);
-            emptyLabel.setForeground(new Color(0xF7F7F7));
+            emptyLabel.setForeground(textWhite);
             emptyLabel.setFont(new Font("Courier New", Font.ITALIC, 15));
             emptyLabel.setMaximumSize(new Dimension(440, 60));
             emptyLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -104,7 +115,7 @@ public class SubWindowProfile extends JFrame implements ActionListener {
 
         listPanel.add(Box.createVerticalStrut(20));
         JLabel pastLabel = new JLabel("Past Order", SwingConstants.LEFT);
-        pastLabel.setForeground(new Color(0xF7F7F7));
+        pastLabel.setForeground(textWhite);
         pastLabel.setFont(new Font("Courier New", Font.BOLD, 20));
         pastLabel.setMaximumSize(new Dimension(430, 20));
         pastLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -113,7 +124,7 @@ public class SubWindowProfile extends JFrame implements ActionListener {
 
         if (orderPast.isEmpty()) {
             JLabel emptyLabel1 = new JLabel("No Past Order Records.", SwingConstants.CENTER);
-            emptyLabel1.setForeground(new Color(0xF7F7F7));
+            emptyLabel1.setForeground(textWhite);
             emptyLabel1.setFont(new Font("Courier New", Font.ITALIC, 15));
             emptyLabel1.setMaximumSize(new Dimension(430, 60));
             emptyLabel1.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -133,8 +144,8 @@ public class SubWindowProfile extends JFrame implements ActionListener {
         JScrollPane scrollPane = new JScrollPane(listPanel);
         scrollPane.setBounds(25, 120, 480, 530);
         scrollPane.setBorder(null);
-        scrollPane.setBackground(new Color(0x242424));
-        scrollPane.getViewport().setBackground(new Color(0x242424));
+        scrollPane.setBackground(background);
+        scrollPane.getViewport().setBackground(background);
         scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         scrollPane.getVerticalScrollBar().setUnitIncrement(12);
         ticketPanel.add(scrollPane);
@@ -142,63 +153,63 @@ public class SubWindowProfile extends JFrame implements ActionListener {
         return ticketPanel;
     }
 
-    private JPanel createOrderCard(String[] order, Boolean upcoming){
+    private JPanel createOrderCard(String[] order, Boolean upcoming) {
         String formattedDateTime = LocalDateTime.parse(order[3]).format(FMT);
         JPanel panel = new JPanel();
         panel.setLayout(null);
-        panel.setBackground(new Color(0x3B3B3B));
+        panel.setBackground(grey);
 
         JLabel movieLabel = new JLabel(order[1]);
-        movieLabel.setForeground(new Color(0xF7F7F7));
-        movieLabel.setFont(new Font("Courier New",Font.BOLD,20));
-        movieLabel.setBounds(10,10,250,20);
+        movieLabel.setForeground(textWhite);
+        movieLabel.setFont(new Font("Courier New", Font.BOLD, 20));
+        movieLabel.setBounds(10, 10, 250, 20);
         panel.add(movieLabel);
 
-        JLabel badge = new JLabel(upcoming ? "  UPCOMING  " : "  COMPLETED  ",SwingConstants.CENTER);
-        badge.setForeground(new Color(0xF7F7F7));
+        JLabel badge = new JLabel(upcoming ? "  UPCOMING  " : "  COMPLETED  ", SwingConstants.CENTER);
+        badge.setForeground(textWhite);
         badge.setFont(new Font("Courier New", Font.BOLD, 10));
-        badge.setBackground(upcoming ? new Color(0xD44444) : new Color(0x66cf46));
+        badge.setBackground(upcoming ? buttonRed : new Color(0x66cf46));
         badge.setOpaque(true);
         badge.setBounds(300, 12, 100, 18);
         panel.add(badge);
 
         JLabel locationLabel = new JLabel("Location: Mit Valley Megamall");
-        locationLabel.setForeground(new Color(0xF7F7F7));
-        locationLabel.setFont(new Font("Courier New",Font.BOLD,15));
-        locationLabel.setBounds(10,40,400,20);
+        locationLabel.setForeground(textWhite);
+        locationLabel.setFont(new Font("Courier New", Font.BOLD, 15));
+        locationLabel.setBounds(10, 40, 400, 20);
         panel.add(locationLabel);
 
         JLabel showtimeLabel = new JLabel("Show time: " + formattedDateTime + " at " + order[4]);
-        showtimeLabel.setForeground(new Color(0xF7F7F7));
-        showtimeLabel.setFont(new Font("Courier New",Font.BOLD,15));
-        showtimeLabel.setBounds(10,65,400,20);
+        showtimeLabel.setForeground(textWhite);
+        showtimeLabel.setFont(new Font("Courier New", Font.BOLD, 15));
+        showtimeLabel.setBounds(10, 65, 400, 20);
         panel.add(showtimeLabel);
 
         JLabel seatLabel = new JLabel("Seat(s): " + order[5]);
-        seatLabel.setForeground(new Color(0xF7F7F7));
-        seatLabel.setFont(new Font("Courier New",Font.BOLD,15));
-        seatLabel.setBounds(10,90,400,20);
+        seatLabel.setForeground(textWhite);
+        seatLabel.setFont(new Font("Courier New", Font.BOLD, 15));
+        seatLabel.setBounds(10, 90, 400, 20);
         panel.add(seatLabel);
 
         JSeparator sep = new JSeparator();
         sep.setBounds(15, 120, 415, 1);
-        sep.setForeground(new Color(0x555555));
+        sep.setForeground(middleGrey);
         panel.add(sep);
 
-        JLabel priceLabel = new JLabel("Total Amount Paid: RM" + String.format("%.2f",Double.parseDouble(order[11])));
-        priceLabel.setForeground(new Color(0xF7F7F7));
-        priceLabel.setFont(new Font("Courier New",Font.BOLD,15));
-        priceLabel.setBounds(10,130,260,20);
+        JLabel priceLabel = new JLabel("Total Amount Paid: RM" + String.format("%.2f", Double.parseDouble(order[11])));
+        priceLabel.setForeground(textWhite);
+        priceLabel.setFont(new Font("Courier New", Font.BOLD, 15));
+        priceLabel.setBounds(10, 130, 260, 20);
         panel.add(priceLabel);
 
-        JButton viewButton = new JButton ( upcoming ? "View QR & Details" : "View Details");
+        JButton viewButton = new JButton(upcoming ? "View QR & Details" : "View Details");
         viewButton.setBorderPainted(false);
         viewButton.setFocusPainted(false);
-        viewButton.setFont(new Font("Courier New",Font.PLAIN,12));
-        viewButton.setBounds(270,130,150,25);
-        viewButton.setForeground(new Color(0xF7F7F7));
-        viewButton.setBackground(new Color(0xD44444));
-        viewButton.setMargin(new Insets(0,0,0,0));
+        viewButton.setFont(new Font("Courier New", Font.PLAIN, 12));
+        viewButton.setBounds(270, 130, 150, 25);
+        viewButton.setForeground(textWhite);
+        viewButton.setBackground(buttonRed);
+        viewButton.setMargin(new Insets(0, 0, 0, 0));
         viewButton.addActionListener(e -> {
             String key = order[0];
             JPanel detailPanel = createOrderDetailPanel(order, upcoming);
@@ -211,17 +222,17 @@ public class SubWindowProfile extends JFrame implements ActionListener {
         return panel;
     }
 
-    private JPanel createOrderDetailPanel(String[] order, boolean upcoming){
+    private JPanel createOrderDetailPanel(String[] order, boolean upcoming) {
         JPanel panel = new JPanel();
         panel.setLayout(null);
-        panel.setBackground(new Color(0x242424));
+        panel.setBackground(background);
 
         JButton backButton = makeBackButton();
-        backButton.addActionListener(e -> cardLayout.show(cardPanel,"ticket"));
+        backButton.addActionListener(e -> cardLayout.show(cardPanel, "ticket"));
         panel.add(backButton);
 
         JLabel titleLabel = new JLabel("Order Details");
-        titleLabel.setForeground(new Color(0xF7F7F7));
+        titleLabel.setForeground(textWhite);
         titleLabel.setFont(new Font("Courier New", Font.BOLD, 20));
         titleLabel.setBounds(40, 60, 400, 30);
         panel.add(titleLabel);
@@ -238,12 +249,12 @@ public class SubWindowProfile extends JFrame implements ActionListener {
             JPanel qrPanel = new JPanel(new BorderLayout());
             qrPanel.setPreferredSize(new Dimension(100, 100));
             qrPanel.setBounds(200, 90, 100, 100);
-            qrPanel.setBackground(new Color(0x3B3B3B));
+            qrPanel.setBackground(Color.WHITE);
             qrPanel.add(new JLabel(new ImageIcon(scaledQR)), BorderLayout.CENTER);
             panel.add(qrPanel);
 
             JLabel qrHintLabel = new JLabel("Show this QR at the counter");
-            qrHintLabel.setForeground(new Color(0xF7F7F7));
+            qrHintLabel.setForeground(textWhite);
             qrHintLabel.setFont(new Font("Courier New", Font.PLAIN, 12));
             qrHintLabel.setHorizontalAlignment(SwingConstants.CENTER);
             qrHintLabel.setBounds(100, 210, 280, 18);
@@ -251,16 +262,16 @@ public class SubWindowProfile extends JFrame implements ActionListener {
 
             JSeparator sep = new JSeparator();
             sep.setBounds(40, 240, 400, 1);
-            sep.setForeground(new Color(0x555555));
+            sep.setForeground(middleGrey);
             panel.add(sep);
 
             scrollStartY = 250;
         }
 
         JPanel row = new JPanel(null);
-        row.setBackground(new Color(0x242424));
+        row.setBackground(background);
 
-        JLabel  orderIdLabel = makeDetailsLabel("Order ID: " + order[0], currentY);
+        JLabel orderIdLabel = makeDetailsLabel("Order ID: " + order[0], currentY);
         row.add(orderIdLabel);
         currentY += 25;
 
@@ -270,7 +281,7 @@ public class SubWindowProfile extends JFrame implements ActionListener {
 
         JSeparator sep1 = new JSeparator();
         sep1.setBounds(15, currentY, 400, 1);
-        sep1.setForeground(new Color(0x555555));
+        sep1.setForeground(middleGrey);
         row.add(sep1);
         currentY += 15;
 
@@ -301,47 +312,47 @@ public class SubWindowProfile extends JFrame implements ActionListener {
 
         JSeparator sep2 = new JSeparator();
         sep2.setBounds(15, currentY, 400, 1);
-        sep2.setForeground(new Color(0x555555));
+        sep2.setForeground(middleGrey);
         row.add(sep2);
         currentY += 15;
 
-        JPanel ticketPanel = createPriceRow("Ticket(s)", "RM " + String.format("%.2f",Double.parseDouble(order[8])));
-        ticketPanel.setBounds(20, currentY,400,15);
+        JPanel ticketPanel = createPriceRow("Ticket(s)", "RM " + String.format("%.2f", Double.parseDouble(order[8])));
+        ticketPanel.setBounds(20, currentY, 400, 15);
         row.add(ticketPanel);
         currentY += 20;
 
         String[] typeCounts = order[6].split(",");
-        for (int i = 0; i < typeCounts.length; i++){
+        for (int i = 0; i < typeCounts.length; i++) {
             int count = Integer.parseInt(typeCounts[i].trim());
             if (count > 0) {
                 JLabel typeLabel = createSubLabel(seatType[i] + " x " + count);
-                typeLabel.setBounds(25, currentY,400,15);
+                typeLabel.setBounds(25, currentY, 400, 15);
                 row.add(typeLabel);
                 currentY += 20;
             }
         }
         currentY += 5;
 
-        JPanel processFeePanel = createPriceRow("Processing Fee", "RM " + String.format("%.2f",Double.parseDouble(order[10])));
-        processFeePanel.setBounds(20, currentY,400,15);
+        JPanel processFeePanel = createPriceRow("Processing Fee", "RM " + String.format("%.2f", Double.parseDouble(order[10])));
+        processFeePanel.setBounds(20, currentY, 400, 15);
         row.add(processFeePanel);
         currentY += 30;
 
         JSeparator sep3 = new JSeparator();
         sep3.setBounds(15, currentY, 400, 1);
-        sep3.setForeground(new Color(0x555555));
+        sep3.setForeground(middleGrey);
         row.add(sep3);
         currentY += 15;
 
-        JPanel fnbPanel = createPriceRow("Food and Drinks", "RM " + String.format("%.2f",Double.parseDouble(order[9])));
-        fnbPanel.setBounds(20, currentY,400,15);
+        JPanel fnbPanel = createPriceRow("Food and Drinks", "RM " + String.format("%.2f", Double.parseDouble(order[9])));
+        fnbPanel.setBounds(20, currentY, 400, 15);
         row.add(fnbPanel);
         currentY += 20;
 
         String[] foodDisplay = order[7].split(",");
-        for (String food : foodDisplay){
+        for (String food : foodDisplay) {
             JLabel foodLabel = createSubLabel(food);
-            foodLabel.setBounds(25, currentY,400,15);
+            foodLabel.setBounds(25, currentY, 400, 15);
             row.add(foodLabel);
             currentY += 20;
         }
@@ -349,12 +360,12 @@ public class SubWindowProfile extends JFrame implements ActionListener {
         currentY += 10;
         JSeparator sep4 = new JSeparator();
         sep4.setBounds(15, currentY, 400, 1);
-        sep4.setForeground(new Color(0x555555));
+        sep4.setForeground(middleGrey);
         row.add(sep4);
         currentY += 15;
 
-        JPanel totalPanel = createPriceRow("Total Amount Paid", "RM " + String.format("%.2f",Double.parseDouble(order[11])));
-        totalPanel.setBounds(20, currentY,400,15);
+        JPanel totalPanel = createPriceRow("Total Amount Paid", "RM " + String.format("%.2f", Double.parseDouble(order[11])));
+        totalPanel.setBounds(20, currentY, 400, 15);
         row.add(totalPanel);
         currentY += 50;
 
@@ -364,8 +375,8 @@ public class SubWindowProfile extends JFrame implements ActionListener {
         JScrollPane scrollPane = new JScrollPane(row);
         scrollPane.setBounds(20, scrollStartY, 483, windowHeight);
         scrollPane.setBorder(null);
-        scrollPane.setBackground(new Color(0x242424));
-        scrollPane.getViewport().setBackground(new Color(0x242424));
+        scrollPane.setBackground(background);
+        scrollPane.getViewport().setBackground(background);
         scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         scrollPane.getVerticalScrollBar().setUnitIncrement(10);
 
@@ -374,79 +385,53 @@ public class SubWindowProfile extends JFrame implements ActionListener {
         return panel;
     }
 
-//    private JPanel createHistoryPanel(){
-//        JPanel historyPanel = new JPanel();
-//        historyPanel.setLayout(null);
-//        historyPanel.setBackground(new Color(0x242424));
-//
-//        backButton2 = new JButton("< Back");
-//        backButton2.setBorderPainted(false);
-//        backButton2.setFocusPainted(false);
-//        backButton2.setContentAreaFilled(false);
-//        backButton2.setFocusable(false);
-//        backButton2.setBounds(8,10,400,40);
-//        backButton2.setFont(new Font("Courier New",Font.PLAIN,17));
-//        backButton2.setHorizontalAlignment(JButton.LEFT);
-//        backButton2.addActionListener(this);
-//        backButton2.setForeground(new Color(0xF7F7F7));
-//        backButton2.setBackground(new Color(0x3B3B3B));
-//        historyPanel.add(backButton2);
-//
-//        JLabel historyLabel = new JLabel("Order History");
-//        historyLabel.setForeground(new Color(0xF7F7F7));
-//        historyLabel.setFont(new Font("Courier New",Font.BOLD,40));
-//        historyLabel.setBounds(40,60,500,50);
-//        historyPanel.add(historyLabel);
-//
-//        return historyPanel;
-//    }
-
-    private JPanel createContactUsPanel(){
+    private JPanel createContactUsPanel() {
         JPanel contactUsPanel = new JPanel();
         contactUsPanel.setLayout(null);
-        contactUsPanel.setBackground(new Color(0x242424));
+        contactUsPanel.setBackground(background);
 
-        backButton3 = makeBackButton();
-        backButton3.addActionListener(this);;
-        contactUsPanel.add(backButton3);
+        backButton2 = makeBackButton();
+        backButton2.addActionListener(this);
+        ;
+        contactUsPanel.add(backButton2);
 
         JLabel contactLabel = new JLabel("Contact Us");
-        contactLabel.setForeground(new Color(0xF7F7F7));
-        contactLabel.setFont(new Font("Courier New",Font.BOLD,40));
-        contactLabel.setBounds(40,50,500,50);
+        contactLabel.setForeground(textWhite);
+        contactLabel.setFont(new Font("Courier New", Font.BOLD, 40));
+        contactLabel.setBounds(40, 50, 500, 50);
         contactUsPanel.add(contactLabel);
 
         JLabel infoLabel = new JLabel("Get in touch with us");
-        infoLabel.setForeground(new Color(0xF7F7F7));
+        infoLabel.setForeground(textWhite);
         infoLabel.setFont(new Font("Courier New", Font.BOLD, 20));
         infoLabel.setBounds(40, 120, 400, 20);
         contactUsPanel.add(infoLabel);
 
-        addContactRow(contactUsPanel, "Address", "L3-01, Mit Valley Megamall, Kuala Lumpur",150);
+        addContactRow(contactUsPanel, "Address", "L3-01, Mit Valley Megamall, Kuala Lumpur", 150);
         addContactRow(contactUsPanel, "Customer Relations Hotline", "+603-1234 6677", 220);
         addContactRow(contactUsPanel, "Email Support", "support@tgccinema.com.my", 290);
         addContactRow(contactUsPanel, "Service Hours", "Mon to Fri 10:00 AM – 6:00 PM", 360);
 
         JLabel socialLabel = new JLabel("Follow Us");
-        socialLabel.setForeground(new Color(0xAAAAAA));
+        socialLabel.setForeground(lightGrey);
         socialLabel.setFont(new Font("Courier New", Font.BOLD, 14));
         socialLabel.setBounds(40, 450, 400, 20);
         contactUsPanel.add(socialLabel);
 
         JLabel fbLabel = new JLabel("Facebook : @TGCCinema");
-        fbLabel.setForeground(new Color(0xF7F7F7));
+        fbLabel.setForeground(textWhite);
         fbLabel.setFont(new Font("Courier New", Font.PLAIN, 14));
         fbLabel.setBounds(40, 480, 400, 20);
         contactUsPanel.add(fbLabel);
 
         JLabel insLabel = new JLabel("Instagram : @tgc_cinema.my");
-        insLabel.setForeground(new Color(0xF7F7F7));
+        insLabel.setForeground(textWhite);
         insLabel.setFont(new Font("Courier New", Font.PLAIN, 14));
         insLabel.setBounds(40, 510, 400, 20);
         contactUsPanel.add(insLabel);
 
         JLabel xLabel = new JLabel("X : @TGCCinema");
-        xLabel.setForeground(new Color(0xF7F7F7));
+        xLabel.setForeground(textWhite);
         xLabel.setFont(new Font("Courier New", Font.PLAIN, 14));
         xLabel.setBounds(40, 540, 400, 20);
         contactUsPanel.add(xLabel);
@@ -456,42 +441,42 @@ public class SubWindowProfile extends JFrame implements ActionListener {
 
     private void addContactRow(JPanel panel, String label, String value, int y) {
         JLabel lbl = new JLabel(label);
-        lbl.setForeground(new Color(0xAAAAAA));
+        lbl.setForeground(lightGrey);
         lbl.setFont(new Font("Courier New", Font.BOLD, 13));
         lbl.setBounds(40, y, 380, 20);
         panel.add(lbl);
 
         JLabel val = new JLabel(value);
-        val.setForeground(new Color(0xF7F7F7));
+        val.setForeground(textWhite);
         val.setFont(new Font("Courier New", Font.PLAIN, 14));
         val.setBounds(40, y + 22, 380, 20);
         panel.add(val);
 
         JSeparator sep = new JSeparator();
         sep.setBounds(40, y + 52, 400, 1);
-        sep.setForeground(new Color(0xAAAAAA));
+        sep.setForeground(lightGrey);
         panel.add(sep);
     }
 
-    private JPanel createSettingPanel(){
+    private JPanel createSettingPanel() {
         JPanel panel = new JPanel();
         panel.setLayout(null);
-        panel.setBackground(new Color(0x242424));
+        panel.setBackground(background);
 
-        backButton4 = makeBackButton();
-        backButton4.addActionListener(this);
-        panel.add(backButton4);
+        backButton3 = makeBackButton();
+        backButton3.addActionListener(this);
+        panel.add(backButton3);
 
         JLabel settingLabel = new JLabel("Setting");
-        settingLabel.setForeground(new Color(0xF7F7F7));
-        settingLabel.setFont(new Font("Courier New",Font.BOLD,40));
-        settingLabel.setBounds(40,60,500,50);
+        settingLabel.setForeground(textWhite);
+        settingLabel.setFont(new Font("Courier New", Font.BOLD, 40));
+        settingLabel.setBounds(40, 60, 500, 50);
         panel.add(settingLabel);
 
         JLabel securityLabel = new JLabel("Security");
-        securityLabel.setForeground(new Color(0x6e7075));
-        securityLabel.setFont(new Font("Courier New",Font.BOLD,20));
-        securityLabel.setBounds(40,120,500,30);
+        securityLabel.setForeground(lightGrey);
+        securityLabel.setFont(new Font("Courier New", Font.BOLD, 20));
+        securityLabel.setBounds(40, 120, 500, 30);
         panel.add(securityLabel);
 
         JButton changePassBtn = new JButton("Change Password                   >");
@@ -499,17 +484,17 @@ public class SubWindowProfile extends JFrame implements ActionListener {
         changePassBtn.setFocusPainted(false);
         changePassBtn.setContentAreaFilled(false);
         changePassBtn.setFocusable(false);
-        changePassBtn.setBounds(40,150,400,30);
-        changePassBtn.setFont(new Font("Courier New",Font.PLAIN,17));
+        changePassBtn.setBounds(40, 150, 400, 30);
+        changePassBtn.setFont(new Font("Courier New", Font.PLAIN, 17));
         changePassBtn.setHorizontalAlignment(JButton.LEFT);
         changePassBtn.addActionListener(e -> cardLayout.show(cardPanel, "changePass"));
-        changePassBtn.setForeground(new Color(0xF7F7F7));
+        changePassBtn.setForeground(textWhite);
         panel.add(changePassBtn);
 
         JLabel accManageLabel = new JLabel("Account Management");
-        accManageLabel.setForeground(new Color(0x6e7075));
-        accManageLabel.setFont(new Font("Courier New",Font.BOLD,20));
-        accManageLabel.setBounds(45,200,500,30);
+        accManageLabel.setForeground(lightGrey);
+        accManageLabel.setFont(new Font("Courier New", Font.BOLD, 20));
+        accManageLabel.setBounds(45, 200, 500, 30);
         panel.add(accManageLabel);
 
         delAccBtn = new JButton("Delete Account                    >");
@@ -517,91 +502,89 @@ public class SubWindowProfile extends JFrame implements ActionListener {
         delAccBtn.setFocusPainted(false);
         delAccBtn.setContentAreaFilled(false);
         delAccBtn.setFocusable(false);
-        delAccBtn.setBounds(40,230,400,30);
-        delAccBtn.setFont(new Font("Courier New",Font.PLAIN,17));
+        delAccBtn.setBounds(40, 230, 400, 30);
+        delAccBtn.setFont(new Font("Courier New", Font.PLAIN, 17));
         delAccBtn.setHorizontalAlignment(JButton.LEFT);
         delAccBtn.addActionListener(this);
-        delAccBtn.setForeground(new Color(0xF7F7F7));
+        delAccBtn.setForeground(textWhite);
         panel.add(delAccBtn);
-
-
 
         return panel;
     }
 
-    private JPanel createChangePassPanel(){
+    private JPanel createChangePassPanel() {
         JPanel panel = new JPanel();
         panel.setLayout(null);
-        panel.setBackground(new Color(0x242424));
+        panel.setBackground(background);
 
         JButton backButton = makeBackButton();
-        backButton.addActionListener(e -> cardLayout.show(cardPanel,"setting") );
+        backButton.addActionListener(e -> cardLayout.show(cardPanel, "setting"));
         panel.add(backButton);
 
         JLabel changePassLabel = new JLabel("Change Password");
-        changePassLabel.setForeground(new Color(0xF7F7F7));
-        changePassLabel.setFont(new Font("Courier New",Font.BOLD,30));
-        changePassLabel.setBounds(40,60,500,50);
+        changePassLabel.setForeground(textWhite);
+        changePassLabel.setFont(new Font("Courier New", Font.BOLD, 30));
+        changePassLabel.setBounds(40, 60, 500, 50);
         panel.add(changePassLabel);
 
         JLabel tipsLabel = new JLabel("*Password must at least 6 characters.");
-        tipsLabel.setForeground(new Color(0xD44444));
-        tipsLabel.setFont(new Font("Courier New",Font.BOLD,12));
-        tipsLabel.setBounds(40,120,500,15);
+        tipsLabel.setForeground(buttonRed);
+        tipsLabel.setFont(new Font("Courier New", Font.BOLD, 12));
+        tipsLabel.setBounds(40, 120, 500, 15);
         panel.add(tipsLabel);
 
         JLabel currentPassLabel = new JLabel("Current Password");
-        currentPassLabel.setForeground(new Color(0xF7F7F7));
-        currentPassLabel.setFont(new Font("Courier New",Font.BOLD,20));
-        currentPassLabel.setBounds(40,150,500,30);
+        currentPassLabel.setForeground(textWhite);
+        currentPassLabel.setFont(new Font("Courier New", Font.BOLD, 20));
+        currentPassLabel.setBounds(40, 150, 500, 30);
         panel.add(currentPassLabel);
 
         JPasswordField currentPassType = new JPasswordField();
-        currentPassType.setBounds(40,180,400,20);
-        currentPassType.setFont(new Font("Courier New",Font.PLAIN,15));
-        currentPassType.setForeground(new Color(0xF7F7F7));
-        currentPassType.setBackground(new Color(0x3B3B3B));
-        currentPassType.setCaretColor(new Color(0xF7F7F7));
+        currentPassType.setBounds(40, 180, 400, 20);
+        currentPassType.setFont(new Font("Courier New", Font.PLAIN, 15));
+        currentPassType.setForeground(textWhite);
+        currentPassType.setBackground(grey);
+        currentPassType.setCaretColor(textWhite);
         currentPassType.setBorder(null);
         panel.add(currentPassType);
 
         JLabel newPassLabel = new JLabel("New Password");
-        newPassLabel.setForeground(new Color(0xF7F7F7));
-        newPassLabel.setFont(new Font("Courier New",Font.BOLD,20));
-        newPassLabel.setBounds(40,220,500,30);
+        newPassLabel.setForeground(textWhite);
+        newPassLabel.setFont(new Font("Courier New", Font.BOLD, 20));
+        newPassLabel.setBounds(40, 220, 500, 30);
         panel.add(newPassLabel);
 
         JPasswordField newPassType = new JPasswordField();
-        newPassType.setBounds(40,250,400,20);
-        newPassType.setFont(new Font("Courier New",Font.PLAIN,15));
-        newPassType.setForeground(new Color(0xF7F7F7));
-        newPassType.setBackground(new Color(0x3B3B3B));
-        newPassType.setCaretColor(new Color(0xF7F7F7));
+        newPassType.setBounds(40, 250, 400, 20);
+        newPassType.setFont(new Font("Courier New", Font.PLAIN, 15));
+        newPassType.setForeground(textWhite);
+        newPassType.setBackground(grey);
+        newPassType.setCaretColor(textWhite);
         newPassType.setBorder(null);
         panel.add(newPassType);
 
         JLabel repeatPassLabel = new JLabel("Re-type Password");
-        repeatPassLabel.setForeground(new Color(0xF7F7F7));
-        repeatPassLabel.setFont(new Font("Courier New",Font.BOLD,20));
-        repeatPassLabel.setBounds(40,290,500,30);
+        repeatPassLabel.setForeground(textWhite);
+        repeatPassLabel.setFont(new Font("Courier New", Font.BOLD, 20));
+        repeatPassLabel.setBounds(40, 290, 500, 30);
         panel.add(repeatPassLabel);
 
         JPasswordField repeatPassType = new JPasswordField();
-        repeatPassType.setBounds(40,320,400,20);
-        repeatPassType.setFont(new Font("Courier New",Font.PLAIN,15));
-        repeatPassType.setForeground(new Color(0xF7F7F7));
-        repeatPassType.setBackground(new Color(0x3B3B3B));
-        repeatPassType.setCaretColor(new Color(0xF7F7F7));
+        repeatPassType.setBounds(40, 320, 400, 20);
+        repeatPassType.setFont(new Font("Courier New", Font.PLAIN, 15));
+        repeatPassType.setForeground(textWhite);
+        repeatPassType.setBackground(grey);
+        repeatPassType.setCaretColor(textWhite);
         repeatPassType.setBorder(null);
         panel.add(repeatPassType);
 
         JButton confirmButton = new JButton("Confirm");
         confirmButton.setBorderPainted(false);
         confirmButton.setFocusPainted(false);
-        confirmButton.setFont(new Font("Courier New",Font.BOLD,15));
-        confirmButton.setBounds(25,600,430,30);
-        confirmButton.setForeground(new Color(0xF7F7F7));
-        confirmButton.setBackground(new Color(0xD44444));
+        confirmButton.setFont(new Font("Courier New", Font.BOLD, 15));
+        confirmButton.setBounds(25, 600, 430, 30);
+        confirmButton.setForeground(textWhite);
+        confirmButton.setBackground(buttonRed);
         confirmButton.addActionListener(e -> {
 
             String oldPassword = new String(currentPassType.getPassword());
@@ -615,11 +598,11 @@ public class SubWindowProfile extends JFrame implements ActionListener {
         return panel;
     }
 
-    public void loadUserOrder(){
-        try(BufferedReader readLine = new BufferedReader(new FileReader("BookingDetail.txt"))){
+    private void loadUserOrder() {
+        try (BufferedReader readLine = new BufferedReader(new FileReader("BookingDetail.txt"))) {
             String line;
 
-            while((line = readLine.readLine()) != null){
+            while ((line = readLine.readLine()) != null) {
                 if (line.trim().isEmpty()) continue;
                 String[] parts = line.split("\\|", -1);
                 if (parts.length < 13) continue;
@@ -628,30 +611,29 @@ public class SubWindowProfile extends JFrame implements ActionListener {
                     String[] ord = {parts[0], parts[2], parts[3], parts[4], parts[5], parts[6], parts[7], parts[8].replace(":", " x "), parts[9], parts[10], parts[11], parts[12], parts[13]};
                     if (LocalDateTime.parse(parts[4]).plusMinutes(Integer.parseInt(parts[3])).isAfter(LocalDateTime.now())) {
                         order.add(ord);
-                    }else {
+                    } else {
                         orderPast.add(ord);
                     }
                 }
 
             }
-        }
-        catch (IOException e){
+        } catch (IOException e) {
             System.out.println("Error reading booking file");
         }
     }
 
-    public void changePassword(String oldPassword, String newPassword, String reTypePassword){
-        List <String> lines = new ArrayList<>();
+    private void changePassword(String oldPassword, String newPassword, String reTypePassword) {
+        List<String> lines = new ArrayList<>();
         boolean success = false;
         String password = "";
-        try(BufferedReader readUser = new BufferedReader(new FileReader("Users.txt"))){
+        try (BufferedReader readUser = new BufferedReader(new FileReader("Users.txt"))) {
             String line;
-            while((line = readUser.readLine()) != null){
+            while ((line = readUser.readLine()) != null) {
                 String[] parts = line.split(",");
-                if(parts[0].equals(username) ){
+                if (parts[0].equals(username)) {
                     password = parts[1];
 
-                    if (!password.equals(oldPassword)){
+                    if (!password.equals(oldPassword)) {
                         JOptionPane.showMessageDialog(null,
                                 "Incorrect current password, please try again!", "Incorrect password", JOptionPane.WARNING_MESSAGE);
                         lines.add(line);
@@ -667,20 +649,20 @@ public class SubWindowProfile extends JFrame implements ActionListener {
                         JOptionPane.showMessageDialog(null,
                                 "New password cannot be same as the current password!", "", JOptionPane.WARNING_MESSAGE);
                         lines.add(line);
-                    } else{
+                    } else {
                         lines.add(username + "," + newPassword);
                         success = true;
                     }
-                }else {
+                } else {
                     lines.add(line);
                 }
             }
-        }catch(IOException e){
+        } catch (IOException e) {
             System.out.println("Error reading users file");
         }
 
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter("Users.txt"))){
-            for (String l : lines){
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("Users.txt"))) {
+            for (String l : lines) {
                 writer.write(l);
                 writer.newLine();
             }
@@ -694,22 +676,22 @@ public class SubWindowProfile extends JFrame implements ActionListener {
         }
     }
 
-    public void deleteAccount(){
-        List <String> lines = new ArrayList<>();
-        try(BufferedReader readUser = new BufferedReader(new FileReader("Users.txt"))){
+    private void deleteAccount() {
+        List<String> lines = new ArrayList<>();
+        try (BufferedReader readUser = new BufferedReader(new FileReader("Users.txt"))) {
             String line;
-            while((line = readUser.readLine()) != null){
+            while ((line = readUser.readLine()) != null) {
                 String[] parts = line.split(",");
-                if(!parts[0].equals(username) ){
+                if (!parts[0].equals(username)) {
                     lines.add(line);
                 }
             }
-        }catch(IOException e){
+        } catch (IOException e) {
             System.out.println("Error reading users file");
         }
 
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter("Users.txt"))){
-            for (String l : lines){
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("Users.txt"))) {
+            for (String l : lines) {
                 writer.write(l);
                 writer.newLine();
             }
@@ -718,14 +700,14 @@ public class SubWindowProfile extends JFrame implements ActionListener {
         }
     }
 
-
+    @Override
     public void actionPerformed(ActionEvent e) {
-        if (e.getSource() == backButton1 || e.getSource() == backButton3 || e.getSource() == backButton4){
+        if (e.getSource() == backButton1 || e.getSource() == backButton2 || e.getSource() == backButton3) {
             frame.dispose();
             homeFrame.setVisible(true);
         } else if (e.getSource() == delAccBtn) {
             int choice = JOptionPane.showConfirmDialog(null, "This action will permanently delete your account, along with all of your information. Are you sure you want to delete your account?", "Delete Account", JOptionPane.YES_NO_OPTION);
-            if (choice == JOptionPane.YES_OPTION){
+            if (choice == JOptionPane.YES_OPTION) {
                 deleteAccount();
                 JOptionPane.showMessageDialog(null, "Your account is deleted successfully!");
                 frame.dispose();
@@ -735,38 +717,38 @@ public class SubWindowProfile extends JFrame implements ActionListener {
 
     }
 
-    private JButton makeBackButton(){
+    private JButton makeBackButton() {
         JButton backButton = new JButton("< Back");
         backButton.setBorderPainted(false);
         backButton.setFocusPainted(false);
         backButton.setContentAreaFilled(false);
         backButton.setFocusable(false);
-        backButton.setBounds(8,10,150,35);
-        backButton.setFont(new Font("Courier New",Font.PLAIN,17));
+        backButton.setBounds(8, 10, 150, 35);
+        backButton.setFont(new Font("Courier New", Font.PLAIN, 17));
         backButton.setHorizontalAlignment(JButton.LEFT);
-        backButton.setForeground(new Color(0xF7F7F7));
+        backButton.setForeground(textWhite);
         return backButton;
     }
 
-    private JLabel makeDetailsLabel(String text, int y){
+    private JLabel makeDetailsLabel(String text, int y) {
         JLabel label = new JLabel(text);
-        label.setForeground(new Color(0xF7F7F7));
+        label.setForeground(textWhite);
         label.setFont(new Font("Courier New", Font.BOLD, 15));
-        label.setBounds(20,y,400,10);
+        label.setBounds(20, y, 400, 10);
 
         return label;
     }
 
-    private JPanel createLabelGroup(String title, String value){
+    private JPanel createLabelGroup(String title, String value) {
         JPanel p = new JPanel(new GridLayout(2, 1));
         p.setOpaque(false);
 
         JLabel t = new JLabel(title);
-        t.setForeground(new Color(0xAAAAAA));
+        t.setForeground(lightGrey);
         t.setFont(new Font("Courier New", Font.BOLD, 14));
         p.add(t);
         JLabel v = new JLabel(value);
-        v.setForeground(new Color(0xF7F7F7));
+        v.setForeground(textWhite);
         v.setFont(new Font("Courier New", Font.BOLD, 16));
         p.add(v);
 
@@ -777,10 +759,10 @@ public class SubWindowProfile extends JFrame implements ActionListener {
         JPanel p = new JPanel(new BorderLayout());
         p.setOpaque(false);
         JLabel l = new JLabel(label);
-        l.setForeground(new Color(0xAAAAAA));
+        l.setForeground(lightGrey);
         l.setFont(new Font("Courier New", Font.BOLD, 14));
         JLabel r = new JLabel(price);
-        r.setForeground(new Color(0xF7F7F7));
+        r.setForeground(textWhite);
         r.setFont(new Font("Courier New", Font.BOLD, 16));
         p.add(l, BorderLayout.WEST);
         p.add(r, BorderLayout.EAST);
@@ -788,15 +770,12 @@ public class SubWindowProfile extends JFrame implements ActionListener {
         return p;
     }
 
-    private JLabel createSubLabel(String text){
+    private JLabel createSubLabel(String text) {
         JLabel label = new JLabel(text);
-        label.setForeground(new Color(0xF7F7F7));
+        label.setForeground(textWhite);
         label.setFont(new Font("Courier New", Font.BOLD, 16));
 
         return label;
     }
-    //testing use only
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new SubWindowProfile(new JFrame(),1,"tang"));
-    }
 }
+

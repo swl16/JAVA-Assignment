@@ -1,7 +1,7 @@
 package cinema;
 
 public class OkuSeat extends Seat{
-    OkuSeat(char row, int column, double price){
+    public OkuSeat(char row, int column, double price){
         super(row, column, price);
     }
 

@@ -14,7 +14,7 @@ public class ShowTime {
 
     private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("EEE dd MM yyyy, HH:mm");
 
-    ShowTime(String movieName, String hallName, LocalDateTime startTime){
+    public ShowTime(String movieName, String hallName, LocalDateTime startTime){
         this.movieName = movieName;
         this.hallName = hallName;
         this.startTime = startTime;
@@ -23,5 +23,4 @@ public class ShowTime {
     public String getMovieName() { return movieName; }
     public String getHallName() { return hallName; }
     public LocalDateTime getStartTime() { return startTime; }
-
 }

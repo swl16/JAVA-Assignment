@@ -35,7 +35,7 @@ public class Concession {
         
         frame = new JFrame("TGC Cinema - Concession F&B");
         frame.setSize(500, 700);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 
         layout = new CardLayout();
         mainPanel = new JPanel(layout);

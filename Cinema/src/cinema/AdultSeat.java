@@ -1,7 +1,7 @@
 package cinema;
 
 public class AdultSeat extends Seat {
-    AdultSeat(char row, int column, double price){
+    public AdultSeat(char row, int column, double price){
         super(row,column,price);
     }
 

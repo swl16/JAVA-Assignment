@@ -7,13 +7,10 @@ import java.awt.event.ActionListener;
 import java.io.*;
 
 public class LoginPage implements ActionListener {
-
-    JTextField usernameEnter;
-    JPasswordField passwordEnter;
-    JButton loginButton;
-    JButton staffLoginB;
-    JButton signUpButton;
-    JFrame frame = new JFrame("TGC Cinema");
+    private JTextField usernameEnter;
+    private JPasswordField passwordEnter;
+    private JButton loginButton,staffLoginB,signUpButton;
+    private JFrame frame = new JFrame("TGC Cinema");
 
     public LoginPage(){
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -119,18 +116,15 @@ public class LoginPage implements ActionListener {
                 JOptionPane.showMessageDialog(frame, "Username and password cannot be empty! Please try again.", "Login Failed", JOptionPane.ERROR_MESSAGE);
                 return;
             }
-            
             if(validateLogin(username,password)){
                 frame.dispose();
                 new MainMenuPage(username);
             }else{
                 JOptionPane.showMessageDialog(frame, "Invalid username or password. Please try again.", "Login Failed", JOptionPane.ERROR_MESSAGE);
             }
-
         } else if (e.getSource() == staffLoginB) {
             frame.dispose();
             new StaffLoginPage();
-            
         } else if (e.getSource() == signUpButton) {
             frame.dispose();
             new SignUpPage();

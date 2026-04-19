@@ -13,49 +13,32 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class FnBwTicket {
-    JFrame frame = new JFrame("TGC Cinema - F & B");
-    JPanel mainPanel, menuView, checkoutView;
-    JLabel foodTypeLabel, foodPriceLabel, totalPriceLabel;
-    CardLayout layout;
-    UserOrder order;
-    JFrame homeFrame;
+    private JFrame frame = new JFrame("TGC Cinema - Select Combo");
+    private JPanel mainPanel, menuView, checkoutView;
+    private JLabel foodTypeLabel, foodPriceLabel, totalPriceLabel;
+    private CardLayout layout;
+    private JFrame homeFrame;
+    private JButton confirmButton;
 
-    final Color BG = new Color(0x242424), CARD = new Color(0x1E1E1E), ACCENT = new Color(0xD44444);
-    final Color TEXT = Color.WHITE, MUTED_TEXT = new Color(0xAAAAAA), INPUT_BG = new Color(0x2A2A2A);
-    final Dimension UI_ELEMENT_SIZE = new Dimension(350, 45);
+    private final Color BG = new Color(0x242424), CARD = new Color(0x1E1E1E), ACCENT = new Color(0xD44444);
+    private final Color TEXT = new Color(0xF7F7F7), MUTED_TEXT = new Color(0xAAAAAA), INPUT_BG = new Color(0x3B3B3B);
     private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("EEE dd MMM , HH:mm");
-    String[] seatType = {"Adult","Student","Senior","OKU"};
 
-//    JLabel totalLabel, footerQtyLabel, receiptLabel;
-    JButton confirmButton;
-//    Map<String, Integer> basket = new HashMap<>();
-//    Map<String, Double> prices = new HashMap<>();
-    ArrayList<fnbitem> items = new ArrayList<>();
+    private final String[] seatType = {"Adult","Student","Senior","OKU"};
+    private UserOrder order;
 
-    FnBwTicket(JFrame homeFrame,UserOrder order){
+    private ArrayList<fnbitem> items = new ArrayList<>();
+
+    public FnBwTicket(JFrame homeFrame,UserOrder order){
         this.homeFrame = homeFrame;
         this.order = order;
 
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         frame.setResizable(false);
         frame.setSize(500,700);
         frame.setLocationRelativeTo(null);
         frame.getContentPane().setBackground(new Color(0x242424));
         frame.setVisible(true);
-
-//        JButton backButton = new JButton("< Back");
-//        backButton.setBorderPainted(false);
-//        backButton.setFocusPainted(false);
-//        backButton.setContentAreaFilled(false);
-//        backButton.setFocusable(false);
-//        backButton.setBounds(8,10,150,30);
-//        backButton.setFont(new Font("Courier New",Font.PLAIN,17));
-//        backButton.setHorizontalAlignment(JButton.LEFT);
-//        backButton.addActionListener(e -> {
-//            frame.dispose();
-//            homeFrame.setVisible(true);});
-//        backButton.setForeground(new Color(0xF7F7F7));
-//        frame.add(backButton);
 
         layout = new CardLayout();
         mainPanel = new JPanel(layout);
@@ -71,9 +54,6 @@ public class FnBwTicket {
     }
 
     private void createMenuView() {
-//        menuView.removeAll();
-//        menuView.revalidate();
-//        menuView.repaint();
         menuView = new JPanel(new BorderLayout());
         menuView.setBackground(BG);
 
@@ -87,10 +67,9 @@ public class FnBwTicket {
             frame.dispose();
             homeFrame.setVisible(true);});
 
-        JLabel titleLabel = new JLabel("Select Items or Skip", SwingConstants.CENTER);
-        titleLabel.setForeground(new Color(0xF7F7F7));
+        JLabel titleLabel = new JLabel("Select Combo", SwingConstants.CENTER);
+        titleLabel.setForeground(TEXT);
         titleLabel.setFont(new Font("Courier New",Font.BOLD,20));
-//        titleLabel.setBounds(165,20,200,20);
 
         JPanel centerPanel = new JPanel(new GridBagLayout());
         centerPanel.setBackground(BG);
@@ -120,18 +99,6 @@ public class FnBwTicket {
         confirmButton.setFont(new Font("Courier New",Font.BOLD,15));
         footer.add(confirmButton,BorderLayout.CENTER);
 
-//        footerQtyLabel = new JLabel("0 Items Selected");
-//        totalLabel = new JLabel("RM 0.00");
-//        totalLabel.setFont(new Font("SansSerif", Font.BOLD, 18));
-//
-//        footer.add(footerQtyLabel, BorderLayout.WEST);
-//        footer.add(totalLabel, BorderLayout.EAST);
-//        footer.addMouseListener(new java.awt.event.MouseAdapter() {
-//            public void mouseClicked(java.awt.event.MouseEvent e) {
-//                if (!basket.isEmpty()) { updateReceiptText(); layout.show(mainPanel, "CHECKOUT"); }
-//            }
-//        });
-
         menuView.add(header, BorderLayout.NORTH);
         menuView.add(tabs, BorderLayout.CENTER);
         menuView.add(footer, BorderLayout.SOUTH);
@@ -141,7 +108,7 @@ public class FnBwTicket {
         JPanel card = new JPanel(new BorderLayout());
         card.setBackground(CARD);
         card.setPreferredSize(new Dimension(195, 180));
-        card.setBorder(new LineBorder(new Color(0x333333), 1));
+        card.setBorder(new LineBorder(INPUT_BG, 1));
 
         JPanel info = new JPanel(new GridLayout(2, 1));
         info.setOpaque(false);
@@ -183,7 +150,6 @@ public class FnBwTicket {
 
         addBtn.addActionListener(e -> {
             order.addFoodItem(item,1);
-            //basket.put(name, 1);
             qLbl.setText("1");
             ((CardLayout)actionArea.getLayout()).show(actionArea, "QTY");
             updateFooter();
@@ -216,7 +182,6 @@ public class FnBwTicket {
     private void createCheckoutView() {
         checkoutView = new JPanel(new BorderLayout());
         checkoutView.setBackground(BG);
-//        checkoutView.setBorder(new EmptyBorder(30, 30, 30, 30));
 
         JPanel upperPanel = new JPanel();
         upperPanel.setBackground(BG);
@@ -243,14 +208,6 @@ public class FnBwTicket {
         JPanel centerPanel = new JPanel();
         centerPanel.setBackground(BG);
         centerPanel.setLayout(null);
-//        centerPanel.setPreferredSize(new Dimension(500, 180));
-
-//        receiptLabel = new JLabel();
-//        receiptLabel.setVerticalAlignment(SwingConstants.TOP);
-//        JScrollPane scroll = new JScrollPane(centerPanel);
-//        scroll.setOpaque(false);
-//        scroll.getViewport().setOpaque(false);
-//        scroll.setBorder(null);
 
         JLabel movieLabel = new JLabel("Movie");
         movieLabel.setForeground(MUTED_TEXT);
@@ -426,16 +383,10 @@ public class FnBwTicket {
         payBtn.setPreferredSize(new Dimension(0, 55));
         payBtn.addActionListener(e -> { frame.dispose(); new TicketPayment(order); });
 
-//        JButton backBtn = new JButton("← Back to Menu");
-//        styleButton(backBtn, BG, MUTED_TEXT);
-//        backBtn.setPreferredSize(new Dimension(0, 40));
-//        backBtn.addActionListener(e -> layout.show(mainPanel, "MENU"));
-
         JPanel btnPanel = new JPanel(new BorderLayout(0, 10));
         btnPanel.setOpaque(false);
         btnPanel.setBorder(new EmptyBorder(25,25,25,25));
         btnPanel.add(payBtn, BorderLayout.CENTER);
-        //btnPanel.add(backBtn, BorderLayout.SOUTH);
 
         checkoutView.add(centerPanel, BorderLayout.CENTER);
         checkoutView.add(btnPanel, BorderLayout.SOUTH);
@@ -500,10 +451,6 @@ public class FnBwTicket {
                 addMenuCard(container, item);
             }
         }
-
-//        if (type.equals("snack")) { addMenuCard(container, "Popcorn", 15.0); addMenuCard(container, "Nuggets", 12.0); }
-//        else if (type.equals("drink")) { addMenuCard(container, "Coke", 8.0); }
-//        else { addMenuCard(container, "Combo A", 22.0); }
         JScrollPane sp = new JScrollPane(container);
         sp.setBorder(null);
         return sp;
@@ -521,7 +468,5 @@ public class FnBwTicket {
             count += order.getSelectedFood().getOrDefault(item, 0);
         }
         confirmButton.setText("Total - " + count + " Item(s)                 RM " + String.format("%.2f", total));
-//        footerQtyLabel.setText(count + " Items");
-//        totalLabel.setText("RM " + );
     }
 }

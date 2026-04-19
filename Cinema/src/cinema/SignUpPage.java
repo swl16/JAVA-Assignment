@@ -8,11 +8,11 @@ import java.io.*;
 
 public class SignUpPage implements ActionListener {
 
-    JTextField usernameEnter;
-    JPasswordField passwordEnter;
-    JButton signUpButton;
-    JButton backUserLogin;
-    JFrame frame = new JFrame("TGC Cinema");
+    private JTextField usernameEnter;
+    private JPasswordField passwordEnter;
+    private JButton signUpButton;
+    private JButton backUserLogin;
+    private JFrame frame = new JFrame("TGC Cinema");
 
     public SignUpPage(){
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -87,7 +87,7 @@ public class SignUpPage implements ActionListener {
         frame.add(backUserLogin);
     }
     
-    public void saveuser(String username, String password){
+    private void saveuser(String username, String password){
         
         try (BufferedWriter saveusers = new BufferedWriter(new FileWriter("Users.txt",true))){
          saveusers.write(username + ","+ password + "\n");
@@ -97,7 +97,7 @@ public class SignUpPage implements ActionListener {
         }
     }
     
-    public boolean usernameExists(String username){
+    private boolean usernameExists(String username){
         try(BufferedReader reader = new BufferedReader(new FileReader("Users.txt"))){
             String line;
             while((line = reader.readLine()) != null){

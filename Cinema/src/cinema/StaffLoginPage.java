@@ -7,11 +7,11 @@ import java.awt.event.ActionListener;
 
 public class StaffLoginPage implements ActionListener{
 
-    JTextField usernameEnter;
-    JPasswordField passwordEnter;
-    JButton loginButton;
-    JButton backUserLogin;
-    JFrame frame = new JFrame("TGC Cinema");
+    private JTextField usernameEnter;
+    private JPasswordField passwordEnter;
+    private JButton loginButton;
+    private JButton backUserLogin;
+    private JFrame frame = new JFrame("TGC Cinema");
 
     public StaffLoginPage(){
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

@@ -4,12 +4,12 @@ public class Hall {
     //name, seat(how many), type, colum&row
     private String hallName;
     private String hallType;
-    public Seat[][] seats;
+    private Seat[][] seats;
     private int rows;
     private int column;
     private double price;
 
-    Hall(String hallName,String hallType,int rows, int column, double price) {
+    public Hall(String hallName, String hallType, int rows, int column, double price) {
         this.hallName = hallName;
         this.hallType = hallType;
         this.column = column;
@@ -17,13 +17,11 @@ public class Hall {
         this.seats = new Seat[rows][column];
         this.price = price;
 
-        char[] rowLetter = {'A' , 'B' , 'C' , 'D' , 'E' , 'F' , 'G' , 'H' , 'I' , 'J'};
-
         for (int i = 0; i < rows; i++) {
-            char currentRowChar = (char) ('A' + 1);
+            char currentRowChar = (char) ('A' + i);
 
             for (int j = 0; j < column; j++) {
-                seats[i][j] = new AdultSeat(rowLetter[i], j + 1, price);
+                seats[i][j] = new AdultSeat(currentRowChar, j + 1, price);
             }
         }
     }

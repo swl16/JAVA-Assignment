@@ -10,26 +10,26 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import javax.swing.border.EmptyBorder;
 
 public class MainMenuPage implements ActionListener {
+    private JFrame frame = new JFrame("TGC Cinema");
+    private JPanel homePanel, profilePanel, cardPanel;
+    private CardLayout cardLayout;
+    private JButton movie,mainPageButton,FnBButton,profileButton;
+    private JButton myTicket,contactUs,setting,logOut;
+    //UI color
+    private final Color background = new Color(0x242424);
+    private final Color buttonRed = new Color(0xD44444);
+    private final Color textWhite = new Color(0xF7F7F7);
+    private final Color lightGrey = new Color(0x3B3B3B);
 
-    JFrame frame = new JFrame("TGC Cinema");
-    String username;
-    JPanel homePanel;
-    JPanel profilePanel;
-    JPanel cardPanel;
-    CardLayout cardLayout;
-    JButton movie;
-    JButton mainPageButton;
-    JButton FnBButton;
-    JButton profileButton;
-    JButton myTicket,orderHistory,contactUs,setting;
-    JButton logOut;
-    Movie[] movieDetail;
-    private int movieCount = 0;
+    private List<Movie> movieDetail = new ArrayList<>();
+    private String username;
 
     public MainMenuPage(String username){
         this.username = username;
@@ -38,7 +38,7 @@ public class MainMenuPage implements ActionListener {
         frame.setLayout(new BorderLayout());
         frame.setResizable(false);
         frame.setSize(500,700);
-        frame.getContentPane().setBackground(new Color(0x242424));
+        frame.getContentPane().setBackground(background);
         frame.setVisible(true);
 
         cardLayout = new CardLayout();
@@ -56,66 +56,62 @@ public class MainMenuPage implements ActionListener {
 
         //Button Below
         JPanel buttonPanel = new JPanel();
-        buttonPanel.setBackground(new Color(0x242424));
+        buttonPanel.setBackground(background);
 
         mainPageButton = new JButton("Main Menu");
         mainPageButton.setFocusable(false);
         mainPageButton.setFont(new Font("Courier New",Font.BOLD,20));
         mainPageButton.addActionListener(this);
-        mainPageButton.setForeground(new Color(0xF7F7F7));
-        mainPageButton.setBackground(new Color(0xD44444));
+        mainPageButton.setForeground(textWhite);
+        mainPageButton.setBackground(buttonRed);
         buttonPanel.add(mainPageButton);
         FnBButton = new JButton("F & B");
         FnBButton.setFocusable(false);
         FnBButton.setFont(new Font("Courier New",Font.BOLD,20));
         FnBButton.addActionListener(this);
-        FnBButton.setForeground(new Color(0xF7F7F7));
-        FnBButton.setBackground(new Color(0xD44444));
+        FnBButton.setForeground(textWhite);
+        FnBButton.setBackground(buttonRed);
         buttonPanel.add(FnBButton);
 
         profileButton = new JButton("Profile");
         profileButton.setFocusable(false);
         profileButton.setFont(new Font("Courier New",Font.BOLD,20));
         profileButton.addActionListener(this);
-        profileButton.setForeground(new Color(0xF7F7F7));
-        profileButton.setBackground(new Color(0xD44444));
+        profileButton.setForeground(textWhite);
+        profileButton.setBackground(buttonRed);
         buttonPanel.add(profileButton);
 
         frame.add(buttonPanel,BorderLayout.SOUTH);
-
 
     }
 
     private JPanel createHomePanel(){
         JPanel headerPanel = new JPanel();
-        headerPanel.setLayout(new BoxLayout(headerPanel, BoxLayout.Y_AXIS)); // Stack items vertically
-        headerPanel.setBackground(new Color(0x242424));
+        headerPanel.setLayout(new BoxLayout(headerPanel, BoxLayout.Y_AXIS));
+        headerPanel.setBackground(background);
 
         JLabel titleLabel = new JLabel("TGC Cinema");
-        titleLabel.setForeground(new Color(0xF7F7F7));
+        titleLabel.setForeground(textWhite);
         titleLabel.setFont(new Font("Courier New",Font.BOLD,30));
         titleLabel.setBorder(BorderFactory.createEmptyBorder(35,140,15,0));
         headerPanel.add(titleLabel);
 
         JLabel nowShowing = new JLabel("Now Showing");
-        nowShowing.setForeground(new Color(0xF7F7F7));
-//        nowShowing.setBackground(new Color(0xD44444));
-//        nowShowing.setOpaque(true);
+        nowShowing.setForeground(textWhite);
         nowShowing.setFont(new Font("Courier New",Font.BOLD,20));
         nowShowing.setBorder(BorderFactory.createEmptyBorder(10,75,0,0));
         headerPanel.add(nowShowing);
 
-        JPanel moviePanel = new JPanel();
-        moviePanel.setLayout(new GridLayout(0,2,15,20));
-        moviePanel.setBackground(new Color(0x3B3B3B));
+        JPanel moviePanel = new JPanel(new GridLayout(0,2,15,20));
+        moviePanel.setBackground(lightGrey);
         moviePanel.setBorder(new EmptyBorder(10,10,10,10));
-//        moviePanel.setPreferredSize(new Dimension(330,1000));
 
-        movieDetail = new Movie[100];
         loadMovie();
 
-        for (int i = 0; i < movieCount; i++) {
-            moviePanel.add(MovieCard(movieDetail[i].getTitle(),movieDetail[i].getPoster(),i));
+        int movieCount = 0;
+        for (Movie movie : movieDetail) {
+            moviePanel.add(MovieCard(movie.getTitle(),movie.getPoster(),movieCount));
+            movieCount++;
         }
 
         moviePanel.add(Box.createVerticalGlue());
@@ -124,40 +120,13 @@ public class MainMenuPage implements ActionListener {
         scrollPane.setBorder(null);
         scrollPane.getVerticalScrollBar().setUnitIncrement(16);
         scrollPane.setPreferredSize(new Dimension(350,450));
-        scrollPane.setBackground(new Color(0x3B3B3B));
+        scrollPane.setBackground(lightGrey);
 
-        //scroll bar ui 
-        scrollPane.getVerticalScrollBar().setUI(new BasicScrollBarUI() {
-            @Override
-            protected void configureScrollBarColors() {
-                this.thumbColor = new Color(0x444444);      // The moving part
-                this.trackColor = new Color(0x242424);      // The background track
-            }
-
-            @Override
-            protected JButton createDecreaseButton(int orientation) {
-                return createZeroButton(); // Remove the arrow button
-            }
-
-            @Override
-            protected JButton createIncreaseButton(int orientation) {
-                return createZeroButton(); // Remove the arrow button
-            }
-
-            private JButton createZeroButton() {
-                JButton jbutton = new JButton();
-                jbutton.setPreferredSize(new Dimension(0, 0));
-                jbutton.setMinimumSize(new Dimension(0, 0));
-                jbutton.setMaximumSize(new Dimension(0, 0));
-                return jbutton;
-            }
-        });
-
-// Make it thinner
-        scrollPane.getVerticalScrollBar().setPreferredSize(new Dimension(8, 0));
+        // Make the scroll bar invisible
+        scrollPane.getVerticalScrollBar().setPreferredSize(new Dimension(0, 0));
 
         JPanel wrapper = new JPanel(new GridBagLayout());
-        wrapper.setBackground(new Color(0x242424));
+        wrapper.setBackground(background);
         wrapper.add(scrollPane);
 
         headerPanel.add(wrapper,BorderLayout.CENTER);
@@ -168,17 +137,12 @@ public class MainMenuPage implements ActionListener {
     private void loadMovie() {
         try(BufferedReader readLine = new BufferedReader(new FileReader("MovieDetails.txt"))){
             String line;
-            int i = 0;
-            HashSet<String> titles = new HashSet<>();
             while((line = readLine.readLine()) != null){
                 if (line.trim().isEmpty()) continue;
 
                 String[] parts = line.split("\\|", -1);
                 if(parts.length == 11){
-                    titles.add(parts[0].trim());
-
                     ImageIcon poster = new ImageIcon(parts[10]);
-
                     java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("dd/MM/yyyy");
                     Date date = null; // safe
                     
@@ -187,21 +151,8 @@ public class MainMenuPage implements ActionListener {
                     } catch (ParseException e) {
                         date = new Date(); // fallback
                     }
-
-                    movieDetail[i] = new Movie(
-                        parts[0], parts[1], parts[2], parts[3],
-                        date, Integer.parseInt(parts[5]), parts[6], parts[7],
-                        parts[8], parts[9], poster
-                    );
-
-                    i++;
-                    movieCount++;
+                    movieDetail.add(new Movie(parts[0], parts[1], parts[2], parts[3], date, Integer.parseInt(parts[5]), parts[6], parts[7], parts[8], parts[9], poster));
                 }
-//                ImageIcon poster = new ImageIcon(parts[10]);
-//                Date date = new Date(parts[4]);
-//                movieDetail[i] = new Movie(parts[0],parts[1],parts[2],parts[3],date,Integer.parseInt(parts[5]),parts[6],parts[7],parts[8],parts[9],poster);
-//                i++;
-//                movieCount++;
             }
         }
         catch (IOException e){
@@ -213,10 +164,8 @@ public class MainMenuPage implements ActionListener {
         movie = new JButton(title);
         Image scaledPoster = poster.getImage().getScaledInstance(90, 130, Image.SCALE_SMOOTH);
         poster = new ImageIcon(scaledPoster);
-        movie.setBackground(new Color(0x3B3B3B));
+        movie.setBackground(lightGrey);
         movie.setBorderPainted(false);
-//        movie.setFocusPainted(false);
-//        movie.setContentAreaFilled(false);
         movie.setFocusable(false);
         movie.setFont(new Font("Courier New",Font.PLAIN,15));
         movie.setIcon(poster);
@@ -225,7 +174,7 @@ public class MainMenuPage implements ActionListener {
         movie.setVerticalTextPosition(JButton.BOTTOM);
         movie.setActionCommand(String.valueOf(index));
         movie.addActionListener(this);
-        movie.setForeground(new Color(0xF7F7F7));
+        movie.setForeground(textWhite);
         
         movie.setPreferredSize(new Dimension(120, 180));
         movie.setMaximumSize(new Dimension(120, 180));
@@ -235,10 +184,10 @@ public class MainMenuPage implements ActionListener {
     private JPanel createProfilePanel(){
         JPanel profilePanel = new JPanel();
         profilePanel.setLayout(null);
-        profilePanel.setBackground(new Color(0x242424));
+        profilePanel.setBackground(background);
 
-        JLabel welcomeUser = new JLabel("Welcome, " + username);
-        welcomeUser.setForeground(new Color(0xF7F7F7));
+        JLabel welcomeUser = new JLabel("Welcome, " + username.substring(0, 1).toUpperCase() + username.substring(1));
+        welcomeUser.setForeground(textWhite);
         welcomeUser.setFont(new Font("Courier New",Font.BOLD,40));
         welcomeUser.setBounds(40,60,500,50);
         profilePanel.add(welcomeUser);
@@ -250,20 +199,9 @@ public class MainMenuPage implements ActionListener {
         myTicket.setFont(new Font("Courier New",Font.PLAIN,25));
         myTicket.setHorizontalAlignment(JButton.LEFT);
         myTicket.addActionListener(this);
-        myTicket.setForeground(new Color(0xF7F7F7));
-        myTicket.setBackground(new Color(0x3B3B3B));
+        myTicket.setForeground(textWhite);
+        myTicket.setBackground(lightGrey);
         profilePanel.add(myTicket);
-
-//        orderHistory = new JButton("Order History");
-//        orderHistory.setBorderPainted(false);
-//        orderHistory.setFocusable(false);
-//        orderHistory.setBounds(40,230,400,40);
-//        orderHistory.setFont(new Font("Courier New",Font.PLAIN,25));
-//        orderHistory.setHorizontalAlignment(JButton.LEFT);
-//        orderHistory.addActionListener(this);
-//        orderHistory.setForeground(new Color(0xF7F7F7));
-//        orderHistory.setBackground(new Color(0x3B3B3B));
-//        profilePanel.add(orderHistory);
 
         contactUs = new JButton("Contact Us");
         contactUs.setBorderPainted(false);
@@ -272,8 +210,8 @@ public class MainMenuPage implements ActionListener {
         contactUs.setFont(new Font("Courier New",Font.PLAIN,25));
         contactUs.setHorizontalAlignment(JButton.LEFT);
         contactUs.addActionListener(this);
-        contactUs.setForeground(new Color(0xF7F7F7));
-        contactUs.setBackground(new Color(0x3B3B3B));
+        contactUs.setForeground(textWhite);
+        contactUs.setBackground(lightGrey);
         profilePanel.add(contactUs);
 
         setting = new JButton("Setting");
@@ -283,43 +221,37 @@ public class MainMenuPage implements ActionListener {
         setting.setFont(new Font("Courier New",Font.PLAIN,25));
         setting.setHorizontalAlignment(JButton.LEFT);
         setting.addActionListener(this);
-        setting.setForeground(new Color(0xF7F7F7));
-        setting.setBackground(new Color(0x3B3B3B));
+        setting.setForeground(textWhite);
+        setting.setBackground(lightGrey);
         profilePanel.add(setting);
 
         logOut = new JButton("Log Out");
         logOut.setBorderPainted(false);
-//        logOut.setFocusPainted(false);
-//        logOut.setContentAreaFilled(false);
         logOut.setFocusable(false);
         logOut.setBounds(160,500,180,50);
         logOut.setFont(new Font("Courier New",Font.BOLD,30));
-        //logOut.setHorizontalAlignment(JButton.CENTER);
         logOut.addActionListener(this);
-        logOut.setForeground(new Color(0xF7F7F7));
-        logOut.setBackground(new Color(0xD44444));
+        logOut.setForeground(textWhite);
+        logOut.setBackground(buttonRed);
         profilePanel.add(logOut);
 
         return profilePanel;
     }
 
-
+    @Override
     public void actionPerformed(ActionEvent e) {
         String commandNum = e.getActionCommand();
         try{
             int index = Integer.parseInt(commandNum);
-            Movie selectedMovie = movieDetail[index];
+            Movie selectedMovie = movieDetail.get(index);
             frame.setVisible(false);
             new MovieDetailPage(frame,selectedMovie,username);
-
 
         }catch (NumberFormatException ex) {
             if (e.getSource() == mainPageButton) {
                 cardLayout.show(cardPanel, "home");
 
             } else if (e.getSource() == FnBButton) {
-                // You must pass 'false' because the user is entering from the Main Menu,
-                // not directly from a ticket purchase.
                 new Concession(username);
                 frame.dispose();
 
@@ -337,16 +269,16 @@ public class MainMenuPage implements ActionListener {
             } else if (e.getSource() == setting) {
                 frame.setVisible(false);
                 new SubWindowProfile(frame, 3, username);
+
             } else if (e.getSource() == logOut) {
                 frame.dispose();
                 new LoginPage();
-
             }
-
-
         }
-
     }
 
-
+    //testing use only
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> new MainMenuPage("tang"));
+    }
 }

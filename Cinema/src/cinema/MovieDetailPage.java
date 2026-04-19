@@ -1,6 +1,7 @@
 package cinema;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -15,34 +16,35 @@ import java.util.*;
 
 
 public class MovieDetailPage implements ActionListener {
-    JFrame frame = new JFrame("TGC Cinema - Movie Detail");
-    String username;
-    JFrame homeFrame;
-    Movie movie;
-    JButton backButton;
-    Hall[] hall;
-    ShowTime[] showTime;
-    JButton showtimebutton;
-    JButton dateButton;
-    private int hallCount=0;
-    private int showTimeCount = 0;
+    private JFrame frame = new JFrame("TGC Cinema - Movie Detail");
+    private JFrame homeFrame;
+    private JButton backButton,showtimebutton,dateButton;
     private JPanel showTimeContainer;
 
+    private final Color background = new Color(0x242424);
+    private final Color textWhite = new Color(0xF7F7F7);
+    private final Color lightGrey = new Color(0x3B3B3B);
     private static final DateTimeFormatter timeFmt = DateTimeFormatter.ofPattern("HH:mm");
     private static final DateTimeFormatter dateFmt = DateTimeFormatter.ofPattern("dd MMM");
 
+    private String username;
+    private Movie movie;
+    private Hall[] hall;
+    private ShowTime[] showTime;
 
-    MovieDetailPage (JFrame homeFrame, Movie movieSelected,String username){
+    private int hallCount=0;
+    private int showTimeCount = 0;
+
+    public MovieDetailPage (JFrame homeFrame, Movie movieSelected,String username){
         this.username = username;
         movie = movieSelected;
         this.homeFrame = homeFrame;
 
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         frame.setResizable(false);
         frame.setLayout(null);
         frame.setSize(500,700);
-        frame.getContentPane().setBackground(new Color(0x242424));
-        frame.setVisible(true);
+        frame.getContentPane().setBackground(background);
         
         backButton = new JButton("< Back");
         backButton.setBorderPainted(false);
@@ -53,13 +55,13 @@ public class MovieDetailPage implements ActionListener {
         backButton.setFont(new Font("Courier New",Font.PLAIN,17));
         backButton.setHorizontalAlignment(JButton.LEFT);
         backButton.addActionListener(this);
-        backButton.setForeground(new Color(0xF7F7F7));
+        backButton.setForeground(textWhite);
         frame.add(backButton);
 
         JLabel posterLabel = new JLabel();
         Image scaledPoster = movie.getPoster().getImage().getScaledInstance(108, 160, Image.SCALE_SMOOTH);
         ImageIcon poster = new ImageIcon(scaledPoster);
-        posterLabel.setForeground(new Color(0xF7F7F7));
+        posterLabel.setForeground(textWhite);
         posterLabel.setFont(new Font("Courier New",Font.PLAIN,15));
         posterLabel.setIcon(poster);
         posterLabel.setText(movie.getTitle());
@@ -69,52 +71,62 @@ public class MovieDetailPage implements ActionListener {
         posterLabel.setBounds(0,50,500,200);
         frame.add(posterLabel);
         
-        JButton info = new JButton("More Info");
-        info.setBounds(180, 220, 140, 30);
-        info.setBackground(new Color(0x3B3B3B));
-        info.setForeground(new Color(0xF7F7F7));
+        JButton info = new JButton("ⓘ");
+        info.setBounds(170, 221, 50, 20);
+        info.setBackground(lightGrey);
+        info.setForeground(textWhite);
         info.setFocusPainted(false);
         info.setBorderPainted(false);
-
+        info.setContentAreaFilled(false);
+        info.setFocusable(false);
+        info.setToolTipText("More Information");
         info.addActionListener(e -> showMoreInfo());
-
         frame.add(info);
 
-        JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 8));
-        panel.setBackground(new Color(0x242424));
-        panel.setBounds(0,260,460,60);
-        frame.add(panel);
+        JPanel showDatePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 8));
+        showDatePanel.setBackground(background);
+        showDatePanel.setBounds(0,260,480,50);
+        frame.add(showDatePanel);
 
-        showTimeContainer = new JPanel(new GridLayout(0, 1, 5, 5));
-        showTimeContainer.setBackground(new Color(0x242424));
-        showTimeContainer.setBounds(20, 330, 460, 300);
-        frame.add(showTimeContainer);
+        showTimeContainer = new JPanel();
+        showTimeContainer.setLayout(new BoxLayout(showTimeContainer,BoxLayout.Y_AXIS));
+        showTimeContainer.setBackground(background);
+        showTimeContainer.setBorder(new EmptyBorder(10, 10, 10, 10));
+
+        JScrollPane scrollPane = new JScrollPane(showTimeContainer);
+        scrollPane.setBorder(null);
+        scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+        scrollPane.getViewport().setBackground(background);
+        scrollPane.setBackground(background);
+        scrollPane.setBounds(10,310,460,330);
+        scrollPane.getVerticalScrollBar().setPreferredSize(new Dimension(0, 0));
+        frame.add(scrollPane);
 
         hall = new Hall[100];
         showTime = new ShowTime[100];
         loadHall();
         loadShowTime();
 
-        LocalDate today = LocalDate.now();
+        LocalDateTime today = LocalDateTime.now();
         LinkedHashSet<LocalDate> seenDates = new LinkedHashSet<>();
         boolean hasShowtime = false;
 
         for (int i = 0 ; i < showTimeCount ; i++){
-            LocalDate d = showTime[i].getStartTime().toLocalDate();
+            LocalDateTime d = showTime[i].getStartTime();
             if (!d.isBefore(today) && d.isBefore(today.plusWeeks(1))) {
                 hasShowtime = true;
-                if (seenDates.add(d)) {
-                    panel.add(dateButton(d));
+                if (seenDates.add(d.toLocalDate())) {
+                    showDatePanel.add(dateButton(d));
                 }
             }
         }
-//        
          if (hasShowtime) {
+
             LocalDate firstDate = seenDates.iterator().next();
             datePanel(firstDate);
         } else {
             JLabel emptyLabel = new JLabel("No showtimes in the next 7 days.");
-            emptyLabel.setForeground(new Color(0xF7F7F7));
+            emptyLabel.setForeground(textWhite);
             emptyLabel.setFont(new Font("Courier New", Font.BOLD, 14));
             emptyLabel.setHorizontalAlignment(JLabel.CENTER);
             showTimeContainer.add(emptyLabel);
@@ -124,7 +136,7 @@ public class MovieDetailPage implements ActionListener {
     }
 
 
-    public void loadHall(){
+    private void loadHall(){
         try(BufferedReader readLine = new BufferedReader(new FileReader("Hall.txt"))){
             String line;
             while((line = readLine.readLine()) != null){
@@ -140,7 +152,7 @@ public class MovieDetailPage implements ActionListener {
         }
     }
 
-    public void loadShowTime(){
+    private void loadShowTime(){
         try(BufferedReader readLine = new BufferedReader(new FileReader("Showtime.txt"))){
             String line;
             
@@ -174,7 +186,7 @@ public class MovieDetailPage implements ActionListener {
         JDialog dialog = new JDialog(frame, "Movie Information", true);
         dialog.setSize(500, 700);
         dialog.setLayout(new BorderLayout());
-        dialog.getContentPane().setBackground(new Color(0x242424));
+        dialog.getContentPane().setBackground(background);
 
         // ===== Poster =====
         JLabel posterLabel = new JLabel();
@@ -189,8 +201,8 @@ public class MovieDetailPage implements ActionListener {
         info.setEditable(false);
         info.setLineWrap(true);
         info.setWrapStyleWord(true);
-        info.setBackground(new Color(0x242424));
-        info.setForeground(new Color(0xF7F7F7));
+        info.setBackground(background);
+        info.setForeground(textWhite);
         info.setFont(new Font("Courier New", Font.PLAIN, 13));
 
         info.setText(
@@ -221,35 +233,36 @@ public class MovieDetailPage implements ActionListener {
         return sdf.format(date);
     }
 
-    public JButton dateButton(LocalDate date){
+    private JButton dateButton(LocalDateTime date){
         dateButton = new JButton(date.format(dateFmt));
-        dateButton.setBackground(new Color(0x3B3B3B));
+        dateButton.setBackground(lightGrey);
         dateButton.setBorderPainted(false);
         dateButton.setFocusable(false);
         dateButton.setFont(new Font("Courier New",Font.PLAIN,13));
         dateButton.setHorizontalAlignment(JButton.CENTER);
         dateButton.addActionListener(this);
-        dateButton.setActionCommand(date.toString());
-        dateButton.setForeground(new Color(0xF7F7F7));
+        dateButton.setActionCommand(date.toLocalDate().toString());
+        dateButton.setForeground(textWhite);
         return dateButton;
     }
 
-    public JButton showTimeButton(ShowTime showTime, LocalTime startTime, String hallType){
-        showtimebutton = new JButton(startTime.format(timeFmt)+"  "+ hallType);
-        showtimebutton.setBackground(new Color(0x3B3B3B));
+    private JButton showTimeButton(ShowTime showTime, LocalTime startTime, String hallType) {
+        showtimebutton = new JButton(startTime.format(timeFmt) + "  " + hallType);
+        showtimebutton.setBackground(lightGrey);
         showtimebutton.setBorderPainted(false);
         showtimebutton.setFocusable(false);
-        showtimebutton.setFont(new Font("Courier New",Font.PLAIN,13));
+        showtimebutton.setFont(new Font("Courier New", Font.PLAIN, 13));
         showtimebutton.setHorizontalAlignment(JButton.CENTER);
-       // showtimebutton.setHorizontalTextPosition(JButton.CENTER);
-       // showtimebutton.setVerticalTextPosition(JButton.BOTTOM);
-       // showtimebutton.setActionCommand(String.valueOf(index));
         showtimebutton.addActionListener(e -> callSeatSelect(showTime));
-        showtimebutton.setForeground(new Color(0xF7F7F7));
+        showtimebutton.setForeground(textWhite);
+        showtimebutton.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        showtimebutton.setPreferredSize(new Dimension(400, 40));
+        showtimebutton.setMaximumSize(new Dimension(400, 40));
         return showtimebutton;
     }
 
-    public void datePanel(LocalDate date){
+    private void datePanel(LocalDate date){
         showTimeContainer.removeAll();
         String hallType="";
         
@@ -267,8 +280,8 @@ public class MovieDetailPage implements ActionListener {
  
             LocalTime startTime = st.getStartTime().toLocalTime();
             showTimeContainer.add(showTimeButton(st, startTime, hallType));
+            showTimeContainer.add(Box.createVerticalStrut(10));
         }
-
         showTimeContainer.revalidate(); // refresh layout
         showTimeContainer.repaint();
     }
@@ -294,121 +307,3 @@ public class MovieDetailPage implements ActionListener {
     }
 }
 
-class Movie{
-    private String title;
-    private String genre;
-    private String language;
-    private Date date;
-    private String rating;
-    private int duration;
-    private String director;
-    private String cast;
-    private String subtitles;
-    private String description;
-    private ImageIcon poster;
-
-    Movie(String title, String genre, String language,String rating,Date date,int duration, String director, String cast, String subtitles, String description, ImageIcon poster){
-        this.title = title;
-        this.genre = genre;
-        this.language = language;
-        this.date = date;
-        this.rating = rating;
-        this.duration = duration;
-        this.director = director;
-        this.cast = cast;
-        this.subtitles = subtitles;
-        this.description = description;
-        this.poster = poster;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getGenre() {
-        return genre;
-    }
-
-    public void setGenre(String genre) {
-        this.genre = genre;
-    }
-
-    public String getLanguage() {
-        return language;
-    }
-
-    public void setLanguage(String language) {
-        this.language = language;
-    }
-
-    public Date getDate() {
-        return date;
-    }
-
-    public void setDate(Date date) {
-        this.date = date;
-    }
-
-    public String getRating() {
-        return rating;
-    }
-
-    public void setRating(String rating) {
-        this.rating = rating;
-    }
-
-    public int getDuration() {
-        return duration;
-    }
-
-    public void setDuration(int duration) {
-        this.duration = duration;
-    }
-
-    public String getDirector() {
-        return director;
-    }
-
-    public void setDirector(String director) {
-        this.director = director;
-    }
-
-    public String getCast() {
-        return cast;
-    }
-
-    public void setCast(String cast) {
-        this.cast = cast;
-    }
-
-    public String getSubtitles() {
-        return subtitles;
-    }
-
-    public void setSubtitles(String subtitles) {
-        this.subtitles = subtitles;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public ImageIcon getPoster() {
-        return poster;
-    }
-
-    public void setPoster(ImageIcon poster) {
-        this.poster = poster;
-    }
-    
-    
-    
-}

@@ -1,7 +1,7 @@
 package cinema;
 
 public class StudentSeat extends Seat{
-    StudentSeat(char row, int column, double price){
+    public StudentSeat(char row, int column, double price){
         super(row,column,price);
     }
 
