@@ -126,7 +126,7 @@ public class MainMenuPage implements ActionListener {
         scrollPane.setPreferredSize(new Dimension(350,450));
         scrollPane.setBackground(new Color(0x3B3B3B));
 
-        //scroll bar ui 待定
+        //scroll bar ui 
         scrollPane.getVerticalScrollBar().setUI(new BasicScrollBarUI() {
             @Override
             protected void configureScrollBarColors() {
@@ -348,8 +348,5 @@ public class MainMenuPage implements ActionListener {
 
     }
 
-    //testing use only
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new MainMenuPage("tang"));
-    }
+
 }
