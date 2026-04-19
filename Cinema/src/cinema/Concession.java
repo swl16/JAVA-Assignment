@@ -202,15 +202,21 @@ public class Concession {
         totalLabel = new JLabel("RM 0.00");
         totalLabel.setForeground(TEXT);
         totalLabel.setFont(new Font("Courier New", Font.BOLD, 18));
-        
+
         JButton continuebtn = new JButton("CONTINUE");
         styleButton(continuebtn, redcolor, TEXT);
         continuebtn.setFont(new Font("Courier New", Font.BOLD, 18));
-        
+
         continuebtn.addActionListener(e -> {
             if (!basket.isEmpty()) {
                 updateReceiptText();
                 layout.show(mainPanel, "CHECKOUT");
+            } else {
+                // ADD THIS: Pop-out alert when basket is empty
+                JOptionPane.showMessageDialog(frame,
+                        "Your cart is empty! Please select at least one item before proceeding.",
+                        "No Items Selected",
+                        JOptionPane.WARNING_MESSAGE);
             }
         });
         

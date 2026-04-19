@@ -13,7 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class FnBwTicket {
-    JFrame frame = new JFrame("TGC Cinema - Select Combo");
+    JFrame frame = new JFrame("TGC Cinema - F & B");
     JPanel mainPanel, menuView, checkoutView;
     JLabel foodTypeLabel, foodPriceLabel, totalPriceLabel;
     CardLayout layout;
@@ -87,7 +87,7 @@ public class FnBwTicket {
             frame.dispose();
             homeFrame.setVisible(true);});
 
-        JLabel titleLabel = new JLabel("Select Combo", SwingConstants.CENTER);
+        JLabel titleLabel = new JLabel("Select Items or Skip", SwingConstants.CENTER);
         titleLabel.setForeground(new Color(0xF7F7F7));
         titleLabel.setFont(new Font("Courier New",Font.BOLD,20));
 //        titleLabel.setBounds(165,20,200,20);
@@ -468,7 +468,7 @@ public class FnBwTicket {
     }
 
     private void loadstock() {
-        try (BufferedReader read = new BufferedReader(new FileReader("Cinema/FnBStock.txt"))) {
+        try (BufferedReader read = new BufferedReader(new FileReader("FnBStock.txt"))) {
             String line;
 
             while ((line = read.readLine()) != null) {
