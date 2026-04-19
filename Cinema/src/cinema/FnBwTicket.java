@@ -13,7 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class FnBwTicket {
-    private JFrame frame = new JFrame("TGC Cinema - Select Combo");
+    private JFrame frame = new JFrame("TGC Cinema - Food and Drinks");
     private JPanel mainPanel, menuView, checkoutView;
     private JLabel foodTypeLabel, foodPriceLabel, totalPriceLabel;
     private CardLayout layout;
@@ -67,7 +67,7 @@ public class FnBwTicket {
             frame.dispose();
             homeFrame.setVisible(true);});
 
-        JLabel titleLabel = new JLabel("Select Combo", SwingConstants.CENTER);
+        JLabel titleLabel = new JLabel("Select Items", SwingConstants.CENTER);
         titleLabel.setForeground(TEXT);
         titleLabel.setFont(new Font("Courier New",Font.BOLD,20));
 
