@@ -9,7 +9,7 @@ import java.io.*;
 public class SignUpPage implements ActionListener {
 
     JTextField usernameEnter;
-    JTextField passwordEnter;
+    JPasswordField passwordEnter;
     JButton signUpButton;
     JButton backUserLogin;
     JFrame frame = new JFrame("TGC Cinema");
@@ -56,7 +56,7 @@ public class SignUpPage implements ActionListener {
         passwordLabel.setBounds(40,155,350,50);
         frame.add(passwordLabel);
 
-        passwordEnter = new JTextField();
+        passwordEnter = new JPasswordField();
         passwordEnter.setBounds(160,170,160,20);
         passwordEnter.setFont(new Font("Courier New",Font.PLAIN,15));
         passwordEnter.setForeground(new Color(0xF7F7F7));
@@ -89,7 +89,7 @@ public class SignUpPage implements ActionListener {
     
     public void saveuser(String username, String password){
         
-        try (BufferedWriter saveusers = new BufferedWriter(new FileWriter("Cinema/Users.txt",true))){
+        try (BufferedWriter saveusers = new BufferedWriter(new FileWriter("Users.txt",true))){
          saveusers.write(username + ","+ password + "\n");
         }catch(IOException e){
             System.out.println("An error occurred");
@@ -98,7 +98,7 @@ public class SignUpPage implements ActionListener {
     }
     
     public boolean usernameExists(String username){
-        try(BufferedReader reader = new BufferedReader(new FileReader("Cinema/Users.txt"))){
+        try(BufferedReader reader = new BufferedReader(new FileReader("Users.txt"))){
             String line;
             while((line = reader.readLine()) != null){
                 String[] parts = line.split(" , ");
@@ -116,7 +116,7 @@ public class SignUpPage implements ActionListener {
     public void actionPerformed(ActionEvent e){
         if(e.getSource() == signUpButton){
             String username = usernameEnter.getText();
-            String password = passwordEnter.getText();
+            String password = new String(passwordEnter.getPassword());
             
             if(username.isEmpty() || password.isEmpty()){
                 JOptionPane.showMessageDialog(frame, "Username and password cannot be empty! Please try again.", "Sign Up Failed", JOptionPane.ERROR_MESSAGE);

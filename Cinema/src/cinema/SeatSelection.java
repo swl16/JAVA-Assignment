@@ -22,7 +22,6 @@ public class SeatSelection implements ActionListener {
     ShowTime showTime;
     Movie movieDetail;
     List<Seat> selectedSeat = new ArrayList<>();
-    List<Seat> bookedSeat = new ArrayList<>();
     JLabel infoLabel, seatNoLabel, priceLabel;
     JButton expandPanelBtn,closeExpandBtn,confirmButton;
     JLayeredPane layeredPane;
@@ -336,10 +335,11 @@ public class SeatSelection implements ActionListener {
 
                 String[] parts = line.split("\\|");
 
-                String startTime = parts[1];
-                String bookedSeat = parts[2];
+                String startTime = parts[4];
+                String hallName = parts[5];
+                String bookedSeat = parts[6];
 
-                if (startTime.equals(showTime.getStartTime().toString())) {
+                if (startTime.equals(showTime.getStartTime().toString()) && hallName.equals(hall.getName())) {
                     String[] seatArray = bookedSeat.split(",");
 
                     for (String s : seatArray) {
@@ -348,7 +348,6 @@ public class SeatSelection implements ActionListener {
                         }
                     }
                 }
-//                bookingID = Integer.valueOf(parts[0]);
             }
         }
         catch (IOException e){
@@ -489,7 +488,7 @@ public class SeatSelection implements ActionListener {
 
 
     public void loadHall(){
-        try(BufferedReader readLine = new BufferedReader(new FileReader("Cinema/Hall.txt"))){
+        try(BufferedReader readLine = new BufferedReader(new FileReader("Hall.txt"))){
             String line;
 
             while((line = readLine.readLine()) != null){
@@ -599,13 +598,11 @@ public class SeatSelection implements ActionListener {
 //                for (Seat s : selectedSeat) {
 //                    s.book();
 //                }
-                UserOrder order = new UserOrder(username,showTime,selectedSeat,countType,new HashMap<>(),totalPrice,0.0);
+                UserOrder order = new UserOrder(username,movieDetail,showTime,selectedSeat,countType,new HashMap<>(),totalPrice,0.0);
 //                    selectedSeat.clear();
 //                    JOptionPane.showMessageDialog(null, "Booking Successful!");
                 frame.setVisible(false);
                 new FnBwTicket(frame,order);
-
-//                }
             }
         }
     }

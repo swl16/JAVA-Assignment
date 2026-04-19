@@ -6,8 +6,15 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.border.MatteBorder;
 import java.awt.*;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class TicketPayment extends JFrame{
@@ -27,7 +34,6 @@ public class TicketPayment extends JFrame{
     // --- Premium Cinema Color Palette ---
     private final Color obsidian = new Color(0x242424);
     private final Color surface = new Color(0x242424);
-    private final Color gold = new Color(0xFFD700);
     private final Color tgcRed = new Color(0xD44444);
     private final Color softGray = new Color(0xAAAAAA);
     private final Color offWhite = new Color(0xF7F7F7);
@@ -76,6 +82,32 @@ public class TicketPayment extends JFrame{
     }
 
     private JPanel paymentPanel() {
+        JPanel mainPanel = new JPanel(new BorderLayout());
+        mainPanel.setBackground(obsidian);
+
+        JPanel upperPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        upperPanel.setOpaque(false);
+
+        JButton backButton = new JButton("X Cancel Payment");
+        backButton.setForeground(offWhite);
+        backButton.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        backButton.setBorderPainted(false);
+        backButton.setFocusPainted(false);
+        backButton.setContentAreaFilled(false);
+        backButton.setFocusable(false);
+        backButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+        backButton.addActionListener(e -> {
+            int choice = JOptionPane.showConfirmDialog(null, "Are you sure you want to cancel payment?\nWarning:Your selected items will be discarded.", "Cancel Payment", JOptionPane.YES_NO_OPTION);
+            if (choice == JOptionPane.YES_OPTION){
+                dispose();
+                new MainMenuPage(order.getUsername());
+            }
+        });
+
+        upperPanel.add(backButton);
+        mainPanel.add(upperPanel,BorderLayout.NORTH);
+
         JPanel panel = new JPanel(new GridBagLayout());
         panel.setBackground(obsidian);
         GridBagConstraints gbc = new GridBagConstraints();
@@ -83,8 +115,6 @@ public class TicketPayment extends JFrame{
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
         gbc.gridy = 0; panel.add(createHeaderLabel("SELECT PAYMENT", 22), gbc);
-
-
 
         JButton creditBtn = createMenuButton("CREDIT / DEBIT CARD", "Visa / Mastercard / AMEX");
         creditBtn.addActionListener(e -> layout.show(container, "card_input"));
@@ -98,10 +128,16 @@ public class TicketPayment extends JFrame{
         });
         gbc.gridy = 2; panel.add(tng, gbc);
 
-        return panel;
+        mainPanel.add(panel,BorderLayout.CENTER);
+        return mainPanel;
     }
 
     private JPanel cardPanel() {
+        JPanel mainPanel = new JPanel(new BorderLayout());
+        mainPanel.setBackground(obsidian);
+
+        addBackButton(mainPanel,"payment");
+
         JPanel panel = new JPanel(new GridBagLayout());
         panel.setBackground(obsidian);
         panel.setBorder(BorderFactory.createEmptyBorder(30, 45, 30, 45));
@@ -149,7 +185,8 @@ public class TicketPayment extends JFrame{
         gbc.gridy++; gbc.insets = new Insets(30, 0, 10, 0);
         panel.add(payBtn, gbc);
 
-        return panel;
+        mainPanel.add(panel,BorderLayout.CENTER);
+        return mainPanel;
     }
 
     private boolean validateCardDetails(String name, String number, String exp, String cvc) {
@@ -203,19 +240,25 @@ public class TicketPayment extends JFrame{
     }
 
     private JPanel qrPanel() {
-        JPanel panel = new JPanel(new BorderLayout(0, 25));
+        JPanel panel = new JPanel(new BorderLayout(0, 10));
         panel.setBackground(obsidian);
-        panel.setBorder(BorderFactory.createEmptyBorder(50, 50, 50, 50));
+//        panel.setBorder(BorderFactory.createEmptyBorder(50, 50, 50, 50));
+
+        JPanel topContainer = new JPanel(new GridLayout(2,1));
+        topContainer.setOpaque(false);
+        addBackButton(topContainer,"payment");
 
         JLabel qrTitle = createHeaderLabel("SCAN TO PAY", 24);
-        panel.add(qrTitle, BorderLayout.NORTH);
+        topContainer.add(qrTitle);
+
+        panel.add(topContainer,BorderLayout.NORTH);
 
         JPanel centerContainer = new JPanel();
         centerContainer.setLayout(new BoxLayout(centerContainer, BoxLayout.Y_AXIS));
         centerContainer.setOpaque(false);
 
         qrAmountLabel = new JLabel("TOTAL: RM " + String.format("%.2f", finalAmount), SwingConstants.CENTER);
-        qrAmountLabel.setForeground(gold);
+        qrAmountLabel.setForeground(offWhite);
         qrAmountLabel.setFont(new Font("Segoe UI", Font.BOLD, 20));
         qrAmountLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
@@ -226,7 +269,7 @@ public class TicketPayment extends JFrame{
         qrBox.setBorder(new LineBorder(tgcRed, 5));
 
         try {
-            ImageIcon rawIcon = new ImageIcon("Cinema/src/cinema/qr_code.png");
+            ImageIcon rawIcon = new ImageIcon("src/cinema/qr_code.png");
             Image scaledImg = rawIcon.getImage().getScaledInstance(200, 200, Image.SCALE_SMOOTH);
             qrBox.add(new JLabel(new ImageIcon(scaledImg)), BorderLayout.CENTER);
         } catch (Exception e) {
@@ -286,7 +329,7 @@ public class TicketPayment extends JFrame{
         qrBox.setBorder(new LineBorder(Color.BLACK, 2));
 
         try {
-            ImageIcon rawEntry = new ImageIcon("Cinema/src/cinema/entry_qr.png");
+            ImageIcon rawEntry = new ImageIcon("src/cinema/entry_qr.png");
             Image scaledEntry = rawEntry.getImage().getScaledInstance(90, 90, Image.SCALE_SMOOTH);
             qrBox.add(new JLabel(new ImageIcon(scaledEntry)), BorderLayout.CENTER);
         } catch (Exception e) {
@@ -311,17 +354,19 @@ public class TicketPayment extends JFrame{
 
     private void updateReceipt() {
         String dt = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+        String orderID = "ORD" + System.currentTimeMillis();
+        saveBooking(orderID,dt);
 
         String seatDisplay = String.join(", ", order.getSelectedSeats().stream().map(Seat::getSeatId).collect(Collectors.toList()));
 
         receiptArea.setText(
                 "        TGC CINEMA OFFICIAL E-TICKET\n" +
                         "==========================================\n" +
-                        " ID:             " + System.currentTimeMillis() + "\n" +
+                        " ID:             " + orderID + "\n" +
                         " DATE:           " + dt + "\n" +
                         " LOCATION:       Mit Valley Megamall\n" +
                         "------------------------------------------\n" +
-                        " MOVIE:          " + order.getShowTime().getMovieName().toUpperCase() + "\n" +
+                        " MOVIE:          " + order.getMovie().getTitle().toUpperCase() + "\n" +
                         " SEATS:          " + seatDisplay + "\n" +
                         "------------------------------------------\n" +
                         " TICKET(S):      RM " + String.format("%.2f", order.getTicketTotalPrice()) + "\n" +
@@ -398,9 +443,118 @@ public class TicketPayment extends JFrame{
         return l;
     }
 
-    private void SaveBooking(){
-        
+    private void addBackButton(JPanel panel,String targetCard){
+        JPanel topBar = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        topBar.setOpaque(false);
+
+        JButton backBtn = new JButton("< BACK");
+        backBtn.setForeground(offWhite);
+        backBtn.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        backBtn.setContentAreaFilled(false);
+        backBtn.setBorderPainted(false);
+        backBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+        backBtn.addActionListener(e -> {
+            // Stop the timer if we leave the QR page
+            if (countdownTimer != null) countdownTimer.stop();
+            layout.show(container, targetCard);
+        });
+
+        topBar.add(backBtn);
+        panel.add(topBar, BorderLayout.NORTH);
     }
+
+    private void saveBooking(String orderID, String orderTime){
+        StringBuilder seatData = new StringBuilder();
+        for (int i = 0; i < order.getSelectedSeats().size(); i++){
+            Seat s = order.getSelectedSeats().get(i);
+            seatData.append(s.getSeatId());
+            if (i < order.getSelectedSeats().size() - 1)  seatData.append(",");
+        }
+
+        StringBuilder foodData = new StringBuilder();
+        if (order.getSelectedFood().isEmpty()){
+            foodData.append("-");
+        }else {
+            int count = 0;
+            for (Map.Entry<fnbitem, Integer> entry : order.getSelectedFood().entrySet()){
+                foodData.append(entry.getKey().getItemname()).append(":").append(entry.getValue());
+                if (++count < order.getSelectedFood().size()) foodData.append(",");
+            }
+        }
+
+        StringBuilder typeData = new StringBuilder();
+        for (int i = 0; i < order.getSeatTypeCount().length; i++){
+            typeData.append(order.getSeatTypeCount()[i]);
+            if (i < order.getSeatTypeCount().length - 1) typeData.append(",");
+        }
+        
+        deductStock();
+        
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("BookingDetail.txt",true))){
+            writer.write(orderID + "|" + order.getUsername() + "|" + order.getMovie().getTitle() + "|" + order.getMovie().getDuration() + "|" + order.getShowTime().getStartTime() + "|" + order.getShowTime().getHallName() + "|" + seatData.toString() + "|" + typeData.toString() + "|" + foodData.toString() + "|" + order.getTicketTotalPrice() + "|" + order.getFoodTotalPrice() + "|" + order.calculateProcessingFee() + "|" + order.calculateTotalPrice() + "|" + orderTime);
+            writer.newLine();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    
+        private void deductStock(){
+        
+        String file = "FnBStock.txt";
+        ArrayList<String[]> items = new ArrayList<>();
+        
+        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+
+            String line;
+
+            while ((line = br.readLine()) != null) {
+                String[] data = line.split("\\|", -1);
+
+                if (data.length != 7) continue;
+
+                String stockName = data[0];
+
+                // check if this item was purchased
+                for (fnbitem item : order.getSelectedFood().keySet()) {
+                    int qty = order.getSelectedFood().get(item);
+
+                    if (stockName.equalsIgnoreCase(item.getItemname())) {
+
+                        int currentQty = Integer.parseInt(data[3]);
+                        int newQty = currentQty - qty;
+
+                        // prevent negative stock
+                        if (newQty < 0) newQty = 0;
+
+                        data[3] = String.valueOf(newQty);
+
+                        // update last updated time
+                        data[5] = new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm")
+                            .format(new java.util.Date());
+                    }
+                }
+
+                items.add(data);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            return;
+        }
+
+        // 🔥 WRITE BACK TO FILE
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(file))) {
+
+            for (String[] item : items) {
+                bw.write(String.join("|", item));
+                bw.newLine();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    
 
 }
 

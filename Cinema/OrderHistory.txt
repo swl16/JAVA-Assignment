@@ -1,0 +1,9 @@
+----ORDER----
+User: tang
+OrderID: TGC-20260417-631C9F3D
+Cinema: TGC Mit Valley
+Pick Up: Monday, 20 Apr
+100 plus x2 (RM 10.00)
+Total: RM 10.00
+Date: 17/04/2026 00:33
+--------------

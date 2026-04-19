@@ -6,6 +6,7 @@ import java.util.*;
 public class UserOrder {
     //private int orderId;
     private String username;
+    private Movie movie;
     private ShowTime showTime;
     private List<Seat> selectedSeats;
     private int[] seatTypeCount;
@@ -16,9 +17,10 @@ public class UserOrder {
 
     private final double processingFee = 0.5;
 
-    public UserOrder( String username, ShowTime showTime, List<Seat> selectedSeats,int[] seatTypeCount,Map<fnbitem, Integer> selectedFood,double ticketTotalPrice,double foodTotalPrice){
+    public UserOrder( String username, Movie movie, ShowTime showTime, List<Seat> selectedSeats,int[] seatTypeCount,Map<fnbitem, Integer> selectedFood,double ticketTotalPrice,double foodTotalPrice){
        // this.orderId = orderId;
         this.username = username;
+        this.movie = movie;
         this.showTime = showTime;
         this.selectedSeats = selectedSeats;
         this.seatTypeCount = seatTypeCount;
@@ -41,6 +43,8 @@ public class UserOrder {
     }
 
     public String getUsername() { return username; }
+
+    public Movie getMovie() {return movie;}
     public ShowTime getShowTime() { return showTime; }
     public List<Seat> getSelectedSeats() { return selectedSeats; }
     public int[] getSeatTypeCount() { return seatTypeCount; }

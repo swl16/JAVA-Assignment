@@ -1,3 +1,0 @@
-Avenges , ba , 01:12:11 , movie1.jpg
-Joker , ba , 02:00:11 , movie2.jpg
-Jaws , ba , 02:11:10 , movie3.jpg

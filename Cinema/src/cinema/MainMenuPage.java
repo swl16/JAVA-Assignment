@@ -65,7 +65,6 @@ public class MainMenuPage implements ActionListener {
         mainPageButton.setForeground(new Color(0xF7F7F7));
         mainPageButton.setBackground(new Color(0xD44444));
         buttonPanel.add(mainPageButton);
-
         FnBButton = new JButton("F & B");
         FnBButton.setFocusable(false);
         FnBButton.setFont(new Font("Courier New",Font.BOLD,20));
@@ -127,7 +126,7 @@ public class MainMenuPage implements ActionListener {
         scrollPane.setPreferredSize(new Dimension(350,450));
         scrollPane.setBackground(new Color(0x3B3B3B));
 
-        //scroll bar ui 待定
+        //scroll bar ui 
         scrollPane.getVerticalScrollBar().setUI(new BasicScrollBarUI() {
             @Override
             protected void configureScrollBarColors() {
@@ -255,21 +254,21 @@ public class MainMenuPage implements ActionListener {
         myTicket.setBackground(new Color(0x3B3B3B));
         profilePanel.add(myTicket);
 
-        orderHistory = new JButton("Order History");
-        orderHistory.setBorderPainted(false);
-        orderHistory.setFocusable(false);
-        orderHistory.setBounds(40,230,400,40);
-        orderHistory.setFont(new Font("Courier New",Font.PLAIN,25));
-        orderHistory.setHorizontalAlignment(JButton.LEFT);
-        orderHistory.addActionListener(this);
-        orderHistory.setForeground(new Color(0xF7F7F7));
-        orderHistory.setBackground(new Color(0x3B3B3B));
-        profilePanel.add(orderHistory);
+//        orderHistory = new JButton("Order History");
+//        orderHistory.setBorderPainted(false);
+//        orderHistory.setFocusable(false);
+//        orderHistory.setBounds(40,230,400,40);
+//        orderHistory.setFont(new Font("Courier New",Font.PLAIN,25));
+//        orderHistory.setHorizontalAlignment(JButton.LEFT);
+//        orderHistory.addActionListener(this);
+//        orderHistory.setForeground(new Color(0xF7F7F7));
+//        orderHistory.setBackground(new Color(0x3B3B3B));
+//        profilePanel.add(orderHistory);
 
         contactUs = new JButton("Contact Us");
         contactUs.setBorderPainted(false);
         contactUs.setFocusable(false);
-        contactUs.setBounds(40,290,400,40);
+        contactUs.setBounds(40,230,400,40);
         contactUs.setFont(new Font("Courier New",Font.PLAIN,25));
         contactUs.setHorizontalAlignment(JButton.LEFT);
         contactUs.addActionListener(this);
@@ -280,7 +279,7 @@ public class MainMenuPage implements ActionListener {
         setting = new JButton("Setting");
         setting.setBorderPainted(false);
         setting.setFocusable(false);
-        setting.setBounds(40,350,400,40);
+        setting.setBounds(40,290,400,40);
         setting.setFont(new Font("Courier New",Font.PLAIN,25));
         setting.setHorizontalAlignment(JButton.LEFT);
         setting.addActionListener(this);
@@ -331,17 +330,13 @@ public class MainMenuPage implements ActionListener {
                 frame.setVisible(false);
                 new SubWindowProfile(frame, 1, username);
 
-            } else if (e.getSource() == orderHistory) {
+            } else if (e.getSource() == contactUs) {
                 frame.setVisible(false);
                 new SubWindowProfile(frame, 2, username);
 
-            } else if (e.getSource() == contactUs) {
-                frame.setVisible(false);
-                new SubWindowProfile(frame, 3, username);
-
             } else if (e.getSource() == setting) {
                 frame.setVisible(false);
-                new SubWindowProfile(frame, 4, username);
+                new SubWindowProfile(frame, 3, username);
             } else if (e.getSource() == logOut) {
                 frame.dispose();
                 new LoginPage();
@@ -353,8 +348,5 @@ public class MainMenuPage implements ActionListener {
 
     }
 
-    //testing use only
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new MainMenuPage("tang"));
-    }
+
 }
