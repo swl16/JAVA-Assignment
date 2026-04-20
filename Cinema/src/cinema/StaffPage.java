@@ -85,8 +85,8 @@ public class StaffPage {
 
             b.addActionListener(e -> {
                 cardLayout.show(staffPanel, card);
-            if(card.equals("Check_stock")) refreshCheckTable();
-            if(card.equals("Replenish_stock")) loadRepTable();
+                if(card.equals("Check_stock")) refreshCheckTable();
+                if(card.equals("Replenish_stock")) loadRepTable();
             });
 
             inner.add(b);
@@ -133,9 +133,10 @@ public class StaffPage {
             new MatteBorder(0, 4, 0, 0, redcolor),
             new EmptyBorder(14, 20, 14, 20)
         ));
-        btn.setMaximumSize(new Dimension(400, 60));
-        btn.setMinimumSize(new Dimension(400, 60));
-        btn.setPreferredSize(new Dimension(400, 60));
+        btn.setMaximumSize(new Dimension(420, 55));
+        btn.setMinimumSize(new Dimension(420, 55));
+        btn.setPreferredSize(new Dimension(420, 55));
+        btn.setAlignmentX(Component.CENTER_ALIGNMENT);
         btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         btn.addMouseListener(new MouseAdapter() {
             public void mouseEntered(MouseEvent e) { btn.setBackground(bordercolor); }
