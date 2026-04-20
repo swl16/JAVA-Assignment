@@ -252,8 +252,8 @@ public class MainMenuPage implements ActionListener {
                 cardLayout.show(cardPanel, "home");
 
             } else if (e.getSource() == FnBButton) {
-                new Concession(username);
                 frame.dispose();
+                new Concession(username);
 
             } else if (e.getSource() == profileButton) {
                 cardLayout.show(cardPanel, "profile");

@@ -22,8 +22,8 @@ public class FoodPayment{
     private String paymentMethod = "";
 
     // --- Premium Cinema Color Palette ---
-    private final Color bg = new Color(0x121212); // Deeper black
-    private final Color panel = new Color(0x1E1E1E);  // Elevates panels
+    private final Color bg = new Color(0x242424); // Deeper black
+    private final Color panel = new Color(0x3B3B3B);  // Elevates panels
     private final Color gold = new Color(0xFFD700);     // For totals/accents
     private final Color tgcRed = new Color(0xD44444);   // Your brand red
     private final Color softGray = new Color(0xAAAAAA);

@@ -16,3 +16,21 @@ Caramel Popcorn x1 (RM 12.00)
 Total: RM 12.00
 Date: 20/04/2026 22:00
 --------------
+----ORDER----
+User: tang
+OrderID: TGC-20260420-C158FA68
+Cinema: TGC Mit Valley
+Pick Up: Wednesday, 22 Apr
+Salted Popcorn x1 (RM 12.00)
+Total: RM 12.00
+Date: 20/04/2026 21:28
+--------------
+----ORDER----
+User: tang
+OrderID: TGC-20260420-9BCE64BE
+Cinema: TGC Mit Valley
+Pick Up: Today
+Salted Popcorn x1 (RM 12.00)
+Total: RM 12.00
+Date: 20/04/2026 21:30
+--------------

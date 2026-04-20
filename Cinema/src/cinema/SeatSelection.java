@@ -418,7 +418,7 @@ public class SeatSelection implements ActionListener {
         confirmButton.setText("Confirm - " + selectedSeat.size() + " ticket(s)");
     }
 
-    JLabel SeatTypeLabel(String type, int i){
+    private JLabel SeatTypeLabel(String type, int i){
         JLabel label = new JLabel(type);
         label.setForeground(textWhite);
         label.setFont(new Font("Courier New",Font.BOLD,20));
@@ -426,7 +426,7 @@ public class SeatSelection implements ActionListener {
         return label;
     }
 
-    JLabel seatPriceLabel(double price, int i){
+    private JLabel seatPriceLabel(double price, int i){
         JLabel label = new JLabel("RM" + String.format("%.2f",price) + " x");
         label.setForeground(textWhite);
         label.setFont(new Font("Courier New",Font.BOLD,18));
