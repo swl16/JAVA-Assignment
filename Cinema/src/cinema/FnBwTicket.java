@@ -349,7 +349,7 @@ public class FnBwTicket {
         JLabel foodLabel = new JLabel("Add-On: Food and Beverage");
         foodLabel.setForeground(MUTED_TEXT);
         foodLabel.setFont(new Font("Courier New", Font.BOLD, 14));
-        foodLabel.setBounds(10,330,200,10);
+        foodLabel.setBounds(10,330,300,10);
         centerPanel.add(foodLabel);
 
         foodTypeLabel = new JLabel(sbFoodOrder.toString());

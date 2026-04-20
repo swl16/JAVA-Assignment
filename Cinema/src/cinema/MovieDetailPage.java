@@ -32,8 +32,8 @@ public class MovieDetailPage implements ActionListener {
     private Hall[] hall;
     private ShowTime[] showTime;
 
-    private static int hallCount=0;
-    private static int showTimeCount =0;
+    private int hallCount=0;
+    private int showTimeCount =0;
 
     public MovieDetailPage (JFrame homeFrame, Movie movieSelected,String username){
         this.username = username;
@@ -175,7 +175,7 @@ public class MovieDetailPage implements ActionListener {
                     dt
                 );
             }
-            Arrays.sort(showTime,0,showTimeCount, Comparator.comparing(ShowTime::getStartTime));
+            Arrays.sort(showTime,0,showTimeCount, Comparator.nullsLast(Comparator.comparing(ShowTime::getStartTime)));
         }
         catch (IOException e){
             System.out.println("Error reading show time file" + e.getMessage());
