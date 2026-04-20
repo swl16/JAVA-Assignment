@@ -74,12 +74,6 @@ public class FoodPayment{
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
         
-        frame.addWindowListener(new java.awt.event.WindowAdapter() {
-            @Override
-            public void windowClosed(java.awt.event.WindowEvent e) {
-                new MainMenuPage(username);
-            }
-        });
     }
 
     // --- VIEW 1: Selection Menu ---
@@ -590,7 +584,6 @@ public class FoodPayment{
             return;
         }
 
-        // 🔥 WRITE BACK TO FILE
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(file))) {
 
             for (String[] item : items) {
