@@ -11,23 +11,28 @@ import java.util.*;
 
 public class StaffPage {
 
-    JFrame frame;
-    JPanel staffpanel;
-    CardLayout cardlayout;
+    private JFrame frame;
+    private JPanel staffpanel;
+    private CardLayout cardlayout;
+    private JTextField itemname, price, currentqty, minstockqty, combodetails;
+    private JComboBox<String> category;
+    private JTable checktable;
+    private DefaultTableModel checkmodel;
+    private JTable reptable;
+    private DefaultTableModel repmodel;
 
-    final Color bgcolor = new Color(0x242424);
-    final Color panelcolor = new Color(0x2E2E2E);
-    final Color bordercolor = new Color(0x444444);
-    final Color textcolor = new Color(0xF7F7F7);
-    final Color textmutedcolor = new Color(0xAAAAAA);
-    final Color cardcolor = new Color(0x363636);
-    final Color redcolor = new Color(0xD44444);
-    final Color inputbg = new Color(0x1E1E1E);
-    final Color greencolor = new Color(0x44AA66);
-    final Color hovercolor = new Color(0xE85555);
+    private final Color bgcolor = new Color(0x242424);
+    private final Color panelcolor = new Color(0x2E2E2E);
+    private final Color bordercolor = new Color(0x444444);
+    private final Color textcolor = new Color(0xF7F7F7);
+    private final Color textmutedcolor = new Color(0xAAAAAA);
+    private final Color cardcolor = new Color(0x363636);
+    private final Color redcolor = new Color(0xD44444);
+    private final Color inputbg = new Color(0x1E1E1E);
+    private final Color greencolor = new Color(0x44AA66);
+    private final Color hovercolor = new Color(0xE85555);
     
-    final String fnbfile = "FnBStock.txt";
-
+    private final String fnbfile = "FnBStock.txt";
 
     public StaffPage(){
         frame = new JFrame("TGC Cinema - Staff Page");
@@ -55,7 +60,7 @@ public class StaffPage {
     }
 
 
-    public JPanel menu(){
+    private JPanel menu(){
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBackground(bgcolor);
 
@@ -115,7 +120,7 @@ public class StaffPage {
 
     }
 
-    public JButton menubtn(String text){
+    private JButton menubtn(String text){
         JButton btn = new JButton(text);
         btn.setFont(new Font("Courier New", Font.BOLD, 20));
         btn.setForeground(textcolor);
@@ -137,10 +142,9 @@ public class StaffPage {
         return btn;
     }
     
-    JTextField itemname, price, currentqty, minstockqty, combodetails;
-    JComboBox<String> category;
+
     
-    JPanel addstock(){
+    private JPanel addstock () {
         JPanel page = new JPanel(new BorderLayout());
         page.setBackground(bgcolor);
         page.add(sectionHeader("ADD F&B ITEM", "MENU"), BorderLayout.NORTH);
@@ -190,7 +194,7 @@ public class StaffPage {
         return page;
     }
     
-    void savestock(){
+    private void savestock(){
         String name = itemname.getText().trim();
         if(name.isEmpty()){
             showMsg("Item name is required.",false);
@@ -260,15 +264,9 @@ public class StaffPage {
         }catch(IOException e){
             showMsg("Error saving:" + e.getMessage(),false);
         }
-        
-        
-        
     }
-    
-    private JTable checktable;
-    private DefaultTableModel checkmodel;
-    
-    JPanel checkstock(){
+
+    private JPanel checkstock(){
         JPanel page = new JPanel(new BorderLayout());
         page.setBackground(bgcolor);
         page.add(sectionHeader("CHECK STOCK", "MENU"), BorderLayout.NORTH);
@@ -396,7 +394,6 @@ public class StaffPage {
                 }
                 
                 refreshchecktable();
-//                loadstock();
                 showMsg("Item deleted successfully!", true);
             }
             
@@ -409,7 +406,7 @@ public class StaffPage {
         
         filtercombo.addActionListener(e -> {
             String selected = filtercombo.getSelectedItem().toString();
-            filterstock(selected);
+            filterStock(selected);
         });
         
         JPanel center = new JPanel(new BorderLayout());
@@ -425,7 +422,7 @@ public class StaffPage {
         return page;
     }
     
-    void edititem(){
+    private void edititem(){
         int row = checktable.getSelectedRow();
         
         if (row < 0) {
@@ -592,10 +589,9 @@ public class StaffPage {
         editDialog.setVisible(true);
     }
     
-    private JTable reptable;
-    private DefaultTableModel repmodel;
+
     
-    JPanel replenishstock(){
+    private JPanel replenishstock(){
         JPanel page = new JPanel(new BorderLayout());
         page.setBackground(bgcolor);
         page.add(sectionHeader("REPLENISH STOCK", "MENU"), BorderLayout.NORTH);
@@ -772,7 +768,7 @@ public class StaffPage {
     
     
     
-    void refreshchecktable(){
+    private void refreshchecktable(){
         if(checkmodel == null) return;
         
         checkmodel.setRowCount(0);
@@ -815,7 +811,7 @@ public class StaffPage {
             }
     }
     
-    void filterstock(String categoryFilter){
+    private void filterStock(String categoryFilter){
         checkmodel.setRowCount(0); // clear table
 
         File file = new File(fnbfile);
@@ -857,7 +853,7 @@ public class StaffPage {
         }
     }
     
-    void replenishitem(JTextField itemfield, JTextField addfield, JTextField repMinField){
+    private void replenishitem(JTextField itemfield, JTextField addfield, JTextField repMinField){
         String itemName = itemfield.getText().trim();
         if(itemName.isEmpty() || itemName.equals("select a row")){
             showMsg("Please select an item from the table",false);
@@ -932,24 +928,24 @@ public class StaffPage {
         
         showMsg("Added "+ addQty + " units to \"" + itemName + "\".", true);
     }
-    
-    void loadreptable(){
+
+    private void loadreptable(){
         if (repmodel == null) return;
         repmodel.setRowCount(0);
-        
+
         File file = new File(fnbfile);
         if(!file.exists()) return;
-        
+
         try(BufferedReader read = new BufferedReader(new FileReader(file))){
             String line;
-            
+
             while((line = read.readLine())!= null){
                 String[] data = line.split("\\|",-1);
-                 if (data.length != 7) continue; 
-                
+                 if (data.length != 7) continue;
+
                 int qty = Integer.parseInt(data[3]);
                 int min = Integer.parseInt(data[4]);
-                
+
                 String status;
                 if(qty == 0){
                     status = "OUT OF STOCK";
@@ -958,7 +954,7 @@ public class StaffPage {
                 }else{
                     status = "OK";
                 }
-                
+
                 repmodel.addRow(new Object[]{
                     data[0],data[1],data[3],data[4],status,data[5]
                 });
@@ -1109,13 +1105,12 @@ public class StaffPage {
         return btn;
     }
     
-    JLabel colorlabel(String text, Color color){
+    private JLabel colorlabel(String text, Color color){
         JLabel lbl = new JLabel(text);
         lbl.setFont(new Font("Courier New", Font.PLAIN, 13));
         lbl.setForeground(color);
         return lbl;
     }
-
 
     private void clearAddForm(){
         itemname.setText("");
@@ -1125,9 +1120,6 @@ public class StaffPage {
         minstockqty.setText("");
         combodetails.setText("");
     }
-
-
-   
 
     private void showMsg(String msg, boolean success) {
         JOptionPane.showMessageDialog(frame, msg, success ? "Success" : "Error",

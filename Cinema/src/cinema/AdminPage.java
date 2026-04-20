@@ -12,28 +12,28 @@ import java.util.*;
 
 public class AdminPage{
     
-    JFrame frame;
-    JPanel adminpanel;
-    CardLayout cardlayout;
+    private JFrame frame;
+    private JPanel adminpanel;
+    private CardLayout cardlayout;
+
+    private final Color bgcolor = new Color(0x242424);
+    private final Color panelcolor = new Color(0x2E2E2E);
+    private final Color bordercolor = new Color(0x444444);
+    private final Color textcolor = new Color(0xF7F7F7);
+    private final Color textmutedcolor = new Color(0xAAAAAA);
+    private final Color cardcolor = new Color(0x363636);
+    private final Color redcolor = new Color(0xD44444);
+    private final Color inputbg = new Color(0x1E1E1E);
+    private final Color hovercolor = new Color(0xE85555);
     
-    final Color bgcolor = new Color(0x242424);
-    final Color panelcolor = new Color(0x2E2E2E);
-    final Color bordercolor = new Color(0x444444);
-    final Color textcolor = new Color(0xF7F7F7);
-    final Color textmutedcolor = new Color(0xAAAAAA);
-    final Color cardcolor = new Color(0x363636);
-    final Color redcolor = new Color(0xD44444);
-    final Color inputbg = new Color(0x1E1E1E);
-    final Color hovercolor = new Color(0xE85555);
-    
-    final String moviefile = "MovieDetails.txt";
-    final String schedulefile = "Showtime.txt";
-    
-    JTextField titleEnter,genreEnter,languageEnter,durationEnter,directorEnter,castEnter,subtitlesEnter;
-    JComboBox<String> ratingEnter;
-    JTextArea descriptionEnter;
-    JSpinner releasedateEnter;
-    ImageIcon poster;
+    private final String moviefile = "MovieDetails.txt";
+    private final String schedulefile = "Showtime.txt";
+
+    private JTextField titleEnter,genreEnter,languageEnter,durationEnter,directorEnter,castEnter,subtitlesEnter;
+    private JComboBox<String> ratingEnter;
+    private JTextArea descriptionEnter;
+    private JSpinner releasedateEnter;
+    private ImageIcon poster;
     
     
     public AdminPage(){
@@ -64,7 +64,7 @@ public class AdminPage{
         
     }
     
-    public JPanel menu(){
+    private JPanel menu(){
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBackground(bgcolor);
         
@@ -126,7 +126,7 @@ public class AdminPage{
         
     }
     
-    public JButton menubtn(String text){
+    private JButton menubtn(String text){
         JButton btn = new JButton(text);
         btn.setFont(new Font("Courier New", Font.BOLD, 20));
         btn.setForeground(textcolor);
@@ -147,11 +147,11 @@ public class AdminPage{
         });
         return btn;
     }
-    
+
     private JLabel movieposter;
     private String posterpath = "";
     private JLabel posterfilelabel;
-    
+
     private JPanel addmovie(){
         JPanel wrap = new JPanel(new BorderLayout());
         wrap.setBackground(bgcolor);
@@ -376,7 +376,7 @@ public class AdminPage{
         
         return true;
     }
-    
+
     private JTable movieTable;
     private DefaultTableModel tableModel;
   
@@ -465,7 +465,6 @@ public class AdminPage{
         // Hall
         form.add(fieldLabel("Hall Number"));
         form.add(Box.createVerticalStrut(4));
-//        schedulehallbox = new JComboBox<>(new String[]{"Hall 1", "Hall 2", "Hall 3", "Hall 4", "Hall 5"});
         Map<String, String> hallMap = new TreeMap<>(loadHallType());
         schedulehallbox = new JComboBox<>();
 
@@ -886,7 +885,6 @@ public class AdminPage{
 
         form.add(fieldLabel("Hall Number"));
         form.add(Box.createVerticalStrut(4));
-//        JComboBox<String> hallBox = new JComboBox<>(new String[]{"Hall 1", "Hall 2", "Hall 3", "Hall 4", "Hall 5"});
         Map<String, String> hallMap = new TreeMap<>(loadHallType());
         schedulehallbox = new JComboBox<>();
 
