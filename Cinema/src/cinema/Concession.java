@@ -26,7 +26,7 @@ public class Concession {
 
     public Concession(String username) {
         this.username = username;
-        loadstock();
+        loadStock();
         
         frame = new JFrame("TGC Cinema - Concession F&B");
         frame.setSize(500, 700);
@@ -116,14 +116,14 @@ public class Concession {
             layout.show(mainPanel, "MENU");
         });
         
-        JButton historybtn = new JButton("ORDER HISTORY");
-        styleButton(historybtn, panelcolor, TEXT);
-        historybtn.setFont(new Font("Courier New", Font.BOLD, 16));
-        historybtn.setMaximumSize(new Dimension(350, 52));
-        historybtn.setAlignmentX(Component.CENTER_ALIGNMENT);
-        historybtn.setBorder(new EmptyBorder(10, 20, 10, 20));
+        JButton historyBtn = new JButton("ORDER HISTORY");
+        styleButton(historyBtn, panelcolor, TEXT);
+        historyBtn.setFont(new Font("Courier New", Font.BOLD, 16));
+        historyBtn.setMaximumSize(new Dimension(350, 52));
+        historyBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
+        historyBtn.setBorder(new EmptyBorder(10, 20, 10, 20));
         
-        historybtn.addActionListener(e -> historyview());
+        historyBtn.addActionListener(e -> historyView());
         
         selectionView.add(header);
         selectionView.add(title);
@@ -139,7 +139,7 @@ public class Concession {
         selectionView.add(Box.createVerticalGlue());
         selectionView.add(nextBtn);
         selectionView.add(Box.createRigidArea(new Dimension(0, 12)));
-        selectionView.add(historybtn);
+        selectionView.add(historyBtn);
     }
 
     private JComboBox<String> createStyledCombo(String[] items) {
@@ -198,11 +198,11 @@ public class Concession {
         totalLabel.setForeground(TEXT);
         totalLabel.setFont(new Font("Courier New", Font.BOLD, 18));
 
-        JButton continuebtn = new JButton("CONTINUE");
-        styleButton(continuebtn, redcolor, TEXT);
-        continuebtn.setFont(new Font("Courier New", Font.BOLD, 18));
+        JButton continueBtn = new JButton("CONTINUE");
+        styleButton(continueBtn, redcolor, TEXT);
+        continueBtn.setFont(new Font("Courier New", Font.BOLD, 18));
 
-        continuebtn.addActionListener(e -> {
+        continueBtn.addActionListener(e -> {
             if (!basket.isEmpty()) {
                 updateReceiptText();
                 layout.show(mainPanel, "CHECKOUT");
@@ -231,7 +231,7 @@ public class Concession {
         gbc.gridx = 2;
         gbc.weightx = 1;
         gbc.anchor = GridBagConstraints.EAST;
-        footer.add(continuebtn, gbc);
+        footer.add(continueBtn, gbc);
 
         
         menuView.add(header, BorderLayout.NORTH);
@@ -239,7 +239,7 @@ public class Concession {
         menuView.add(footer, BorderLayout.SOUTH);
     }
 
-    private void loadstock() {
+    private void loadStock() {
         try (BufferedReader read = new BufferedReader(new FileReader("FnBStock.txt"))) {
             String line;
 
@@ -259,25 +259,25 @@ public class Concession {
         }
     }
     
-    private void historyview(){
-        JPanel historypanel = new JPanel(new BorderLayout());
-        historypanel.setBackground(BG);
+    private void historyView(){
+        JPanel historyPanel = new JPanel(new BorderLayout());
+        historyPanel.setBackground(BG);
         
         JPanel header = new JPanel(new BorderLayout());
         header.setBackground(BG);
         header.setBorder(new EmptyBorder(10, 10, 10, 10));
         
-        JButton backbtn = new JButton("< Back");
-        styleButton(backbtn, BG, MUTED_TEXT);
-        backbtn.setFont(new Font("Courier New", Font.PLAIN, 15));
-        backbtn.addActionListener(e -> layout.show(mainPanel, "SELECT_DETAILS"));
+        JButton backBtn = new JButton("< Back");
+        styleButton(backBtn, BG, MUTED_TEXT);
+        backBtn.setFont(new Font("Courier New", Font.PLAIN, 15));
+        backBtn.addActionListener(e -> layout.show(mainPanel, "SELECT_DETAILS"));
         
         JLabel title = new JLabel("Order History");
         title.setForeground(TEXT);
         title.setFont(new Font("Courier New", Font.BOLD, 25));
         title.setHorizontalAlignment(SwingConstants.CENTER);
         
-        header.add(backbtn, BorderLayout.WEST);
+        header.add(backBtn, BorderLayout.WEST);
         header.add(title, BorderLayout.CENTER);
         
         JPanel contentPanel = new JPanel();
@@ -285,7 +285,7 @@ public class Concession {
         contentPanel.setBackground(BG);
         contentPanel.setBorder(new EmptyBorder(10, 20, 10, 20));
         
-        loadhistory(contentPanel);
+        loadHistory(contentPanel);
         
         JScrollPane scroll = new JScrollPane(contentPanel);
         scroll.setOpaque(false);
@@ -294,14 +294,14 @@ public class Concession {
         scroll.getVerticalScrollBar().setUnitIncrement(16);
         
         
-        historypanel.add(header, BorderLayout.NORTH);
-        historypanel.add(scroll, BorderLayout.CENTER);
+        historyPanel.add(header, BorderLayout.NORTH);
+        historyPanel.add(scroll, BorderLayout.CENTER);
         
-        mainPanel.add(historypanel, "HISTORY");
+        mainPanel.add(historyPanel, "HISTORY");
         layout.show(mainPanel, "HISTORY");
     }
     
-    private void loadhistory(JPanel panel){
+    private void loadHistory(JPanel panel){
         File file = new File("OrderHistory.txt");
         boolean found = false;
         
@@ -328,7 +328,7 @@ public class Concession {
                     
                 for(List<String> block : blocks){
                         
-                    String orderuser = "";
+                    String orderUser = "";
                     String orderId = "";
                     String cinema = "";
                     String pickup = "";
@@ -338,7 +338,7 @@ public class Concession {
                         
                         for(String l : block){
                             if (l.startsWith("User: ")) {
-                                orderuser = l.substring(6).trim();
+                                orderUser = l.substring(6).trim();
 
                             } else if (l.startsWith("OrderID: ")) {
                                 orderId = l.substring(9).trim();
@@ -360,7 +360,7 @@ public class Concession {
                             }
                         }
                         
-                        if (!orderuser.equals(username)) continue;
+                        if (!orderUser.equals(username)) continue;
  
                         found = true;
                         panel.add(buildHistoryCard(orderId, datetime, cinema, pickup, itemLines, total));
@@ -386,7 +386,7 @@ public class Concession {
     }
     
     private JPanel buildHistoryCard(String orderId, String date, String cinema, String pickup,
-                                    List<String> itemname, String grandTotal) {
+                                    List<String> itemName, String grandTotal) {
         JPanel card = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
@@ -443,7 +443,7 @@ public class Concession {
         itemsPanel.setOpaque(false);
         itemsPanel.setBorder(new EmptyBorder(4, 0, 0, 0));
  
-        for (String itemLine : itemname) {
+        for (String itemLine : itemName) {
             JLabel il = new JLabel("  • " + itemLine);
             il.setForeground(MUTED_TEXT);
             il.setFont(new Font("Courier New", Font.PLAIN, 12));
@@ -474,16 +474,16 @@ public class Concession {
         info.setOpaque(false);
         info.setBorder(new EmptyBorder(15, 10, 10, 10));
         
-        FnbItem currentitem = null;
+        FnbItem currentItem = null;
         
         for(FnbItem i : items){
             if(i.getItemName().equals(name)){
-                currentitem = i;
+                currentItem = i;
                 break;
             }
         }
         
-        String formattedDesc = currentitem.getDescription().replace(" + ", "\n");
+        String formattedDesc = currentItem.getDescription().replace(" + ", "\n");
         
         
         JLabel nl = new JLabel(name, SwingConstants.CENTER);

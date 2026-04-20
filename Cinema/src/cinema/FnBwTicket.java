@@ -9,8 +9,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 public class FnBwTicket {
     private JFrame frame = new JFrame("TGC Cinema - Food and Drinks");
@@ -43,7 +41,7 @@ public class FnBwTicket {
         layout = new CardLayout();
         mainPanel = new JPanel(layout);
 
-        loadstock();
+        loadStock();
         createMenuView();
         createCheckoutView();
 
@@ -436,7 +434,7 @@ public class FnBwTicket {
         totalPriceLabel.setText("RM " + String.format("%.2f",order.calculateTotalPrice()));
     }
 
-    private void loadstock() {
+    private void loadStock() {
         try (BufferedReader read = new BufferedReader(new FileReader("FnBStock.txt"))) {
             String line;
 

@@ -18,7 +18,7 @@ import java.util.*;
 public class MovieDetailPage implements ActionListener {
     private JFrame frame = new JFrame("TGC Cinema - Movie Detail");
     private JFrame homeFrame;
-    private JButton backButton,showtimebutton,dateButton;
+    private JButton backButton, showtimeButton,dateButton;
     private JPanel showTimeContainer;
 
     private final Color background = new Color(0x242424);
@@ -32,8 +32,8 @@ public class MovieDetailPage implements ActionListener {
     private Hall[] hall;
     private ShowTime[] showTime;
 
-    private int hallCount=0;
-    private int showTimeCount = 0;
+    private static int hallCount=0;
+    private static int showTimeCount =0;
 
     public MovieDetailPage (JFrame homeFrame, Movie movieSelected,String username){
         this.username = username;
@@ -125,7 +125,7 @@ public class MovieDetailPage implements ActionListener {
             LocalDate firstDate = seenDates.iterator().next();
             datePanel(firstDate);
         } else {
-            JLabel emptyLabel = new JLabel("No showtimes in the next 7 days.");
+            JLabel emptyLabel = new JLabel("No show times in the next 7 days.");
             emptyLabel.setForeground(textWhite);
             emptyLabel.setFont(new Font("Courier New", Font.BOLD, 14));
             emptyLabel.setHorizontalAlignment(JLabel.CENTER);
@@ -247,19 +247,19 @@ public class MovieDetailPage implements ActionListener {
     }
 
     private JButton showTimeButton(ShowTime showTime, LocalTime startTime, String hallType) {
-        showtimebutton = new JButton(startTime.format(timeFmt) + "  " + hallType);
-        showtimebutton.setBackground(lightGrey);
-        showtimebutton.setBorderPainted(false);
-        showtimebutton.setFocusable(false);
-        showtimebutton.setFont(new Font("Courier New", Font.PLAIN, 13));
-        showtimebutton.setHorizontalAlignment(JButton.CENTER);
-        showtimebutton.addActionListener(e -> callSeatSelect(showTime));
-        showtimebutton.setForeground(textWhite);
-        showtimebutton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        showtimeButton = new JButton(startTime.format(timeFmt) + "  " + hallType);
+        showtimeButton.setBackground(lightGrey);
+        showtimeButton.setBorderPainted(false);
+        showtimeButton.setFocusable(false);
+        showtimeButton.setFont(new Font("Courier New", Font.PLAIN, 13));
+        showtimeButton.setHorizontalAlignment(JButton.CENTER);
+        showtimeButton.addActionListener(e -> callSeatSelect(showTime));
+        showtimeButton.setForeground(textWhite);
+        showtimeButton.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        showtimebutton.setPreferredSize(new Dimension(400, 40));
-        showtimebutton.setMaximumSize(new Dimension(400, 40));
-        return showtimebutton;
+        showtimeButton.setPreferredSize(new Dimension(400, 40));
+        showtimeButton.setMaximumSize(new Dimension(400, 40));
+        return showtimeButton;
     }
 
     private void datePanel(LocalDate date){

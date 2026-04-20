@@ -268,7 +268,7 @@ public class SeatSelection implements ActionListener {
                 }else {
                     JOptionPane.showMessageDialog(null,
                             "You have already assigned a ticket type to every selected seat!",
-                            "Limit Reac hed",
+                            "Limit Reached",
                             JOptionPane.WARNING_MESSAGE);
                 }
             });

@@ -114,7 +114,7 @@ public class AdminPage{
         
         logoutBtn.addActionListener(e -> {
             frame.dispose(); // close admin page
-            new LoginPage(); // go back to login
+            new LoginPage(); // go back to log in
         });
 
         logoutBtn.setAlignmentX(Component.CENTER_ALIGNMENT);

@@ -87,10 +87,10 @@ public class SignUpPage implements ActionListener {
         frame.add(backUserLogin);
     }
     
-    private void saveuser(String username, String password){
+    private void saveUser(String username, String password){
         
-        try (BufferedWriter saveusers = new BufferedWriter(new FileWriter("Users.txt",true))){
-         saveusers.write(username + ","+ password + "\n");
+        try (BufferedWriter saveUsers = new BufferedWriter(new FileWriter("Users.txt",true))){
+         saveUsers.write(username + ","+ password + "\n");
         }catch(IOException e){
             System.out.println("An error occurred");
             e.printStackTrace();
@@ -130,7 +130,7 @@ public class SignUpPage implements ActionListener {
                 JOptionPane.showMessageDialog(frame, "Username already taken! Please change another one", "Sign Up Failed", JOptionPane.ERROR_MESSAGE);
                 return;
             }
-            saveuser(username,password);
+            saveUser(username,password);
             JOptionPane.showMessageDialog(frame, "Account created successfully!", "Sign Up", JOptionPane.INFORMATION_MESSAGE);
             
             frame.dispose();

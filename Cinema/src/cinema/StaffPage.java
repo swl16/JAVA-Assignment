@@ -12,14 +12,15 @@ import java.util.*;
 public class StaffPage {
 
     private JFrame frame;
-    private JPanel staffpanel;
-    private CardLayout cardlayout;
-    private JTextField itemname, price, currentqty, minstockqty, combodetails;
+    private JPanel staffPanel;
+    private CardLayout cardLayout;
+
+    private JTextField itemName, price, currentQty, minStockQty, comboDetails;
     private JComboBox<String> category;
-    private JTable checktable;
-    private DefaultTableModel checkmodel;
-    private JTable reptable;
-    private DefaultTableModel repmodel;
+    private JTable checkTable;
+    private DefaultTableModel checkModel;
+    private JTable repTable;
+    private DefaultTableModel repModel;
 
     private final Color bgcolor = new Color(0x242424);
     private final Color panelcolor = new Color(0x2E2E2E);
@@ -28,11 +29,11 @@ public class StaffPage {
     private final Color textmutedcolor = new Color(0xAAAAAA);
     private final Color cardcolor = new Color(0x363636);
     private final Color redcolor = new Color(0xD44444);
-    private final Color inputbg = new Color(0x1E1E1E);
+    private final Color inputBg = new Color(0x1E1E1E);
     private final Color greencolor = new Color(0x44AA66);
     private final Color hovercolor = new Color(0xE85555);
     
-    private final String fnbfile = "FnBStock.txt";
+    private final String fnbFile = "FnBStock.txt";
 
     public StaffPage(){
         frame = new JFrame("TGC Cinema - Staff Page");
@@ -43,19 +44,19 @@ public class StaffPage {
         frame.getContentPane().setBackground(bgcolor);
         frame.setVisible(true);
 
-        cardlayout = new CardLayout();
-        staffpanel = new JPanel(cardlayout);
-        staffpanel.setBackground(bgcolor);
+        cardLayout = new CardLayout();
+        staffPanel = new JPanel(cardLayout);
+        staffPanel.setBackground(bgcolor);
 
-        staffpanel.add(menu(), "MENU");
-        staffpanel.add(addstock(), "Add_stock");
-        staffpanel.add(checkstock(), "Check_stock");
-        staffpanel.add(replenishstock(), "Replenish_stock");
+        staffPanel.add(menu(), "MENU");
+        staffPanel.add(addStock(), "Add_stock");
+        staffPanel.add(checkStock(), "Check_stock");
+        staffPanel.add(replenishStock(), "Replenish_stock");
         
-        frame.add(staffpanel);
+        frame.add(staffPanel);
         frame.setVisible(true);
 
-        cardlayout.show(staffpanel, "MENU");
+        cardLayout.show(staffPanel, "MENU");
 
     }
 
@@ -79,12 +80,13 @@ public class StaffPage {
             {"ADD F&B ITEM","Add_stock"},{"CHECK STOCK", "Check_stock"}, {"REPLENISH STOCK", "Replenish_stock"}};
 
         for(String[]btn : buttons){
-            JButton b = menubtn(btn[0]);
+            JButton b = menuBtn(btn[0]);
             String card = btn[1];
 
-            b.addActionListener(e -> {cardlayout.show(staffpanel, card);
-            if(card.equals("Check_stock")) refreshchecktable();
-            if(card.equals("Replenish_stock")) loadreptable();
+            b.addActionListener(e -> {
+                cardLayout.show(staffPanel, card);
+            if(card.equals("Check_stock")) refreshCheckTable();
+            if(card.equals("Replenish_stock")) loadRepTable();
             });
 
             inner.add(b);
@@ -107,7 +109,7 @@ public class StaffPage {
         
         logoutBtn.addActionListener(e -> {
             frame.dispose(); // close admin page
-            new LoginPage(); // go back to login
+            new LoginPage(); // go back to log in
         });
 
         logoutBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -120,7 +122,7 @@ public class StaffPage {
 
     }
 
-    private JButton menubtn(String text){
+    private JButton menuBtn(String text){
         JButton btn = new JButton(text);
         btn.setFont(new Font("Courier New", Font.BOLD, 20));
         btn.setForeground(textcolor);
@@ -144,7 +146,7 @@ public class StaffPage {
     
 
     
-    private JPanel addstock () {
+    private JPanel addStock() {
         JPanel page = new JPanel(new BorderLayout());
         page.setBackground(bgcolor);
         page.add(sectionHeader("ADD F&B ITEM", "MENU"), BorderLayout.NORTH);
@@ -154,37 +156,37 @@ public class StaffPage {
         form.setBackground(bgcolor);
         form.setBorder(new EmptyBorder(15,30,15,30));
         
-        itemname = formField(form, "Item Name");
+        itemName = formField(form, "Item Name");
         category = formCombo(form, "Category", new String[] {"Snacks","Drinks","Combo Deals"});
         price = formField(form, "Price (RM)");
         
-        currentqty = formField(form, "Current Quantity");
-        minstockqty = formField(form, "Minimum Stock Quantity");
+        currentQty = formField(form, "Current Quantity");
+        minStockQty = formField(form, "Minimum Stock Quantity");
         
-        combodetails = formField(form, "Combo Items (use + to separate)");
+        comboDetails = formField(form, "Combo Items (use + to separate)");
 
-        combodetails.setVisible(false);
+        comboDetails.setVisible(false);
 
         category.addActionListener(e -> {
             String selected = category.getSelectedItem().toString();
-            combodetails.setVisible(selected.equals("Combo Deals"));
+            comboDetails.setVisible(selected.equals("Combo Deals"));
             form.revalidate();
             form.repaint();
         });
         
-        JPanel btnrow = new JPanel(new FlowLayout(FlowLayout.CENTER,15,5));
-        btnrow.setBackground(bgcolor);
+        JPanel btnRow = new JPanel(new FlowLayout(FlowLayout.CENTER,15,5));
+        btnRow.setBackground(bgcolor);
         
-        JButton clearbtn = styledButton("CLEAR", false);
-        JButton savebtn = styledButton("SAVE", true);
+        JButton clearBtn = styledButton("CLEAR", false);
+        JButton saveBtn = styledButton("SAVE", true);
         
-        clearbtn.addActionListener(e -> clearAddForm());
-        savebtn.addActionListener(e -> savestock());
+        clearBtn.addActionListener(e -> clearAddForm());
+        saveBtn.addActionListener(e -> saveStock());
         
-        btnrow.add(clearbtn);
-        btnrow.add(savebtn);
+        btnRow.add(clearBtn);
+        btnRow.add(saveBtn);
         
-        form.add(btnrow);
+        form.add(btnRow);
         
         JScrollPane scroll = new JScrollPane(form);
         scroll.setBorder(null);
@@ -194,8 +196,8 @@ public class StaffPage {
         return page;
     }
     
-    private void savestock(){
-        String name = itemname.getText().trim();
+    private void saveStock(){
+        String name = itemName.getText().trim();
         if(name.isEmpty()){
             showMsg("Item name is required.",false);
             return;
@@ -203,26 +205,26 @@ public class StaffPage {
         
         String ctg = category.getSelectedItem().toString();
         
-        String itemprice = price.getText().trim();
-        if(!itemprice.matches("\\d+(\\.\\d{1,2})?")){
+        String itemPrice = price.getText().trim();
+        if(!itemPrice.matches("\\d+(\\.\\d{1,2})?")){
             showMsg("Price must be a valid number",false);
             return;
         }
         
-        String qty = currentqty.getText().trim();
+        String qty = currentQty.getText().trim();
         if(!qty.matches("\\d+")){
             showMsg("Quantity must be a whole number",false);
             return;
         }
         
-        String minqty = minstockqty.getText().trim();
-        if(!minqty.matches("\\d+")){
+        String minQty = minStockQty.getText().trim();
+        if(!minQty.matches("\\d+")){
             showMsg("Minimum stock must be a whole number",false);
             return;
         }
         
         int quantity = Integer.parseInt(qty);
-        int min = Integer.parseInt(minqty);
+        int min = Integer.parseInt(minQty);
         
         if(quantity < min){
                 int confirm = JOptionPane.showConfirmDialog(frame,"\""+ name +"\" stock ("+ quantity + ") is below the minimum level (" + min + "). \n Save anyway?",
@@ -232,7 +234,7 @@ public class StaffPage {
                 }
             }
         
-        try(BufferedReader read = new BufferedReader(new FileReader(fnbfile))){
+        try(BufferedReader read = new BufferedReader(new FileReader(fnbFile))){
             String line;
             
             while((line = read.readLine()) != null){
@@ -250,11 +252,11 @@ public class StaffPage {
         
         String details = "";
         if(ctg.equals("Combo Deals")){
-            details = combodetails.getText().trim();
+            details = comboDetails.getText().trim();
         }
         
-        try(BufferedWriter saveItem = new BufferedWriter(new FileWriter(fnbfile, true))){
-            saveItem.write(name + "|" + ctg + "|" + itemprice + "|" + qty + "|" + minqty + "|" + today + "|" + details);
+        try(BufferedWriter saveItem = new BufferedWriter(new FileWriter(fnbFile, true))){
+            saveItem.write(name + "|" + ctg + "|" + itemPrice + "|" + qty + "|" + minQty + "|" + today + "|" + details);
             
             saveItem.newLine();
             showMsg("Item saved successfully", true);
@@ -266,41 +268,41 @@ public class StaffPage {
         }
     }
 
-    private JPanel checkstock(){
+    private JPanel checkStock(){
         JPanel page = new JPanel(new BorderLayout());
         page.setBackground(bgcolor);
         page.add(sectionHeader("CHECK STOCK", "MENU"), BorderLayout.NORTH);
         
-        JPanel filterbar = new JPanel(new BorderLayout(8,0));
-        filterbar.setBackground(panelcolor);
-        filterbar.setBorder(new EmptyBorder(8,15,8,15));
+        JPanel filterBar = new JPanel(new BorderLayout(8,0));
+        filterBar.setBackground(panelcolor);
+        filterBar.setBorder(new EmptyBorder(8,15,8,15));
         
-        JLabel filterlbl = new JLabel("Filter by Category: ");
-        filterlbl.setFont(new Font("Courier NEW", Font.BOLD, 12));
-        filterlbl.setForeground(textcolor);
+        JLabel filterLbl = new JLabel("Filter by Category: ");
+        filterLbl.setFont(new Font("Courier NEW", Font.BOLD, 12));
+        filterLbl.setForeground(textcolor);
         
-        JComboBox<String> filtercombo = new JComboBox<>(
+        JComboBox<String> filterCombo = new JComboBox<>(
             new String[]{"All Categories", "Snacks", "Drinks", "Combo Deals"});
-        styleCombo(filtercombo);
+        styleCombo(filterCombo);
         
-        JButton filterbtn = styledButton("FILTER",false);
+        JButton filterBtn = styledButton("FILTER",false);
         
-        JPanel filterpanel = new JPanel(new FlowLayout(FlowLayout.RIGHT,8,0));
-        filterpanel.setBackground(panelcolor);
-        filterpanel.add(filtercombo);
-        filterpanel.add(filterbtn);
+        JPanel filterPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT,8,0));
+        filterPanel.setBackground(panelcolor);
+        filterPanel.add(filterCombo);
+        filterPanel.add(filterBtn);
         
-        filterbar.add(filterlbl, BorderLayout.WEST);
-        filterbar.add(filterpanel, BorderLayout.EAST);
+        filterBar.add(filterLbl, BorderLayout.WEST);
+        filterBar.add(filterPanel, BorderLayout.EAST);
         
         String[] cols = {"ITEM NAME","CATEGORY","PRICE(RM)","QUANTITY","MIN STOCK","STATUS","DETAILS"};
-        checkmodel = new DefaultTableModel(cols,0){
+        checkModel = new DefaultTableModel(cols,0){
             public boolean isCellEditable(int r, int c){return false;}
         };
-        checktable = new JTable(checkmodel);
-        styleTable(checktable);
+        checkTable = new JTable(checkModel);
+        styleTable(checkTable);
         
-        checktable.setDefaultRenderer(Object.class, new DefaultTableCellRenderer(){
+        checkTable.setDefaultRenderer(Object.class, new DefaultTableCellRenderer(){
             public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean focus,
                     int row, int col){
                 
@@ -330,7 +332,7 @@ public class StaffPage {
             }
         });
         
-        JScrollPane scroll = new JScrollPane(checktable);
+        JScrollPane scroll = new JScrollPane(checkTable);
         styleScrollBar(scroll);
         scroll.getViewport().setBackground(bgcolor);
         
@@ -340,32 +342,32 @@ public class StaffPage {
         
         JPanel label = new JPanel(new FlowLayout(FlowLayout.LEFT,16,6));
         label.setBackground(panelcolor);
-        label.add(colorlabel("● OK",greencolor));
-        label.add(colorlabel("● LOW",new Color(0xFFAA33)));
-        label.add(colorlabel("● OUT OF STOCK", redcolor));
+        label.add(colorLabel("● OK",greencolor));
+        label.add(colorLabel("● LOW",new Color(0xFFAA33)));
+        label.add(colorLabel("● OUT OF STOCK", redcolor));
         
-        JPanel btnrow = new JPanel(new FlowLayout(FlowLayout.CENTER,12,6));
-        btnrow.setBackground(panelcolor);
+        JPanel btnRow = new JPanel(new FlowLayout(FlowLayout.CENTER,12,6));
+        btnRow.setBackground(panelcolor);
         
-        JButton editbtn = styledButton("EDIT",true);
-        editbtn.addActionListener(e -> edititem());
+        JButton editBtn = styledButton("EDIT",true);
+        editBtn.addActionListener(e -> editItem());
         
         
         JButton delete = styledButton("DELETE",false);
         delete.addActionListener(e -> {
-            int row = checktable.getSelectedRow();
+            int row = checkTable.getSelectedRow();
             if(row<0){
                 showMsg("Please select an item",false);
                 return;
             }
-            String name = checkmodel.getValueAt(row, 0).toString();
+            String name = checkModel.getValueAt(row, 0).toString();
             
             int confirm = JOptionPane.showConfirmDialog(frame, "Delete \"" + name + "\" from stock?","Confirm Delete",JOptionPane.YES_NO_OPTION);
             
             if(confirm == JOptionPane.YES_OPTION){
                 ArrayList<String[]> fnb = new ArrayList<>();
                 
-                try (BufferedReader br = new BufferedReader(new FileReader(fnbfile))) {
+                try (BufferedReader br = new BufferedReader(new FileReader(fnbFile))) {
                     String line;
                     while ((line = br.readLine()) != null) {
                         String[] details = line.split("\\|", -1);
@@ -383,7 +385,7 @@ public class StaffPage {
                     return;
                 }
                 
-                try (BufferedWriter bw = new BufferedWriter(new FileWriter(fnbfile))) {
+                try (BufferedWriter bw = new BufferedWriter(new FileWriter(fnbFile))) {
                     for (String[] m : fnb) {
                         bw.write(String.join("|", m));
                         bw.newLine();
@@ -393,48 +395,48 @@ public class StaffPage {
                     return;
                 }
                 
-                refreshchecktable();
+                refreshCheckTable();
                 showMsg("Item deleted successfully!", true);
             }
             
         });
-        btnrow.add(editbtn);
-        btnrow.add(delete);
+        btnRow.add(editBtn);
+        btnRow.add(delete);
         
         south.add(label, BorderLayout.NORTH);
-        south.add(btnrow, BorderLayout.CENTER);
+        south.add(btnRow, BorderLayout.CENTER);
         
-        filtercombo.addActionListener(e -> {
-            String selected = filtercombo.getSelectedItem().toString();
+        filterCombo.addActionListener(e -> {
+            String selected = filterCombo.getSelectedItem().toString();
             filterStock(selected);
         });
         
         JPanel center = new JPanel(new BorderLayout());
         center.setBackground(bgcolor);
-        center.add(filterbar, BorderLayout.NORTH);
+        center.add(filterBar, BorderLayout.NORTH);
         center.add(scroll, BorderLayout.CENTER);
         
         page.add(center, BorderLayout.CENTER);
         page.add(south,BorderLayout.SOUTH);
         
-        refreshchecktable();
+        refreshCheckTable();
         
         return page;
     }
     
-    private void edititem(){
-        int row = checktable.getSelectedRow();
+    private void editItem(){
+        int row = checkTable.getSelectedRow();
         
         if (row < 0) {
             showMsg("Please select an item to edit.", false);
             return;
         }
         
-        String selecteditem = checkmodel.getValueAt(row, 0).toString();
+        String selectedItem = checkModel.getValueAt(row, 0).toString();
         
         String[] itemDetails = null;
         
-        File file = new File(fnbfile);
+        File file = new File(fnbFile);
      
         if(!file.exists()){
          showMsg("FnB file not found!",false);
@@ -445,7 +447,7 @@ public class StaffPage {
             String line;
             while ((line = br.readLine()) != null) {
                 String[] details = line.split("\\|", -1);
-                if (details.length == 7 && details[0].equals(selecteditem)) {
+                if (details.length == 7 && details[0].equals(selectedItem)) {
                     itemDetails = details;
                     break;
                 }
@@ -526,37 +528,37 @@ public class StaffPage {
         
         saveButton.addActionListener(e -> {
             
-            String editname = itemField.getText().trim();
-            String editctg = ctg.getSelectedItem().toString();
-            String editprice = priceField.getText().trim();
-            String combo = "Combo Deals".equals(editctg) ? comboField.getText().trim() : "";
+            String editName = itemField.getText().trim();
+            String editCtg = ctg.getSelectedItem().toString();
+            String editPrice = priceField.getText().trim();
+            String combo = "Combo Deals".equals(editCtg) ? comboField.getText().trim() : "";
             
-            if(editname.isEmpty()){
+            if(editName.isEmpty()){
                 showMsg("Item name is required.",false);
                 return;
             }
             
-            if(!editprice.matches("\\d+(\\.\\d{1,2})?")){
+            if(!editPrice.matches("\\d+(\\.\\d{1,2})?")){
                 showMsg("Price must be a valid number",false);
                 return;
             }
             
-            ArrayList<String[]> allitems = new ArrayList<>();
+            ArrayList<String[]> allItems = new ArrayList<>();
 
-            try (BufferedReader br = new BufferedReader(new FileReader(fnbfile))) {
+            try (BufferedReader br = new BufferedReader(new FileReader(fnbFile))) {
                 String line;
                 while ((line = br.readLine()) != null) {
                     String[] details = line.split("\\|", -1);
                         if (details.length == 7) {
-                            if (details[0].equals(selecteditem)) {
-                            allitems.add(new String[]{
-                            editname, editctg, editprice, details[3],
+                            if (details[0].equals(selectedItem)) {
+                            allItems.add(new String[]{
+                                    editName, editCtg, editPrice, details[3],
                             details[4],
                             new SimpleDateFormat("dd/MM/yyyy HH:mm").format(new Date()),
                             combo
                             });
                             } else {
-                                allitems.add(details);
+                                allItems.add(details);
                             }
                         }
                 }
@@ -565,8 +567,8 @@ public class StaffPage {
                 return;
             }
         
-            try (BufferedWriter bw = new BufferedWriter(new FileWriter(fnbfile))) {
-                for (String[] m : allitems) {
+            try (BufferedWriter bw = new BufferedWriter(new FileWriter(fnbFile))) {
+                for (String[] m : allItems) {
                     bw.write(String.join("|", m));
                     bw.newLine();
                 }
@@ -576,8 +578,8 @@ public class StaffPage {
             }
         
         
-            refreshchecktable();
-            loadreptable();
+            refreshCheckTable();
+            loadRepTable();
             showMsg("Item updated successfully!", true);
             editDialog.dispose();
         });
@@ -591,7 +593,7 @@ public class StaffPage {
     
 
     
-    private JPanel replenishstock(){
+    private JPanel replenishStock(){
         JPanel page = new JPanel(new BorderLayout());
         page.setBackground(bgcolor);
         page.add(sectionHeader("REPLENISH STOCK", "MENU"), BorderLayout.NORTH);
@@ -601,11 +603,11 @@ public class StaffPage {
         form.setBackground(panelcolor);
         form.setBorder(new EmptyBorder(8,15,8,15));
         
-        JLabel formtitle = new JLabel("QUICK REPLENISH - Select a row to replenish.");
-        formtitle.setFont(new Font("Courier New", Font.BOLD, 13));
-        formtitle.setForeground(redcolor);
-        formtitle.setAlignmentX(Component.LEFT_ALIGNMENT);
-        form.add(formtitle);
+        JLabel formTitle = new JLabel("QUICK REPLENISH - Select a row to replenish.");
+        formTitle.setFont(new Font("Courier New", Font.BOLD, 13));
+        formTitle.setForeground(redcolor);
+        formTitle.setAlignmentX(Component.LEFT_ALIGNMENT);
+        form.add(formTitle);
         form.add(Box.createVerticalStrut(10));
         
         JPanel row = new JPanel(new GridLayout(1,4,8,0));
@@ -613,33 +615,33 @@ public class StaffPage {
         row.setAlignmentX(Component.LEFT_ALIGNMENT);
         row.setMaximumSize(new Dimension(Integer.MAX_VALUE,50));
         
-        JPanel itempanel = new JPanel(new BorderLayout(0,3));
-        itempanel.setBackground(panelcolor);
+        JPanel itemPanel = new JPanel(new BorderLayout(0,3));
+        itemPanel.setBackground(panelcolor);
         
-        JLabel itemlabel = new JLabel("Selected Item");
-        itemlabel.setFont(new Font("Courier New", Font.PLAIN, 13));
-        itemlabel.setForeground(textcolor);
+        JLabel itemLabel = new JLabel("Selected Item");
+        itemLabel.setFont(new Font("Courier New", Font.PLAIN, 13));
+        itemLabel.setForeground(textcolor);
         
-        JTextField itemfield = new JTextField("select a row");
-        itemfield.setEditable(false);
-        styleTextField(itemfield);
-        itemfield.setForeground(textmutedcolor);
+        JTextField itemField = new JTextField("select a row");
+        itemField.setEditable(false);
+        styleTextField(itemField);
+        itemField.setForeground(textmutedcolor);
         
-        itempanel.add(itemlabel,BorderLayout.NORTH);
-        itempanel.add(itemfield, BorderLayout.CENTER);
+        itemPanel.add(itemLabel,BorderLayout.NORTH);
+        itemPanel.add(itemField, BorderLayout.CENTER);
         
-        JPanel addqty = new JPanel(new BorderLayout(0,3));
-        addqty.setBackground(panelcolor);
+        JPanel addQty = new JPanel(new BorderLayout(0,3));
+        addQty.setBackground(panelcolor);
         
-        JLabel addlabel = new JLabel("Add Quantity");
-        addlabel.setFont(new Font("Courier New", Font.PLAIN, 13));
-        addlabel.setForeground(textcolor);
+        JLabel addLabel = new JLabel("Add Quantity");
+        addLabel.setFont(new Font("Courier New", Font.PLAIN, 13));
+        addLabel.setForeground(textcolor);
         
-        JTextField addfield = new JTextField("0");
-        styleTextField(addfield);
+        JTextField addField = new JTextField("0");
+        styleTextField(addField);
         
-        addqty.add(addlabel, BorderLayout.NORTH);
-        addqty.add(addfield, BorderLayout.CENTER);
+        addQty.add(addLabel, BorderLayout.NORTH);
+        addQty.add(addField, BorderLayout.CENTER);
         
         JPanel minPanel = new JPanel(new BorderLayout(0, 3));
         minPanel.setBackground(panelcolor);
@@ -654,29 +656,29 @@ public class StaffPage {
         minPanel.add(minLbl, BorderLayout.NORTH);
         minPanel.add(repMinField, BorderLayout.CENTER);
         
-        JPanel addbtnpanel = new JPanel(new BorderLayout(0,3));
-        addbtnpanel.setBackground(panelcolor);
-        addbtnpanel.add(new JLabel(" "), BorderLayout.NORTH);
+        JPanel addBtnPanel = new JPanel(new BorderLayout(0,3));
+        addBtnPanel.setBackground(panelcolor);
+        addBtnPanel.add(new JLabel(" "), BorderLayout.NORTH);
         
-        JButton addbtn = styledButton("ADD STOCK",true);
-        addbtn.setEnabled(false);
-        addbtnpanel.add(addbtn, BorderLayout.CENTER);
+        JButton addBtn = styledButton("ADD STOCK",true);
+        addBtn.setEnabled(false);
+        addBtnPanel.add(addBtn, BorderLayout.CENTER);
         
-        row.add(itempanel);
-        row.add(addqty);
+        row.add(itemPanel);
+        row.add(addQty);
         row.add(minPanel);
-        row.add(addbtnpanel);
+        row.add(addBtnPanel);
         
         form.add(row);
         
         String[] cols = {"Item Name", "Category","Current QTY","Min Stock","Status","Last Updated"};
-        repmodel = new DefaultTableModel(cols,0){
+        repModel = new DefaultTableModel(cols,0){
             public boolean isCellEditable(int r, int c){return false;}
         };
-        reptable = new JTable(repmodel);
-        styleTable(reptable);
+        repTable = new JTable(repModel);
+        styleTable(repTable);
         
-        reptable.setDefaultRenderer(Object.class, new DefaultTableCellRenderer(){
+        repTable.setDefaultRenderer(Object.class, new DefaultTableCellRenderer(){
             public Component getTableCellRendererComponent(JTable t, Object val, boolean select, boolean focus, int row2, int col){
                 
                 Component c = super.getTableCellRendererComponent(t, val, select, focus, row2, col);
@@ -705,21 +707,21 @@ public class StaffPage {
             }
         });
         
-        reptable.getSelectionModel().addListSelectionListener(ex ->{
+        repTable.getSelectionModel().addListSelectionListener(ex ->{
             if(!ex.getValueIsAdjusting()){
-                int selrow = reptable.getSelectedRow();
-                if(selrow >= 0){
-                    String itemName = String.valueOf(repmodel.getValueAt(selrow,0));
-                    itemfield.setText(itemName);
-                    itemfield.setForeground(textcolor);
+                int selRow = repTable.getSelectedRow();
+                if(selRow >= 0){
+                    String itemName = String.valueOf(repModel.getValueAt(selRow,0));
+                    itemField.setText(itemName);
+                    itemField.setForeground(textcolor);
                     
-                    repMinField.setText(String.valueOf(repmodel.getValueAt(selrow, 3)));
-                    addbtn.setEnabled(true);
+                    repMinField.setText(String.valueOf(repModel.getValueAt(selRow, 3)));
+                    addBtn.setEnabled(true);
                 }
             }
         });
         
-        JScrollPane scroll = new JScrollPane(reptable);
+        JScrollPane scroll = new JScrollPane(repTable);
         styleScrollBar(scroll);
         scroll.getViewport().setBackground(bgcolor);
         
@@ -733,11 +735,11 @@ public class StaffPage {
         
         JPanel label = new JPanel(new FlowLayout(FlowLayout.LEFT,16,6));
         label.setBackground(panelcolor);
-        label.add(colorlabel("● OK",greencolor));
-        label.add(colorlabel("● LOW",new Color(0xFFAA33)));
-        label.add(colorlabel("● OUT OF STOCK", redcolor));
+        label.add(colorLabel("● OK",greencolor));
+        label.add(colorLabel("● LOW",new Color(0xFFAA33)));
+        label.add(colorLabel("● OUT OF STOCK", redcolor));
         
-        addbtn.addActionListener(e -> replenishitem(itemfield,addfield,repMinField));
+        addBtn.addActionListener(e -> replenishItem(itemField,addField,repMinField));
         
         JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.CENTER,15,10));
         bottomPanel.setBackground(panelcolor);
@@ -745,11 +747,11 @@ public class StaffPage {
         JButton clearBtn = styledButton("CLEAR", false);
         
         clearBtn.addActionListener(e -> {
-        itemfield.setText("select a row");
-        itemfield.setForeground(textmutedcolor);
-        addfield.setText("0");
+        itemField.setText("select a row");
+        itemField.setForeground(textmutedcolor);
+        addField.setText("0");
         repMinField.setText("");
-        reptable.clearSelection();
+        repTable.clearSelection();
         });
         
         south.add(label, BorderLayout.NORTH);
@@ -761,19 +763,19 @@ public class StaffPage {
         south.add(Box.createVerticalStrut(10));
         south.add(bottomPanel);
 
-        loadreptable();
+        loadRepTable();
         
         return page;
     }
     
     
     
-    private void refreshchecktable(){
-        if(checkmodel == null) return;
+    private void refreshCheckTable(){
+        if(checkModel == null) return;
         
-        checkmodel.setRowCount(0);
+        checkModel.setRowCount(0);
         
-        File file = new File(fnbfile);
+        File file = new File(fnbFile);
         if(!file.exists()) return;
         
         try(BufferedReader read = new BufferedReader(new FileReader(file))){
@@ -796,7 +798,7 @@ public class StaffPage {
                 
                 String detail = (details.length > 6) ? details[6] : "";
 
-                checkmodel.addRow(new Object[]{
+                checkModel.addRow(new Object[]{
                     details[0],      // name
                     details[1],      // category
                     details[2],      // price
@@ -812,9 +814,9 @@ public class StaffPage {
     }
     
     private void filterStock(String categoryFilter){
-        checkmodel.setRowCount(0); // clear table
+        checkModel.setRowCount(0); // clear table
 
-        File file = new File(fnbfile);
+        File file = new File(fnbFile);
         if(!file.exists()) return;
 
         try(BufferedReader read = new BufferedReader(new FileReader(file))){
@@ -842,7 +844,7 @@ public class StaffPage {
                         status = "OK";
                     }
 
-                    checkmodel.addRow(new Object[]{
+                    checkModel.addRow(new Object[]{
                         data[0], data[1], data[2], qty, min, status, data[6]
                     });
                 }
@@ -853,14 +855,14 @@ public class StaffPage {
         }
     }
     
-    private void replenishitem(JTextField itemfield, JTextField addfield, JTextField repMinField){
-        String itemName = itemfield.getText().trim();
+    private void replenishItem(JTextField itemField, JTextField addField, JTextField repMinField){
+        String itemName = itemField.getText().trim();
         if(itemName.isEmpty() || itemName.equals("select a row")){
             showMsg("Please select an item from the table",false);
             return;
         }
         
-        String addqty = addfield.getText().trim();
+        String addqty = addField.getText().trim();
         if(!addqty.matches("\\d+")){
             showMsg("Add quantity must be a positive number.",false);
             return;
@@ -881,7 +883,7 @@ public class StaffPage {
         ArrayList<String[]> items = new ArrayList<>();
         boolean found = false;
         
-        try(BufferedReader read = new BufferedReader(new FileReader(fnbfile))){
+        try(BufferedReader read = new BufferedReader(new FileReader(fnbFile))){
             String line;
             
             while((line = read.readLine())!= null){
@@ -912,7 +914,7 @@ public class StaffPage {
             return;
         }
         
-        try(BufferedWriter wr = new BufferedWriter(new FileWriter(fnbfile))){
+        try(BufferedWriter wr = new BufferedWriter(new FileWriter(fnbFile))){
             for(String[] item : items){
                 wr.write(String.join("|", item));
                 wr.newLine();
@@ -922,18 +924,18 @@ public class StaffPage {
             return;
         }
         
-        refreshchecktable();
-        loadreptable();
-        addfield.setText("0");
+        refreshCheckTable();
+        loadRepTable();
+        addField.setText("0");
         
         showMsg("Added "+ addQty + " units to \"" + itemName + "\".", true);
     }
 
-    private void loadreptable(){
-        if (repmodel == null) return;
-        repmodel.setRowCount(0);
+    private void loadRepTable(){
+        if (repModel == null) return;
+        repModel.setRowCount(0);
 
-        File file = new File(fnbfile);
+        File file = new File(fnbFile);
         if(!file.exists()) return;
 
         try(BufferedReader read = new BufferedReader(new FileReader(file))){
@@ -955,7 +957,7 @@ public class StaffPage {
                     status = "OK";
                 }
 
-                repmodel.addRow(new Object[]{
+                repModel.addRow(new Object[]{
                     data[0],data[1],data[3],data[4],status,data[5]
                 });
             }
@@ -970,8 +972,8 @@ public class StaffPage {
         p.setBackground(panelcolor);
         p.setBorder(new EmptyBorder(15,15,15,15));
         
-        JButton backbtn = styledButton("← BACK",false);
-        backbtn.addActionListener(e -> cardlayout.show(staffpanel,backCard));
+        JButton backBtn = styledButton("← BACK",false);
+        backBtn.addActionListener(e -> cardLayout.show(staffPanel,backCard));
         
         JLabel lbl = new JLabel("  " + title);
         lbl.setFont(new Font("Courier New", Font.BOLD, 16));
@@ -979,7 +981,7 @@ public class StaffPage {
         
         JPanel left = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
         left.setBackground(panelcolor);
-        left.add(backbtn);
+        left.add(backBtn);
 
         JPanel center = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
         center.setBackground(panelcolor);
@@ -991,23 +993,23 @@ public class StaffPage {
         return p;
     }
 
-    private JTextField formField(JPanel formpanel, String label){
-        formpanel.add(fieldLabel(label));
-        formpanel.add(Box.createVerticalStrut(4));
+    private JTextField formField(JPanel formPanel, String label){
+        formPanel.add(fieldLabel(label));
+        formPanel.add(Box.createVerticalStrut(4));
         JTextField text = new JTextField();
         styleTextField(text);
-        formpanel.add(text);
-        formpanel.add(Box.createVerticalStrut(10));
+        formPanel.add(text);
+        formPanel.add(Box.createVerticalStrut(10));
         return text;
     }
 
-    private JComboBox<String> formCombo(JPanel formpanel, String label, String[] options){
-        formpanel.add(fieldLabel(label));
-        formpanel.add(Box.createVerticalStrut(4));
+    private JComboBox<String> formCombo(JPanel formPanel, String label, String[] options){
+        formPanel.add(fieldLabel(label));
+        formPanel.add(Box.createVerticalStrut(4));
         JComboBox<String> choice = new JComboBox<>(options);
         styleCombo(choice);
-        formpanel.add(choice);
-        formpanel.add(Box.createVerticalStrut(10));
+        formPanel.add(choice);
+        formPanel.add(Box.createVerticalStrut(10));
         return choice;
     }
 
@@ -1034,7 +1036,7 @@ public class StaffPage {
 
 
     private void styleCombo(JComboBox<String> combo) {
-        combo.setBackground(inputbg);
+        combo.setBackground(inputBg);
         combo.setForeground(textcolor);
         combo.setFont(new Font("Courier New", Font.PLAIN, 13));
         combo.setBorder(new LineBorder(bordercolor));
@@ -1044,7 +1046,7 @@ public class StaffPage {
             public Component getListCellRendererComponent(JList<?> l, Object v,
                     int i, boolean sel, boolean foc) {
                 super.getListCellRendererComponent(l, v, i, sel, foc);
-                setBackground(sel ? redcolor : inputbg);
+                setBackground(sel ? redcolor : inputBg);
                 setForeground(textcolor);
                 setFont(new Font("Courier New", Font.PLAIN, 13));
                 setBorder(new EmptyBorder(4, 8, 4, 8));
@@ -1055,7 +1057,7 @@ public class StaffPage {
 
 
     private void styleTable(JTable table) {
-        table.setBackground(inputbg);
+        table.setBackground(inputBg);
         table.setForeground(textcolor);
         table.setFont(new Font("Courier New", Font.PLAIN, 12));
         table.setGridColor(bordercolor);
@@ -1105,7 +1107,7 @@ public class StaffPage {
         return btn;
     }
     
-    private JLabel colorlabel(String text, Color color){
+    private JLabel colorLabel(String text, Color color){
         JLabel lbl = new JLabel(text);
         lbl.setFont(new Font("Courier New", Font.PLAIN, 13));
         lbl.setForeground(color);
@@ -1113,12 +1115,12 @@ public class StaffPage {
     }
 
     private void clearAddForm(){
-        itemname.setText("");
+        itemName.setText("");
         category.setSelectedIndex(0);
         price.setText("");
-        currentqty.setText("");
-        minstockqty.setText("");
-        combodetails.setText("");
+        currentQty.setText("");
+        minStockQty.setText("");
+        comboDetails.setText("");
     }
 
     private void showMsg(String msg, boolean success) {
