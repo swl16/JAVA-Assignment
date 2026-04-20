@@ -9,10 +9,10 @@ Date: 17/04/2026 00:33
 --------------
 ----ORDER----
 User: tang
-OrderID: TGC-20260420-4BDF9230
+OrderID: TGC-20260420-E6CB527F
 Cinema: TGC Mit Valley
-Pick Up: Today
-Combo 2 x1 (RM 22.00)
-Total: RM 22.00
-Date: 20/04/2026 14:51
+Pick Up: Monday, 20 Apr
+Caramel Popcorn x1 (RM 12.00)
+Total: RM 12.00
+Date: 20/04/2026 22:00
 --------------
