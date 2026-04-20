@@ -698,17 +698,75 @@ public class SubWindowProfile extends JFrame implements ActionListener {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
 
-        try (BufferedReader readUser = new BufferedReader(new FileReader("BookingDetail.txt"))) {
+    private void deleteOrderHistory(){
+        //delete Food Order History
+        File file = new File("OrderHistory.txt");
+        if (!file.exists()) return;
+
+        List<String> allLinesToKeep = new ArrayList<>();
+
+        try(BufferedReader read = new BufferedReader(new FileReader(file))){
+            List<String> blocks = new ArrayList<>();
+
             String line;
-            while ((line = readUser.readLine()) != null) {
-                String[] parts = line.split(",");
-                if (!parts[0].equals(username)) {
-                    lines.add(line);
+            while((line = read.readLine()) != null){
+                blocks.add(line);
+                if (line.startsWith("--------------")) {
+                    boolean isOtherUser = true;
+                    for (String blockLine : blocks) {
+                        if (blockLine.equals("User: " + username)) {
+                            isOtherUser = false;
+                            break;
+                        }
+                    }
+
+                    if (isOtherUser) {
+                        allLinesToKeep.addAll(blocks);
+                    }
+
+                    blocks.clear();
+                }
+            }
+
+        }catch(IOException e){
+            e.printStackTrace();
+        }
+
+        try(BufferedWriter wr = new BufferedWriter(new FileWriter(file, false))){
+            for (String line : allLinesToKeep) {
+                wr.write(line);
+                wr.newLine();
+            }
+
+        }catch(IOException e){
+            e.printStackTrace();
+        }
+
+        //Delete Ticket Movie History
+        List<String> recordWanted = new ArrayList<>();
+        try (BufferedReader readLine = new BufferedReader(new FileReader("BookingDetail.txt"))) {
+            String line;
+            while ((line = readLine.readLine()) != null) {
+                if (line.trim().isEmpty()) continue;
+                String[] parts = line.split("\\|", -1);
+
+                if (!parts[1].equalsIgnoreCase(username)){
+                    recordWanted.add(line);
                 }
             }
         } catch (IOException e) {
-            System.out.println("Error reading users file");
+            System.out.println("Error reading booking file");
+        }
+
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("BookingDetail.txt"))) {
+            for (String l : recordWanted) {
+                writer.write(l);
+                writer.newLine();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -721,6 +779,7 @@ public class SubWindowProfile extends JFrame implements ActionListener {
             int choice = JOptionPane.showConfirmDialog(null, "This action will permanently delete your account, along with all of your information. Are you sure you want to delete your account?", "Delete Account", JOptionPane.YES_NO_OPTION);
             if (choice == JOptionPane.YES_OPTION) {
                 deleteAccount();
+                deleteOrderHistory();
                 JOptionPane.showMessageDialog(null, "Your account is deleted successfully!");
                 frame.dispose();
                 new LoginPage();
