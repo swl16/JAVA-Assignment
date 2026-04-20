@@ -92,15 +92,9 @@ public class Concession {
 
         JComboBox<String> regionBox = createStyledCombo(new String[]{"Klang Valley"});
         JComboBox<String> cinemaBox = createStyledCombo(new String[]{"TGC Mit Valley"});
-        JComboBox<String> typeBox = createStyledCombo(new String[]{"Collect Today", "Schedule for Later"});
         JComboBox<String> dateBox = createStyledCombo(getNextSevenDays());
-        dateBox.setVisible(false);
+        dateBox.setVisible(true);
 
-        typeBox.addActionListener(e -> {
-            dateBox.setVisible(typeBox.getSelectedIndex() == 1);
-            selectionView.revalidate();
-            selectionView.repaint();
-        });
 
         JButton nextBtn = new JButton("START ORDERING");
         styleButton(nextBtn, redcolor, TEXT);
@@ -112,7 +106,7 @@ public class Concession {
         nextBtn.addActionListener(e -> {
             selRegion = (String) regionBox.getSelectedItem();
             selCinema = (String) cinemaBox.getSelectedItem();
-            selTime = typeBox.getSelectedIndex() == 0 ? "Today" : (String) dateBox.getSelectedItem();
+            selTime = (String) dateBox.getSelectedItem();
             layout.show(mainPanel, "MENU");
         });
         
@@ -134,8 +128,7 @@ public class Concession {
         selectionView.add(Box.createRigidArea(new Dimension(0, 28)));
         addInputGroup(selectionView, "SELECT REGION", regionBox);
         addInputGroup(selectionView, "SELECT CINEMA", cinemaBox);
-        addInputGroup(selectionView, "PICKUP TIME", typeBox);
-        selectionView.add(dateBox);
+        addInputGroup(selectionView, "PICKUP DATE", dateBox);
         selectionView.add(Box.createVerticalGlue());
         selectionView.add(nextBtn);
         selectionView.add(Box.createRigidArea(new Dimension(0, 12)));
