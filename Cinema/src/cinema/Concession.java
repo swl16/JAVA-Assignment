@@ -14,8 +14,8 @@ public class Concession {
     private CardLayout layout;
     private JLabel totalLabel, footerQtyLabel;
     // UI Theme
-    private final Color BG = new Color(0x121212), CARD = new Color(0x1E1E1E), ACCENT = new Color(0xFFD700),panelcolor = new Color(0x2E2E2E);
-    private final Color TEXT = Color.WHITE, MUTED_TEXT = new Color(0xAAAAAA), INPUT_BG = new Color(0x2A2A2A), redcolor = new Color(0xD44444);
+    private final Color BG = new Color(0x242424), CARD = new Color(0x1E1E1E), ACCENT = new Color(0xFFD700),panelcolor = new Color(0x2E2E2E);
+    private final Color TEXT = new Color(0xF7F7F7), MUTED_TEXT = new Color(0xAAAAAA), INPUT_BG = new Color(0x2A2A2A), redcolor = new Color(0xD44444);
     private final Dimension UI_ELEMENT_SIZE = new Dimension(350, 45);
 
     private Map<String, Integer> basket = new HashMap<>();

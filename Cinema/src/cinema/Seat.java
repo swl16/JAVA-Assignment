@@ -57,10 +57,4 @@ public abstract class Seat {
     public void cancel() {
         status = SeatStatus.AVAILABLE;
     }
-
-    @Override
-    public String toString() {
-        return String.format("Seat %s | Type: %-8s | Price: RM%.2f | Status: %s",
-                getSeatId(), getType(), calculatePrice(), status);
-    }
 }

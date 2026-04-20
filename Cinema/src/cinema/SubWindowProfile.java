@@ -20,8 +20,8 @@ public class SubWindowProfile extends JFrame implements ActionListener {
     private String username;
     private List<String[]> order = new ArrayList<>();
     private List<String[]> orderPast = new ArrayList<>();
-    private String[] seatType = {"Adult", "Student", "Senior", "OKU"};
 
+    private final String[] seatType = {"Adult", "Student", "Senior", "OKU"};
     private final Color background = new Color(0x242424);
     private final Color buttonRed = new Color(0xD44444);
     private final Color textWhite = new Color(0xF7F7F7);
@@ -697,6 +697,18 @@ public class SubWindowProfile extends JFrame implements ActionListener {
             }
         } catch (IOException e) {
             e.printStackTrace();
+        }
+
+        try (BufferedReader readUser = new BufferedReader(new FileReader("BookingDetail.txt"))) {
+            String line;
+            while ((line = readUser.readLine()) != null) {
+                String[] parts = line.split(",");
+                if (!parts[0].equals(username)) {
+                    lines.add(line);
+                }
+            }
+        } catch (IOException e) {
+            System.out.println("Error reading users file");
         }
     }
 

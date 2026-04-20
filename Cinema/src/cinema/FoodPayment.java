@@ -22,8 +22,8 @@ public class FoodPayment{
     private String paymentMethod = "";
 
     // --- Premium Cinema Color Palette ---
-    private final Color bg = new Color(0x121212); // Deeper black
-    private final Color panel = new Color(0x1E1E1E);  // Elevates panels
+    private final Color bg = new Color(0x242424); // Deeper black
+    private final Color panel = new Color(0x3B3B3B);  // Elevates panels
     private final Color gold = new Color(0xFFD700);     // For totals/accents
     private final Color tgcRed = new Color(0xD44444);   // Your brand red
     private final Color softGray = new Color(0xAAAAAA);
@@ -73,13 +73,6 @@ public class FoodPayment{
         frame.add(mainContainer);
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
-        
-        frame.addWindowListener(new java.awt.event.WindowAdapter() {
-            @Override
-            public void windowClosed(java.awt.event.WindowEvent e) {
-                new MainMenuPage(username);
-            }
-        });
     }
 
     // --- VIEW 1: Selection Menu ---
