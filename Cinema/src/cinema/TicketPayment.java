@@ -475,8 +475,8 @@ public class TicketPayment extends JFrame{
             foodData.append("-");
         }else {
             int count = 0;
-            for (Map.Entry<fnbitem, Integer> entry : order.getSelectedFood().entrySet()){
-                foodData.append(entry.getKey().getItemname()).append(":").append(entry.getValue());
+            for (Map.Entry<FnbItem, Integer> entry : order.getSelectedFood().entrySet()){
+                foodData.append(entry.getKey().getItemName()).append(":").append(entry.getValue());
                 if (++count < order.getSelectedFood().size()) foodData.append(",");
             }
         }
@@ -514,10 +514,10 @@ public class TicketPayment extends JFrame{
                 String stockName = data[0];
 
                 // check if this item was purchased
-                for (fnbitem item : order.getSelectedFood().keySet()) {
+                for (FnbItem item : order.getSelectedFood().keySet()) {
                     int qty = order.getSelectedFood().get(item);
 
-                    if (stockName.equalsIgnoreCase(item.getItemname())) {
+                    if (stockName.equalsIgnoreCase(item.getItemName())) {
 
                         int currentQty = Integer.parseInt(data[3]);
                         int newQty = currentQty - qty;

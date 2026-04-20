@@ -9,25 +9,20 @@ import java.io.*;
 import java.util.List;
 
 public class Concession {
-
-    JFrame frame;
-    JPanel mainPanel, menuView, checkoutView, selectionView;
-    CardLayout layout;
-
+    private JFrame frame;
+    private JPanel mainPanel, menuView, checkoutView, selectionView;
+    private CardLayout layout;
+    private JLabel totalLabel, footerQtyLabel;
     // UI Theme
-    final Color BG = new Color(0x121212), CARD = new Color(0x1E1E1E), ACCENT = new Color(0xFFD700),panelcolor = new Color(0x2E2E2E);
-    final Color TEXT = Color.WHITE, MUTED_TEXT = new Color(0xAAAAAA), INPUT_BG = new Color(0x2A2A2A), redcolor = new Color(0xD44444);
-    ;
-    final Dimension UI_ELEMENT_SIZE = new Dimension(350, 45);
+    private final Color BG = new Color(0x121212), CARD = new Color(0x1E1E1E), ACCENT = new Color(0xFFD700),panelcolor = new Color(0x2E2E2E);
+    private final Color TEXT = Color.WHITE, MUTED_TEXT = new Color(0xAAAAAA), INPUT_BG = new Color(0x2A2A2A), redcolor = new Color(0xD44444);
+    private final Dimension UI_ELEMENT_SIZE = new Dimension(350, 45);
 
-    JLabel totalLabel, footerQtyLabel;
-    Map<String, Integer> basket = new HashMap<>();
-    Map<String, Double> prices = new HashMap<>();
-    String selRegion, selCinema, selTime;
-    
-    String username;
-
-    ArrayList<fnbitem> items = new ArrayList<>();
+    private Map<String, Integer> basket = new HashMap<>();
+    private Map<String, Double> prices = new HashMap<>();
+    private String selRegion, selCinema, selTime;
+    private String username;
+    private ArrayList<FnbItem> items = new ArrayList<>();
 
     public Concession(String username) {
         this.username = username;
@@ -257,7 +252,7 @@ public class Concession {
                 double price = Double.parseDouble(parts[2]);
                 String desc = parts.length > 6 ? parts[6] : "";
 
-                items.add(new fnbitem(name, category, price, desc));
+                items.add(new FnbItem(name, category, price, desc));
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -479,16 +474,16 @@ public class Concession {
         info.setOpaque(false);
         info.setBorder(new EmptyBorder(15, 10, 10, 10));
         
-        fnbitem currentitem = null;
+        FnbItem currentitem = null;
         
-        for(fnbitem i : items){
-            if(i.itemname.equals(name)){
+        for(FnbItem i : items){
+            if(i.getItemName().equals(name)){
                 currentitem = i;
                 break;
             }
         }
         
-        String formattedDesc = currentitem.desc.replace(" + ", "\n");
+        String formattedDesc = currentitem.getDescription().replace(" + ", "\n");
         
         
         JLabel nl = new JLabel(name, SwingConstants.CENTER);
@@ -505,10 +500,6 @@ public class Concession {
         descArea.setEditable(false);
         descArea.setFocusable(false);
         descArea.setOpaque(false);
-        
-        if (currentitem != null && currentitem.category.equalsIgnoreCase("Combo Deals")) {
-        descArea.setText(currentitem.desc);
-}
         
         JLabel pl = new JLabel("RM " + String.format("%.2f", price), SwingConstants.CENTER);
         pl.setForeground(TEXT);
@@ -602,11 +593,6 @@ public class Concession {
         header.add(title, BorderLayout.CENTER);
         header.add(Box.createHorizontalStrut(60), BorderLayout.EAST);
         
-//        JPanel details = new JPanel();
-//        details.setLayout(new BoxLayout(details, BoxLayout.Y_AXIS));
-//        details.setBackground(CARD);
-//        details.setBorder(new EmptyBorder(10, 10, 10, 10));
-        
         receiptPanel = new JPanel();
         receiptPanel.setLayout(new BoxLayout(receiptPanel, BoxLayout.Y_AXIS));
         receiptPanel.setBackground(BG);
@@ -694,10 +680,6 @@ public class Concession {
             receiptPanel.add(row);
             receiptPanel.add(Box.createRigidArea(new Dimension(0, 12)));
         }
-        
-//        JSeparator line = new JSeparator();
-//        line.setForeground(new Color(0x444444));
-//        receiptPanel.add(line);
 
         // ===== TOTAL =====
         JPanel totalRow = new JPanel(new BorderLayout());
@@ -726,12 +708,12 @@ public class Concession {
         container.setBackground(BG);
         container.setPreferredSize(new Dimension(420, 650));
 
-        for (fnbitem item : items) {
-            if ((type.equals("snack") && item.category.equalsIgnoreCase("Snacks"))
-                    || (type.equals("drink") && item.category.equalsIgnoreCase("Drinks"))
-                    || (type.equals("combo") && item.category.equalsIgnoreCase("Combo Deals"))) {
+        for (FnbItem item : items) {
+            if ((type.equals("snack") && item.getCategory().equalsIgnoreCase("Snacks"))
+                    || (type.equals("drink") && item.getCategory().equalsIgnoreCase("Drinks"))
+                    || (type.equals("combo") && item.getCategory().equalsIgnoreCase("Combo Deals"))) {
 
-                addMenuCard(container, item.itemname, item.price);
+                addMenuCard(container, item.getItemName(), item.getPrice());
             }
         }
 
@@ -769,25 +751,4 @@ public class Concession {
         return dates;
     }
     
-}
-
-class fnbitem {
-
-    String itemname, category, desc;
-    double price;
-
-    public fnbitem(String itemname, String category, double price, String desc) {
-        this.itemname = itemname;
-        this.category = category;
-        this.price = price;
-        this.desc = desc;
-    }
-
-    public String getItemname() {
-        return itemname;
-    }
-
-    public double getPrice() {
-        return price;
-    }
 }

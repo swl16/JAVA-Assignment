@@ -12,9 +12,9 @@ import java.util.Random;
 import java.io.*;
 
 public class FoodPayment{
-    JFrame frame = new JFrame();
+    private JFrame frame = new JFrame();
     
-    private final ArrayList<Item> basketItems;
+    private final ArrayList<PaymentItem> basketItems;
     private double totalAmount;
     private final CardLayout cardLayout;
     private final JPanel mainContainer;
@@ -48,7 +48,7 @@ public class FoodPayment{
             int qty = basket.get(name);
             double price = prices.get(name);
 
-            basketItems.add(new Item(name, qty, price));
+            basketItems.add(new PaymentItem(name, qty, price));
             total += qty * price;
         }
         this.totalAmount = total;
@@ -368,18 +368,6 @@ public class FoodPayment{
         footer.setBackground(bg);
         footer.setPreferredSize(new Dimension(0, 180));
         footer.setBorder(new MatteBorder(2, 0, 0, 0, new Color(0xEEEEEE)));
-//
-//        JPanel qr = new JPanel(new BorderLayout());
-//        qr.setPreferredSize(new Dimension(100, 100));
-//        qr.setBorder(new LineBorder(Color.BLACK, 2));
-//        try {
-//            ImageIcon raw = new ImageIcon("Cinema/src/cinema/entry_qr.png");
-//            qr.add(new JLabel(new ImageIcon(raw.getImage().getScaledInstance(90, 90, 1))), 0);
-//        } catch(Exception e) { qr.add(new JLabel("QR")); }
-
-//        GridBagConstraints gbc = new GridBagConstraints();
-//        gbc.gridx = 0;
-//        gbc.gridy = 0;
 
         JLabel footerLbl = new JLabel("KEEP THIS RECEIPT FOR FOOD COLLECTION", SwingConstants.CENTER);
         footerLbl.setForeground(new Color(0x888888));
@@ -411,9 +399,9 @@ public class FoodPayment{
     private void updateReceipt() {
         String dt = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
         StringBuilder items = new StringBuilder();
-        for (Item i : basketItems) {
-            String nameQty = String.format(" %-20s %d", i.name, i.quantity);
-            String price   = String.format("RM %6.2f", i.quantity * i.price);
+        for (PaymentItem i : basketItems) {
+            String nameQty = String.format(" %-20s %d", i.getName(), i.getQuantity());
+            String price   = String.format("RM %6.2f", i.getQuantity() * i.getPrice());
             int pad = 44 - nameQty.length() - price.length();
             items.append(nameQty)
                  .append(" ".repeat(Math.max(1, pad)))
@@ -435,7 +423,6 @@ public class FoodPayment{
                         " TOTAL PAID    : RM " + String.format("%.2f", totalAmount) + "\n" +
                         " PAYMENT METHOD: " + paymentMethod + "\n" +
                         "------------------------------------------\n"
-//                        "   KEEP THIS QR FOR FOOD COLLECTION"
         );
         
         saveOrder();
@@ -539,10 +526,10 @@ public class FoodPayment{
             wr.write("Pick Up: " + time);
             wr.newLine();
             
-            for (Item i : basketItems) {
-                double subtotal = i.quantity * i.price;
+            for (PaymentItem i : basketItems) {
+                double subtotal = i.getQuantity() * i.getPrice();
 
-                wr.write(i.name + " x" + i.quantity +
+                wr.write(i.getName() + " x" + i.getQuantity() +
                     " (RM " + String.format("%.2f", subtotal) + ")");
                 wr.newLine();
             }
@@ -578,12 +565,12 @@ public class FoodPayment{
                 String stockName = data[0];
 
                 // check if this item was purchased
-                for (Item i : basketItems) {
+                for (PaymentItem i : basketItems) {
 
-                    if (stockName.equalsIgnoreCase(i.name)) {
+                    if (stockName.equalsIgnoreCase(i.getName())) {
 
                         int currentQty = Integer.parseInt(data[3]);
-                        int newQty = currentQty - i.quantity;
+                        int newQty = currentQty - i.getQuantity();
 
                         // prevent negative stock
                         if (newQty < 0) newQty = 0;
@@ -613,17 +600,5 @@ public class FoodPayment{
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-}
-
-class Item{
-    String name;
-    int quantity;
-    double price;
-    
-    Item(String name, int qty, double price){
-        this.name = name;
-        this.quantity = qty;
-        this.price = price;
     }
 }

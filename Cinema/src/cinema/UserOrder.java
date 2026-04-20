@@ -8,12 +8,12 @@ public class UserOrder {
     private ShowTime showTime;
     private List<Seat> selectedSeats;
     private int[] seatTypeCount;
-    private Map<fnbitem, Integer> selectedFood;
+    private Map<FnbItem, Integer> selectedFood;
     private double ticketTotalPrice;
     private double foodTotalPrice;
     private static final double processingFee = 0.5;
 
-    public UserOrder( String username, Movie movie, ShowTime showTime, List<Seat> selectedSeats,int[] seatTypeCount,Map<fnbitem, Integer> selectedFood,double ticketTotalPrice,double foodTotalPrice){
+    public UserOrder( String username, Movie movie, ShowTime showTime, List<Seat> selectedSeats,int[] seatTypeCount,Map<FnbItem, Integer> selectedFood,double ticketTotalPrice,double foodTotalPrice){
         this.username = username;
         this.movie = movie;
         this.showTime = showTime;
@@ -53,7 +53,7 @@ public class UserOrder {
         return seatTypeCount;
     }
 
-    public Map<fnbitem, Integer> getSelectedFood() {
+    public Map<FnbItem, Integer> getSelectedFood() {
         return selectedFood;
     }
 
@@ -65,11 +65,11 @@ public class UserOrder {
         return foodTotalPrice;
     }
 
-    public void addFoodItem(fnbitem item, int quantity) {
+    public void addFoodItem(FnbItem item, int quantity) {
         selectedFood.put(item, quantity);
     }
 
-    public void removeFood(fnbitem item) {
+    public void removeFood(FnbItem item) {
         selectedFood.remove(item);
     }
 

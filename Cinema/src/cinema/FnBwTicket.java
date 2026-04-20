@@ -27,7 +27,7 @@ public class FnBwTicket {
     private final String[] seatType = {"Adult","Student","Senior","OKU"};
     private UserOrder order;
 
-    private ArrayList<fnbitem> items = new ArrayList<>();
+    private ArrayList<FnbItem> items = new ArrayList<>();
 
     public FnBwTicket(JFrame homeFrame,UserOrder order){
         this.homeFrame = homeFrame;
@@ -104,21 +104,39 @@ public class FnBwTicket {
         menuView.add(footer, BorderLayout.SOUTH);
     }
 
-    private void addMenuCard(JPanel parent, fnbitem item) {
+    private void addMenuCard(JPanel parent, FnbItem item) {
         JPanel card = new JPanel(new BorderLayout());
         card.setBackground(CARD);
         card.setPreferredSize(new Dimension(195, 180));
         card.setBorder(new LineBorder(INPUT_BG, 1));
 
-        JPanel info = new JPanel(new GridLayout(2, 1));
+        JPanel info = new JPanel(new GridLayout(3, 1));
         info.setOpaque(false);
         info.setBorder(new EmptyBorder(15, 10, 10, 10));
-        JLabel nl = new JLabel(item.getItemname(), SwingConstants.CENTER);
+
+        JLabel nl = new JLabel(item.getItemName(), SwingConstants.CENTER);
         nl.setForeground(TEXT);
         nl.setFont(new Font("SansSerif", Font.BOLD, 14));
+
+        String formattedDesc = item.getDescription().replace(" + ", "\n");
+
+        JTextArea descArea = new JTextArea();
+        descArea.setText(formattedDesc);
+        descArea.setForeground(MUTED_TEXT);
+        descArea.setFont(new Font("Courier New", Font.PLAIN, 11));
+        descArea.setBackground(CARD);
+        descArea.setLineWrap(true);
+        descArea.setWrapStyleWord(true);
+        descArea.setEditable(false);
+        descArea.setFocusable(false);
+        descArea.setOpaque(false);
+
         JLabel pl = new JLabel("RM " + String.format("%.2f", item.getPrice()), SwingConstants.CENTER);
         pl.setForeground(TEXT);
-        info.add(nl); info.add(pl);
+
+        info.add(nl);
+        info.add(descArea);
+        info.add(pl);
 
         JPanel actionArea = new JPanel(new CardLayout());
         actionArea.setOpaque(false);
@@ -316,15 +334,15 @@ public class FnBwTicket {
         if (order.getSelectedFood().isEmpty()){
             sbFoodOrder.append("-");
         }else {
-            for (fnbitem item : order.getSelectedFood().keySet()) {
+            for (FnbItem item : order.getSelectedFood().keySet()) {
                 int qty = order.getSelectedFood().get(item);
                 total += (item.getPrice() * qty);
 
                 if (isFirst){
-                    sbFoodOrder.append(item.getItemname()).append(" x ").append(qty);
+                    sbFoodOrder.append(item.getItemName()).append(" x ").append(qty);
                     isFirst = false;
                 }else {
-                    sbFoodOrder.append(" , ").append(item.getItemname()).append(" x ").append(qty);
+                    sbFoodOrder.append(" , ").append(item.getItemName()).append(" x ").append(qty);
                 }
             }
         }
@@ -399,15 +417,15 @@ public class FnBwTicket {
         if (order.getSelectedFood().isEmpty()){
             sbFoodOrder.append("-");
         }else {
-            for (fnbitem item : order.getSelectedFood().keySet()) {
+            for (FnbItem item : order.getSelectedFood().keySet()) {
                 int qty = order.getSelectedFood().get(item);
                 total += (item.getPrice() * qty);
 
                 if (isFirst){
-                    sbFoodOrder.append(item.getItemname()).append(" x ").append(qty);
+                    sbFoodOrder.append(item.getItemName()).append(" x ").append(qty);
                     isFirst = false;
                 }else {
-                    sbFoodOrder.append(" , ").append(item.getItemname()).append(" x ").append(qty);
+                    sbFoodOrder.append(" , ").append(item.getItemName()).append(" x ").append(qty);
                 }
             }
         }
@@ -431,7 +449,7 @@ public class FnBwTicket {
                 double price = Double.parseDouble(parts[2]);
                 String desc = parts.length > 6 ? parts[6] : "";
 
-                items.add(new fnbitem(name, category, price, desc));
+                items.add(new FnbItem(name, category, price, desc));
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -443,10 +461,10 @@ public class FnBwTicket {
         container.setBackground(BG);
         container.setPreferredSize(new Dimension(420, 650));
 
-        for (fnbitem item : items) {
-            if ((type.equals("snack") && item.category.equalsIgnoreCase("Snacks"))
-                    || (type.equals("drink") && item.category.equalsIgnoreCase("Drinks"))
-                    || (type.equals("combo") && item.category.equalsIgnoreCase("Combo Deals"))) {
+        for (FnbItem item : items) {
+            if ((type.equals("snack") && item.getCategory().equalsIgnoreCase("Snacks"))
+                    || (type.equals("drink") && item.getCategory().equalsIgnoreCase("Drinks"))
+                    || (type.equals("combo") && item.getCategory().equalsIgnoreCase("Combo Deals"))) {
 
                 addMenuCard(container, item);
             }
@@ -463,7 +481,7 @@ public class FnBwTicket {
 
     private void updateFooter() {
         double total = 0; int count = 0;
-        for (fnbitem item : order.getSelectedFood().keySet()) {
+        for (FnbItem item : order.getSelectedFood().keySet()) {
             total += (item.getPrice() * order.getSelectedFood().getOrDefault(item, 0));
             count += order.getSelectedFood().getOrDefault(item, 0);
         }
