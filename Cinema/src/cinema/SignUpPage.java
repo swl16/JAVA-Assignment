@@ -101,7 +101,7 @@ public class SignUpPage implements ActionListener {
         try(BufferedReader reader = new BufferedReader(new FileReader("Users.txt"))){
             String line;
             while((line = reader.readLine()) != null){
-                String[] parts = line.split(" , ");
+                String[] parts = line.split(",");
                 if (parts[0].equals(username)){
                     return true;
                 }
