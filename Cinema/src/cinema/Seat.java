@@ -57,4 +57,26 @@ public abstract class Seat {
     public void cancel() {
         status = SeatStatus.AVAILABLE;
     }
+    
+    @Override
+    public String toString(){
+        return getType() + " Seat [" + "ID=" + getSeatId() + ", Price=RM " +
+                String.format("%.2f",calculatePrice()) + ", Status=" + status + "]";
+    }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+
+        if (obj == null || !(obj instanceof Seat)) return false;
+
+        Seat other = (Seat) obj;
+
+        return this.row == other.row && this.column == other.column;
+    }
+    
+    @Override
+    public int hashCode() {
+        return 31 * row + column;
+    }
 }
